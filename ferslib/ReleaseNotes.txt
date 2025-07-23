@@ -1,0 +1,35 @@
+*************************************************************************************************************************
+  CAEN SpA - Front End Division
+  Via Vetraia, 11 - 55049 - Viareggio ITALY
+  +390594388398 - www.caen.it
+*************************************************************************************************************************
+
+-------------------------------------------------------------------------------------------------------------------------
+Release 1.1.2 - 15/04/25
+-------------------------------------------------------------------------------------------------------------------------
+- Improved log information provided during FW upgrade procedure
+- Bug fix in reading fpga temperature
+
+-------------------------------------------------------------------------------------------------------------------------
+Release 1.1.1 - 01/04/25
+-------------------------------------------------------------------------------------------------------------------------
+- Increased the max number of board supported by FERSlib to the 128 (max number of boards handled by the DT5215)
+- Added check on bic information
+- Added information on FPGA firmware upgrade in FERSlib Log file 
+- Bug fix on nodes syncronization of DT5215
+- Bug fix to make the library compatible with g++/gcc-14
+- Bug fix in saving RawData with tdl connection
+
+-------------------------------------------------------------------------------------------------------------------------
+Release 1.1.0 - 28/02/25
+-------------------------------------------------------------------------------------------------------------------------
+- Added API to check if A5256 adapter is connected
+- Bug fix in USB connection handling
+- Bug fix on Threshold Calibration for A5256 adapter 
+- Bug fix on Dump the Lib paramters configuration for FERS 5202 
+- Bug fix on Total Allocate Memory computation
+
+-------------------------------------------------------------------------------------------------------------------------
+Release 1.0.0 - 31/01/25
+-------------------------------------------------------------------------------------------------------------------------
+- First Release

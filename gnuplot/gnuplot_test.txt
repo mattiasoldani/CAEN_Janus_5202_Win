@@ -1,0 +1,33 @@
+set terminal wxt noraise title 'FERS Readout' size 1200,800 position 700,10
+set grid
+set mouse
+set ylabel 'Counts'
+set autoscale y
+set style fill solid
+set grid
+set xlabel 'Channel'
+set autoscale x
+$PlotData << EOD
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+3 
+569 
+3640 
+458 
+1 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+EOD
+plot  $PlotData u ($0*1.000000+0.000000):($1) title 'Brd[0] Ch[0]: Mean= 82.98, Rms=  0.47 - T0 Run1 Online' w step
+pause -1 "Hit any key to continue"
