@@ -308,18 +308,21 @@ int WriteListfileHeader() {
 		if ((type_file & 0xF) != ACQMODE_TIMING_CSTART) fprintf(of_list_c, "Trg_Id,");
 		if ((type_file & 0xF) == ACQMODE_TIMING_CSTART) fprintf(of_list_c, "Board_Id,Num_Hits,");
 		else fprintf(of_list_c, "Board_Id,Num_Chs,");
-
 		if ((type_file & ACQMODE_SPECT)) {
 			fprintf(of_list_c, "ChannelMask,CH_Id,DataType,PHA_LG,PHA_HG");
 			if (type_file & ACQMODE_TIMING_CSTART) {
 				fprintf(of_list_c, ",ToA_%s", unit);
-				if (EnableToT) fprintf(of_list_c, ",ToT_%s", unit);
-			} 
+				//if (EnableToT) fprintf(of_list_c, ",ToT_%s", unit);
+				// 2025/07 Mattia's debug:
+				fprintf(of_list_c, ",ToT_%s", unit);
+			}
 			fprintf(of_list_c, "\n");
 		}
 		if ((type_file & 0xF) == ACQMODE_TIMING_CSTART) {
 			fprintf(of_list_c, "CH_Id,DataType,ToA_%s", unit);
-			if (EnableToT) fprintf(of_list_c, ",ToT_%s", unit);
+			//if (EnableToT) fprintf(of_list_c, ",ToT_%s", unit);
+			// 2025/07 Mattia's debug:
+			fprintf(of_list_c, ",ToT_%s", unit);
 			fprintf(of_list_c, "\n");
 		}
 		if ((type_file & 0xF) == ACQMODE_COUNT) {
@@ -519,13 +522,21 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				char cat_line[256] = "";	
 				if (!masked[i]) continue;
 				datatype = 0;
-				if (tmp_enL[i] >= 0 && ((GainSelect & GAIN_SEL_LOW) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x01;
-				if (tmp_enH[i] >= 0 && ((GainSelect & GAIN_SEL_HIGH) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x02;
+				////
+				//if (tmp_enL[i] >= 0 && ((GainSelect & GAIN_SEL_LOW) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x01;
+				//if (tmp_enH[i] >= 0 && ((GainSelect & GAIN_SEL_HIGH) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x02;
+				//if (isTSpect) {
+				//	if (ev->tstamp[i] > 0) datatype = datatype | 0x10;
+				//	if (EnableToT && (ev->tstamp[i] > 0) && (ev->ToT[i] > 0)) datatype = datatype | 0x20;
+				//}
+				// 2025/06 Mattia's debug:
+				if (tmp_enL[j] >= 0 && ((GainSelect & GAIN_SEL_LOW) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x01;
+				if (tmp_enH[j] >= 0 && ((GainSelect & GAIN_SEL_HIGH) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x02;
 				if (isTSpect) {
-					if (ev->tstamp[i] > 0) datatype = datatype | 0x10;
-					if (EnableToT && (ev->ToT[i] > 0)) datatype = datatype | 0x20;
+					if (ev->tstamp[j] > 0) datatype = datatype | 0x10;
+					if (EnableToT && (ev->tstamp[j] > 0) && (ev->ToT[j] > 0)) datatype = datatype | 0x20;
 				}
-				sprintf(cat_line, "%.3f,", ts);
+				sprintf(cat_line, "%lf,", ts);
 				strcat(line, cat_line);
 				//fprintf(of_list_c, "%lf,", ts);
 				if (dtq & 0x80) {
@@ -540,7 +551,11 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				sprintf(cat_line, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8, trgid, brd, num_of_hits, ev->chmask, i, datatype);				
 				strcat(line, cat_line);
 				//fprintf(of_list_c, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8 ",", trgid, brd, num_of_hits, ev->chmask, j, datatype);
-				if (datatype & 0x1) sprintf(cat_line, ",%" PRIu16 "", tmp_enL[i]); //fprintf(of_list_c, "%" PRIu16, tmp_enL[j]);
+				////
+				//if (datatype & 0x1) sprintf(cat_line, ",%" PRIu16 "", tmp_enL[i]); //fprintf(of_list_c, "%" PRIu16, tmp_enL[j]);
+				// 2025/06 Mattia's debug:
+				if (datatype & 0x1) sprintf(cat_line, ",%" PRIu16 "", tmp_enL[j]); //fprintf(of_list_c, "%" PRIu16, tmp_enL[j]);
+				////
 				else sprintf(cat_line, ",-1");  //fprintf(of_list_c, "-1");
 				strcat(line, cat_line);
 				if (datatype & 0x2) sprintf(cat_line, ",%" PRIu16, tmp_enH[i]);   //fprintf(of_list_c, ",%" PRIu16, tmp_enH[j]);
@@ -548,18 +563,23 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				strcat(line, cat_line);
 				if (isTSpect) {
 					if (datatype & 0x10) {
-						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%.1f", 0.5 * ev->tstamp[i]);   //fprintf(of_list_c, ",%f", 0.5*ev->tstamp[j]);
-						else sprintf(cat_line, ",%" PRIu32, ev->tstamp[i]);   //fprintf(of_list_c, ",%" PRIu32, ev->tstamp[j]);
-					} else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
+						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->tstamp[j]);   //fprintf(of_list_c, ",%f", 0.5*ev->tstamp[j]);
+						else sprintf(cat_line, ",%" PRIu32, ev->tstamp[j]);   //fprintf(of_list_c, ",%" PRIu32, ev->tstamp[j]);
+					}
+					////
+					//else sprintf(line, "%s,-1", line);   //fprintf(of_list_c, ",-1");
+					// 2025/06 Mattia's debug:
+					else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
+					////
 					strcat(line, cat_line);
 
-					if (EnableToT) {
-						if (datatype & 0x20) {
-							if (J_cfg.OutFileUnit) sprintf(cat_line, ",%.1f", 0.5 * ev->ToT[i]);   //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[j]);
-							else sprintf(cat_line, ",%" PRIu16, ev->ToT[i]);   //fprintf(of_list_c, ",%" PRIu16, ev->ToT[j]);
-						} else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
-						strcat(line, cat_line);
+					if (datatype & 0x20) {
+						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->ToT[j]);   //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[j]);
+						else sprintf(cat_line, ",%" PRIu16, ev->ToT[j]);   //fprintf(of_list_c, ",%" PRIu16, ev->ToT[j]);
 					}
+					else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
+					strcat(line, cat_line);
+
 				}
 
 				strcat(line, "\n"); //fprintf(of_list_c, "\n");
@@ -591,7 +611,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 
 		// When Zero suppression is enabled, the mask is build only with the chs firing
 		// else, the mask is set at max
-		uint64_t ev_chmask = ev->chmask & ChEnableMask; 
+		uint64_t ev_chmask = ev->chmask & ChEnableMask;
 		
 		for (i = 0; i < MAX_NCH; ++i) {
 			if ((ev->chmask >> i) & 1) {
@@ -801,7 +821,10 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 						if (J_cfg.OutFileUnit) sprintf(cat_line, "%.1f", (TrefWindow - 0.5 * ev->tstamp[chit]));  //fprintf(of_list_c, "%f", (TrefWindow - 0.5 * ev->tstamp[chit]));
 						else sprintf(cat_line, "%" PRIu32, (uint32_t)(TrefWindow / (float)CLK_PERIOD_5202) - ev->tstamp[chit]);  //fprintf(of_list_c, "%" PRIu32, (uint32_t)(TrefWindow / (float)CLK_PERIOD_5202) - ev->tstamp[chit]);
 					}
-				} else sprintf(cat_line, ",-1");  //fprintf(of_list_c, "-1");
+				}
+				//else sprintf(cat_line, ",-1");  //fprintf(of_list_c, "-1");
+				// 2025/07 Mattia's debug:
+				else sprintf(cat_line, "-1");  //fprintf(of_list_c, "-1");
 				strcat(line, cat_line);
 
 				if (datatype & 0x20) {
