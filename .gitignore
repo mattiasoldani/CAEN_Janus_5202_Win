@@ -9,3 +9,5 @@ build/x64
 ferslib/tmp
 ferslib/bin/Win32
 ferslib/bin/x64/Debug
+
+*.vs*
