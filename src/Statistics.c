@@ -360,7 +360,7 @@ int Histo1D_Offline(int num_of_trace, int num_brd, int num_ch, char *infos, int 
 		sprintf(plot_name, "Staircase");
 	}
 
-	char filename[200] = "";
+	char filename[600] = "";
 	if (infos[0] == 'F') {
 		int num_r;
 		sscanf(infos + 1, "%d", &num_r);
@@ -378,7 +378,7 @@ int Histo1D_Offline(int num_of_trace, int num_brd, int num_ch, char *infos, int 
 				return -1;
 			}
 		}
-		char h_name[50];
+		char h_name[64];
 		sprintf(h_name, "%s[%d][%d]", plot_name, num_brd, num_ch);
 		DestroyHistogram1D(Stats.H1_File[num_of_trace]);
 		CreateHistogram1D(Stats.offline_bin, plot_name, h_name, xunit_off, yunit_off, &Stats.H1_File[num_of_trace]);

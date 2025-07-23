@@ -466,7 +466,7 @@ static int _SetDefaultConfig(int brd) {
 	FERScfg[brd]->OF_RawData = 0;
 	FERScfg[brd]->OF_LimitedSize = 0;
 	FERScfg[brd]->MaxSizeDataOutputFile = 1e9;
-	sprintf(FERScfg[brd]->OF_RawDataPath, "");
+	FERScfg[brd]->OF_RawDataPath[0] = '\0';
 
 	FERScfg[brd]->StartRunMode = STARTRUN_ASYNC;			// Start Mode
 	FERScfg[brd]->StopRunMode = STOPRUN_MANUAL;				// Stop Mode
@@ -572,12 +572,12 @@ static int _SetDefaultConfig(int brd) {
 // Outputs:		-
 // Return:		0=OK, -1=error
 // ---------------------------------------------------------------------------------
-int FERS_SetParam(int handle, char *param_name, char *value) {
+int FERS_SetParam(int handle, const char *param_name, const char *value_original) {
 	int brd = -1, ch = -1;
 	static int SetDefault[FERSLIB_MAX_NBRD] = { 0 };
 	char* str_to_split = j_strdup(param_name);
 	const char* delim = "[]";
-	char* str = strtok(str_to_split, delim); // Param Name
+	char* before_str = strtok(str_to_split, delim); // Param Name
 	char* token = strtok(NULL, delim);	// ch Idx
 
 	brd = FERS_INDEX(handle);
@@ -607,17 +607,27 @@ int FERS_SetParam(int handle, char *param_name, char *value) {
 	ValidUnits = 1; // init to 1. It will be reset if no valid unit is found
 
 	// Some name replacement for back compatibility
-	if (streq(param_name, "TriggerSource"))		sprintf(param_name, "BunchTrgSource");
-	if (streq(param_name, "DwellTime"))			sprintf(param_name, "PtrgPeriod");
-	//if (streq(param_name, "TrgTimeWindow"))		sprintf(param_name, "TstampCoincWindow");  //Not in Lib
-	if (streq(param_name, "Hit_HoldOff"))		sprintf(param_name, "TrgHoldOff");
-	if (streq(param_name, "Trg_HoldOff"))		sprintf(param_name, "TrgHoldOff");
-	if (streq(param_name, "Q_DiscrMask0"))		sprintf(param_name, "QD_Mask0");
-	if (streq(param_name, "Q_DiscrMask1"))		sprintf(param_name, "QD_Mask1");
-	if (streq(param_name, "Q_DiscrMask"))		sprintf(param_name, "QD_Mask");
+	char* str = NULL;
+	if (streq(before_str, "TriggerSource"))
+		str = j_strdup("BunchtrgSource");
+	else if (streq(before_str, "DwellTime"))
+		str = j_strdup("PtrgPeriod");
+	else if (streq(before_str, "Hit_HoldOff"))
+		str = j_strdup("TrgHoldOff");
+	else if (streq(before_str, "Trg_HoldOff"))
+		str = j_strdup("TrgHoldOff");
+	else if (streq(before_str, "Q_DiscrMask0"))
+		str = j_strdup("QD_Mask0");
+	else if (streq(before_str, "Q_DiscrMask1"))
+		str = j_strdup("QD_Mask1");
+	else if (streq(before_str, "Q_DiscrMask"))
+		str = j_strdup("QD_Mask");
+	else
+		str = j_strdup(before_str);
 
 	lock(FERScfg[brd]->bmutex);
 
+	char* value = j_strdup(value_original);
 	// Write down configuration on file
 	if (plog) fprintf(fcfg[brd], "%s = %s\n", str, value);
 
@@ -1424,23 +1434,31 @@ int FERS_SetParam(int handle, char *param_name, char *value) {
 		_setLastLocalError("WARNING: %s: unkown parameter\n", str);
 		unlock(FERScfg[brd]->bmutex);
 		free(str_to_split);
+		free(str);
+		free(value);
 		return FERSLIB_ERR_INVALID_PARAM;
 	}
 	if (!ValidParameterValue) {
 		_setLastLocalError("WARNING: %s: invalid setting %s\n", str, value);
 		unlock(FERScfg[brd]->bmutex);
 		free(str_to_split);
+		free(str);
+		free(value);
 		return FERSLIB_ERR_INVALID_PARAM_VALUE;
 	}
 	if (!ValidUnits) {
 		_setLastLocalError("WARNING: %s: unkown units. Defualt units: V,mA,ns\n", str);
 		unlock(FERScfg[brd]->bmutex);
 		free(str_to_split);
+		free(str);
+		free(value);
 		return FERSLIB_ERR_INVALID_PARAM_UNIT;  // Send something out conserning the Wrong configuration
 	}
 
 	unlock(FERScfg[brd]->bmutex);
 	free(str_to_split);
+	free(str);
+	free(value);
 	return 0;
 }
 
@@ -1455,7 +1473,7 @@ int FERS_SetParam(int handle, char *param_name, char *value) {
 // Return:		0=OK, -1=error
 // ---------------------------------------------------------------------------------
 int FERS_GetParam(int handle, char *param_name, char *value) {
-	int brd = -1, ch = -1, node = -1;
+	int8_t brd = -1, ch = -1, node = -1;
 	char* str_to_split = j_strdup(param_name);
 	const char* delim = "[]";
 	char* str = strtok(str_to_split, delim); // Param Name
@@ -1476,10 +1494,10 @@ int FERS_GetParam(int handle, char *param_name, char *value) {
 	lock(FERScfg[brd]->bmutex);
 
 	if (token != NULL) {
-		sscanf(token, "%d", &ch);
+		sscanf(token, "%" SCNd8, &ch);
 		token = strtok(NULL, delim);
 		if (token != NULL)
-			sscanf(token, "%d", &node);
+			sscanf(token, "%" SCNd8, &node);
 	}
 
 	strcpy(value, ""); // if value remains empty, the param name is not valid
@@ -1666,7 +1684,7 @@ static void fLoadExtCfgFile(FILE* f_ini) {	// DNIN: The first initialization sho
 // ---------------------------------------------------------------------------------
 static int FERS_parseConfigFile(FILE* f_ini)
 {
-	int ch = -1, brd = -1;
+	int8_t ch = -1, brd = -1;
 	int ret = 0;
 	char tstr[1000], *parval, *tparval, str1[1000];
 
@@ -1677,7 +1695,7 @@ static int FERS_parseConfigFile(FILE* f_ini)
 		ch = -1;
 
 		// Read a line from the file
-		fgets(tstr, sizeof(tstr), f_ini);
+		char* gret = fgets(tstr, sizeof(tstr), f_ini);
 
 		// skip comments
 		if (tstr[0] == '#' || strlen(tstr) <= 2) {
@@ -1704,9 +1722,9 @@ static int FERS_parseConfigFile(FILE* f_ini)
 		char *str = strtok(trim(str1), "[]"); // Param name with [brd][ch]
 		char* token = strtok(NULL, "[]");
 		if (token != NULL) {
-			sscanf(token, "%d", &brd);
+			sscanf(token, "%" SCNd8, &brd);
 			if ((token = strtok(NULL, "[]")) != NULL)
-				sscanf(token, "%d", &ch);
+				sscanf(token, "%" SCNd8, &ch);
 		}
 
 		int tb, mc;	// Assign value for each board with a single for loop 
@@ -1721,7 +1739,7 @@ static int FERS_parseConfigFile(FILE* f_ini)
 		// Append the '[ch]' if ch != 0
 		if (ch >= 0) {
 			char sch[10];
-			sprintf(sch, "[%d]", ch);
+			sprintf(sch, "[%" SCNd8 "]", ch);
 			strcat(str, sch);
 		}
 
@@ -1859,9 +1877,9 @@ int FERS_DumpCfgSaved5202(int handle) {
 			int larray = 0;
 			sscanf(parname[pp][1], "%d", &larray);
 			for (int j = 0; j < larray; ++j) {
-				char chPar[50];
+				char chPar[128];
 				char parval[50];
-				sprintf(chPar, "%s[%d]", parname[pp][0], j);
+				sprintf(chPar, "%.50s[%d]", parname[pp][0], j);
 				FERS_GetParam(handle, chPar, parval);
 				fprintf(fParName, "%s\t%s\n", chPar, parval);
 			}
@@ -1938,8 +1956,8 @@ int FERS_DumpCfgSaved5203(int handle) {
 			sscanf(parname[pp][1], "%d", &larray);
 			for (int j = 0; j < larray; ++j) {
 				char chPar[50];
-				char parval[50];
-				sprintf(chPar, "%s[%d]", parname[pp][0], j);
+				char parval[128];
+				sprintf(chPar, "%.50s[%d]", parname[pp][0], j);
 				FERS_GetParam(handle, chPar, parval);
 				fprintf(fParName, "%s\t%s\n", chPar, parval);
 			}

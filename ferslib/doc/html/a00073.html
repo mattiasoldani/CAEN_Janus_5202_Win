@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="caen_logo.svg"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;develop (95082b70)</span>
+   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;main (d27be47d)</span>
    </div>
    <div id="projectbrief">SDK for FERS systems</div>
   </td>
@@ -105,9 +105,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga7c7d9747c8d09fddc4a500281ec210e9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ga7c7d9747c8d09fddc4a500281ec210e9">FERS_LoadConfigFile</a> (char *filepath)</td></tr>
 <tr class="memdesc:ga7c7d9747c8d09fddc4a500281ec210e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads a configuration file.  <a href="a00073.html#ga7c7d9747c8d09fddc4a500281ec210e9">More...</a><br /></td></tr>
 <tr class="separator:ga7c7d9747c8d09fddc4a500281ec210e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga96267f9d46e6306610851b745fffd100"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#ga96267f9d46e6306610851b745fffd100">FERS_SetParam</a> (int handle, char *param_name, char *value)</td></tr>
-<tr class="memdesc:ga96267f9d46e6306610851b745fffd100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a parameter by name. The function assigns the value to the relevant parameter in the FERScfg struct, but it doesn't actually write it into the board (this is done by the "FERS_configure" function)  <a href="a00073.html#ga96267f9d46e6306610851b745fffd100">More...</a><br /></td></tr>
-<tr class="separator:ga96267f9d46e6306610851b745fffd100"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa8a7a3f2f86d21ac82defe7ed10e5a7b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#gaa8a7a3f2f86d21ac82defe7ed10e5a7b">FERS_SetParam</a> (int handle, const char *param_name, const char *value_original)</td></tr>
+<tr class="memdesc:gaa8a7a3f2f86d21ac82defe7ed10e5a7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a parameter by name. The function assigns the value to the relevant parameter in the FERScfg struct, but it doesn't actually write it into the board (this is done by the "FERS_configure" function)  <a href="a00073.html#gaa8a7a3f2f86d21ac82defe7ed10e5a7b">More...</a><br /></td></tr>
+<tr class="separator:gaa8a7a3f2f86d21ac82defe7ed10e5a7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafbadb6f61fc7318dcf4ea0dc23dfc8e8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00073.html#gafbadb6f61fc7318dcf4ea0dc23dfc8e8">FERS_GetParam</a> (int handle, char *param_name, char *value)</td></tr>
 <tr class="memdesc:gafbadb6f61fc7318dcf4ea0dc23dfc8e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of a parameter. The function reads the value from the relevant parameter in the FERScfg struct, but it doesn't actually read it from the board.  <a href="a00073.html#gafbadb6f61fc7318dcf4ea0dc23dfc8e8">More...</a><br /></td></tr>
 <tr class="separator:gafbadb6f61fc7318dcf4ea0dc23dfc8e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,8 +179,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ga96267f9d46e6306610851b745fffd100" name="ga96267f9d46e6306610851b745fffd100"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga96267f9d46e6306610851b745fffd100">&#9670;&nbsp;</a></span>FERS_SetParam()</h2>
+<a id="gaa8a7a3f2f86d21ac82defe7ed10e5a7b" name="gaa8a7a3f2f86d21ac82defe7ed10e5a7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa8a7a3f2f86d21ac82defe7ed10e5a7b">&#9670;&nbsp;</a></span>FERS_SetParam()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -194,14 +194,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>param_name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>value</em>&#160;</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>value_original</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -274,7 +274,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Apr 15 2025 09:11:49 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+    <li class="footer">Generated on Fri Jun 6 2025 08:58:37 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
   </ul>
 </div>
 </body>

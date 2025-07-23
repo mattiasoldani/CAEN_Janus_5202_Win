@@ -5,6 +5,19 @@
 *************************************************************************************************************************
 
 -------------------------------------------------------------------------------------------------------------------------
+Release 4.2.0 - 06/06/2025
+-------------------------------------------------------------------------------------------------------------------------
+- Improved Janus installation instruction on linux
+- Improved stability with USB connections
+- Ensured compliance with the C++17 standard
+- Fixed memory leakage issue when using TDL connection with multiple FERs modules connected
+- Parameter EnLiveParamChange forced to 0 fir USB connections
+- Disabled raw data saving for Hold Scan and Staircase run
+- Bug fix in OpenDevice when boards are open in offline mode
+- Bug fix in opening USB connection as usb:PID
+- Bug fix saving configuration file for different run from GUI
+
+-------------------------------------------------------------------------------------------------------------------------
 Release 4.1.2 - 15/04/2025
 -------------------------------------------------------------------------------------------------------------------------
 - Improved Janus installation details in README and Janus_Install.bash for linux OS

@@ -140,7 +140,7 @@
 #define a_rej_trg_cnt      0x0100031C   //!< Rejected Trigger counter
 #define a_zs_trg_cnt       0x01000320   //!< Zero Suppressed Trigger counter
 #define a_clk_out_phase    0x01000330   //!< Phase between TDC clock and FPGA clock (0x0000 = 0 deg; 0xFFFF = 180 deg)
-#define a_board_temp       0x01000350	//!< Board Temp
+#define a_board_temp       0x01000340	//!< Board Temp
 #define a_tdc0_temp		   0x01000354	//!< TDC0 Temperature
 #define a_tdc1_temp		   0x01000358	//!< TDC1 Temperature
 #define a_spi_data         0x01000224   //!< SPI R/W data (for Flash Memory access)

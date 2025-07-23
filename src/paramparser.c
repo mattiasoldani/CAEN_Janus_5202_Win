@@ -201,35 +201,35 @@ static uint32_t GetHex32(char* str) {
 }
 
 // ---------------------------------------------------------------------------------
-// Description: Read a 64 bit mask (hexadecimal) from the conig file
+// Description: Read a 64 bit mask (hexadecimal) from the conig file (not used)
 // Inputs:		f_ini: config file
 // Outputs:		-
 // Return:		mask value read from the file / Set ValidParameterValue = 0 if the value is not in HEX format
 // ---------------------------------------------------------------------------------
-static uint64_t GetHex64(char* str) {
-	uint64_t ret;
-	ValidParameterValue = 1;
-	if ((str[1] == 'x') || (str[1] == 'X')) {
-		sscanf(str + 2, "%" SCNx64, &ret);
-		if (str[0] != '0') ValidParameterValue = 0;	// Rise a warning for wrong HEX format 0x
-		for (uint8_t i = 2; i < strlen(str); ++i) {
-			if (!isxdigit(str[i])) {
-				ValidParameterValue = 0;
-				break;
-			}
-		}
-	}
-	else {
-		sscanf(str, "%" SCNx64, &ret);
-		for (uint8_t i = 0; i < strlen(str); ++i) {	// Rise a warning for wrong HEX format
-			if (!isxdigit(str[i])) {
-				ValidParameterValue = 0;
-				break;
-			}
-		}
-	}
-	return ret;
-}
+//static uint64_t GetHex64(char* str) {
+//	uint64_t ret;
+//	ValidParameterValue = 1;
+//	if ((str[1] == 'x') || (str[1] == 'X')) {
+//		sscanf(str + 2, "%" SCNx64, &ret);
+//		if (str[0] != '0') ValidParameterValue = 0;	// Rise a warning for wrong HEX format 0x
+//		for (uint8_t i = 2; i < strlen(str); ++i) {
+//			if (!isxdigit(str[i])) {
+//				ValidParameterValue = 0;
+//				break;
+//			}
+//		}
+//	}
+//	else {
+//		sscanf(str, "%" SCNx64, &ret);
+//		for (uint8_t i = 0; i < strlen(str); ++i) {	// Rise a warning for wrong HEX format
+//			if (!isxdigit(str[i])) {
+//				ValidParameterValue = 0;
+//				break;
+//			}
+//		}
+//	}
+//	return ret;
+//}
 
 // ---------------------------------------------------------------------------------
 // Description: Read a float from the conig file
@@ -262,7 +262,6 @@ float GetTime(char* val, char *tu)
 {
 	double timev=-1;
 	double ns;
-	long fp;
 	char str[100];
 
 	int element = sscanf(val, "%lf %s", &timev, str);
@@ -305,7 +304,6 @@ static float GetBytes(char* val)
 {
 	char van[50];
 	float var;
-	long fp;
 	char str[100];
 	float minSize = 1e3; // 1 kB
 
@@ -571,8 +569,11 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 		if (ParseMode & PARSEMODE_PARSE_ALL) {
 			if (!ValidParameterName) {
 				// Append the '[ch]' if ch != 0
-				if (ch >= 0)
-					sprintf(parname, "%s[%d]", parname, ch);
+				char tmp_name[100] = "";
+				if (ch >= 0) {
+					sprintf(tmp_name, "%.98s[%d]", parname, ch);
+					sprintf(parname, "%s", tmp_name);
+				}
 				for (b = brd_l; b < brd_h; b++) {
 					int ret;
 					//printf("%s %s\n", parname, parval);
@@ -598,8 +599,7 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 	if (J_cfg->EHistoNbin > (1 << ENERGY_NBIT))	J_cfg->EHistoNbin = (1 << ENERGY_NBIT);
 	if (J_cfg->ToAHistoNbin > (1 << TOA_NBIT))	J_cfg->ToAHistoNbin = (1 << TOA_NBIT);	// DNIN: misleading. This is just for plot visualization
 	if (J_cfg->ToTHistoNbin > (1 << TOT_NBIT))	J_cfg->ToTHistoNbin = (1 << TOT_NBIT);
-	int ediv = 1;
-
+	
 	J_cfg->AcquisitionMode = FERS_GetParam_int(handle[0], "AcquisitionMode");
 	J_cfg->StartRunMode = FERS_GetParam_int(handle[0], "StartRunMode");
 	J_cfg->StopRunMode = FERS_GetParam_int(handle[0], "StopRunMode");
@@ -614,9 +614,9 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 
 
 #ifdef linux
-	if (J_cfg->DataFilePath[strlen(J_cfg->DataFilePath)-1] != '/')	sprintf(J_cfg->DataFilePath, "%s/", J_cfg->DataFilePath);
+	if (J_cfg->DataFilePath[strlen(J_cfg->DataFilePath)-1] != '/')	strcat(J_cfg->DataFilePath, "/");
 #else
-	if (J_cfg->DataFilePath[strlen(J_cfg->DataFilePath)-1] != '\\')	sprintf(J_cfg->DataFilePath, "%s\\", J_cfg->DataFilePath);
+	if (J_cfg->DataFilePath[strlen(J_cfg->DataFilePath)-1] != '\\')	strcat(J_cfg->DataFilePath, "\\");
 #endif
 
 	// Force options when connection is offline

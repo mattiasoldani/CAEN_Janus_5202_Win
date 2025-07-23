@@ -318,11 +318,10 @@ class CtrlPanel():
 			self.CfgNameSaved.set(name)
 
 	def SaveCfgFileForRun(self):
-		filename, file_extension = os.path.splitext(sh.CfgFileName)
-		if not sh.is_exe():
-			filename = os.path.join("..", "bin", params['DataFilePath'].default, filename + '_Run' + str(self.RunNumber.get()))
-		else:
-			filename = os.path.join(params['DataFilePath'].default, filename + '_Run' + str(self.RunNumber.get()))
+		filename, file_extension = os.path.splitext(sh.CfgFile)
+		filename = filename.split("/")[-1]
+		filename = os.path.join(sh.cfgfile_path, params['DataFilePath'].default, filename + '_Run' + str(self.RunNumber.get()))
+		
 		name = filename + file_extension
 		cfg.WriteConfigFile(sections, params, name, self.show_warning.get())
 
@@ -1101,12 +1100,7 @@ class CtrlPanel():
 		else:
 			fname = "BinToCsv.exe"
 		
-		if not sh.is_exe():
-			exe_name = os.path.join("..", "bin", fname)
-			wdir = sh.cfgfile_path
-		else:
-			exe_name = fname
-			wdir = os.path.curdir
+		exe_name = os.path.join(sh.cfgfile_path, fname)
 
 		if not os.path.exists(exe_name):	#   Error: BinToCsv is not the folder and cannot be launched
 			Jmsg="Warning, BinToCsV executable is missing!!!\nPlease, check if the antivirus cancel it during the unzip (Windows)"

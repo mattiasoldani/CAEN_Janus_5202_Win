@@ -1379,13 +1379,20 @@ int FERS_InitReadout(int handle, int ROmode, int *AllocatedSize) {
 			}
 			*AllocatedSize += LLBUFF_CNC_SIZE;
 			FERS_TotalAllocatedMem += LLBUFF_CNC_SIZE;
+
+			DescrTable[FERS_CNCINDEX(handle)] = (uint32_t*)malloc(MAX_NROW_EDTAB * 32);
+			if (DescrTable[FERS_CNCINDEX(handle)] == NULL) {
+				FERS_LibMsg("ERROR: CNC%02d DescrTable buffer not allocated (ret = %d)\n", FERS_CNCINDEX(handle), FERSLIB_ERR_MALLOC_BUFFERS);
+				_setLastLocalError("ERROR: CNC%02d DescrTable buffer not allocated (ret = %d)\n", FERS_CNCINDEX(handle), FERSLIB_ERR_MALLOC_BUFFERS);
+				return FERSLIB_ERR_MALLOC_BUFFERS;
+			}
+			*AllocatedSize += MAX_NROW_EDTAB * 32;
+			FERS_TotalAllocatedMem += MAX_NROW_EDTAB * 32;
+
 		}
 		tdl_handle[FERS_CNCINDEX(handle)][FERS_CHAIN(handle)][FERS_NODE(handle)] = handle;
 		Cnc_NumBoards[FERS_CNCINDEX(handle)]++;
 		tdl_handle[FERS_CNCINDEX(handle)][FERS_CHAIN(handle)][FERS_NODE(handle)] = handle;
-		DescrTable[FERS_CNCINDEX(handle)] = (uint32_t*)malloc(MAX_NROW_EDTAB * 32);
-		*AllocatedSize += MAX_NROW_EDTAB * 32;
-		FERS_TotalAllocatedMem += MAX_NROW_EDTAB * 32;
 	} else {
 		LLBuff[FERS_INDEX(handle)] = (char *)malloc(LLBUFF_SIZE);
 		if (LLBuff[FERS_INDEX(handle)] == NULL) {
@@ -1448,9 +1455,9 @@ int FERS_CloseReadout(int handle) {
 	if (FERS_CONNECTIONTYPE(handle) == FERS_CONNECTIONTYPE_TDL) {
 		Cnc_NumBoards[FERS_CNCINDEX(handle)]--;
 		tdl_handle[FERS_CNCINDEX(handle)][FERS_CHAIN(handle)][FERS_NODE(handle)] = -1;
-		if ((LLBuff[FERS_INDEX(handle)] != NULL) && (Cnc_NumBoards[FERS_CNCINDEX(handle)] == 0)) {  // Last board disconnected
-			free(LLBuff[FERS_INDEX(handle)]);
-			LLBuff[FERS_INDEX(handle)] = NULL;
+		if ((LLBuff[FERS_CNCINDEX(handle)] != NULL) && (Cnc_NumBoards[FERS_CNCINDEX(handle)] == 0)) {  // Last board disconnected
+			free(LLBuff[FERS_CNCINDEX(handle)]);
+			LLBuff[FERS_CNCINDEX(handle)] = NULL;
 			FERS_TotalAllocatedMem -= LLBUFF_CNC_SIZE;
 		}
 		if (DescrTable[FERS_CNCINDEX(handle)] != NULL) {
@@ -1480,7 +1487,7 @@ int FERS_CloseReadout(int handle) {
 	RO_NumBoards--;
 	InitReadout[FERS_INDEX(handle)] = 0;
 	if (FERS_IsXROC(handle)) {
-		if ((RO_NumBoards == 0) && (WaveEvent[FERS_INDEX(handle)].wave_hg != NULL)) {  // Last board connected => can free waveform buffers
+		if (WaveEvent[FERS_INDEX(handle)].wave_hg != NULL) {  // Last board connected => can free waveform buffers. No, wave buffers are for each board
 			free(WaveEvent[FERS_INDEX(handle)].wave_hg);
 			free(WaveEvent[FERS_INDEX(handle)].wave_lg);
 			free(WaveEvent[FERS_INDEX(handle)].dig_probes);
@@ -1574,6 +1581,9 @@ int FERS_StartAcquisition(int *handle, int NumBrd, int StartMode, int RunNum) {
 				if (handle[b] == -1) continue;
 				ret |= FERS_SendCommand(handle[b], CMD_TIME_RESET);
 				ret |= FERS_SendCommand(handle[b], CMD_ACQ_START);
+				if (FERS_CONNECTIONTYPE(handle[b]) == FERS_CONNECTIONTYPE_USB) {
+					f_sem_post(&FERS_StartRunSemaphore[FERS_INDEX(handle[b])]);		// Semaphore posted
+				}
 			}
 		}
 	//} else { // READ Pedestal when offline

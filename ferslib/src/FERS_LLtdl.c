@@ -23,7 +23,6 @@
 #pragma comment(lib, "ws2_32.lib") // Winsock Library
 #endif
 
-#include "FERS_MultiPlatform.h"
 #include "FERS_LL.h"
 
 #define COMMAND_PORT		"9760"  // Slow Control Port (access to Registers)
@@ -59,6 +58,7 @@ static int QuitThread[FERSLIB_MAX_NCNC] = { 0 };		// Quit Thread
 static f_sem_t RxSemaphore[FERSLIB_MAX_NCNC];			// Semaphore for sync the data receiver thread 
 static f_thread_t ThreadID[FERSLIB_MAX_NCNC];			// RX Thread ID
 static mutex_t RxMutex[FERSLIB_MAX_NCNC];				// Mutex for the access to the Rx data buffer and pointers
+static mutex_t rdf_mutex[FERSLIB_MAX_NCNC];				// Mutex to access RawData file
 static FILE *Dump[FERSLIB_MAX_NCNC] = { NULL };			// low level data dump files (for debug)
 static FILE* RawData[FERSLIB_MAX_NBRD] = { NULL };		// low level data saving for a further reprocessing
 static uint8_t ReadData_Init[FERSLIB_MAX_NBRD] = { 0 }; // Re-init read pointers after run stop
@@ -1060,13 +1060,17 @@ static void* tdl_data_receiver(void *params) {
 		if (FERScfg[cindex]->OF_RawData && !FERS_Offline) {
 			size_file[cindex] += nbrx;
 			if (FERScfg[cindex]->OF_LimitedSize && size_file[cindex] > FERScfg[cindex]->MaxSizeDataOutputFile) {
+				lock(rdf_mutex[cindex]);
 				LLtdl_IncreaseRawDataSubrun(cindex);
 				size_file[cindex] = nbrx;
+				unlock(rdf_mutex[cindex]);
 			}
+			lock(rdf_mutex[cindex]);
 			if (RawData[cindex] != NULL) {
 				fwrite(wpnt, sizeof(char), nbrx, RawData[cindex]);
 				fflush(RawData[cindex]);
 			}
+			unlock(rdf_mutex[cindex]);
 		}
 	}
 
@@ -1145,6 +1149,7 @@ int LLtdl_ReadData_File(int cindex, char* buff, int maxsize, int* nb, int flushi
 	static int tmp_srun[FERSLIB_MAX_NBRD] = { 0 };
 	static int fsizeraw[FERSLIB_MAX_NBRD] = { 0 };
 	static FILE* ReadRawData[FERSLIB_MAX_NBRD] = { NULL };
+	int fret = 0;
 	if (flushing) {  // Used for reset, in case of any Readout Error
 		if (ReadRawData[cindex] != NULL)
 			fclose(ReadRawData[cindex]);
@@ -1173,7 +1178,7 @@ int LLtdl_ReadData_File(int cindex, char* buff, int maxsize, int* nb, int flushi
 		if (tmp_srun[cindex] == 0) {
 			// Read Header keyword
 			char file_header[50];
-			fread(&file_header, 32, 1, ReadRawData[cindex]);
+			fret = fread(&file_header, 32, 1, ReadRawData[cindex]);
 			if (strcmp(file_header, "$$$$$$$FERSRAWDATAHEADER$$$$$$$") != 0) { // No header mark found
 				if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[ERROR][CNC %02d] No valid header found in Raw Data filename %s\n.", cindex, filename);
 				_setLastLocalError("ERROR: No valid keyword header found");
@@ -1181,7 +1186,7 @@ int LLtdl_ReadData_File(int cindex, char* buff, int maxsize, int* nb, int flushi
 				return FERSLIB_ERR_GENERIC;
 			}
 			size_t jump_size_header = 0;
-			fread(&jump_size_header, sizeof(jump_size_header), 1, ReadRawData[cindex]);
+			fret = fread(&jump_size_header, sizeof(jump_size_header), 1, ReadRawData[cindex]);
 			fseek(ReadRawData[cindex], (long)(jump_size_header - sizeof(size_t)), SEEK_CUR);
 
 			fsizeraw[cindex] -= ftell(ReadRawData[cindex]);
@@ -1192,7 +1197,7 @@ int LLtdl_ReadData_File(int cindex, char* buff, int maxsize, int* nb, int flushi
 	if (fsizeraw[cindex] < 0)	// Read what is missing from the current file
 		maxsize = maxsize + fsizeraw[cindex]; // fsizeraw is < 0
 
-	fread(buff, sizeof(char), maxsize, ReadRawData[cindex]);
+	fret = fread(buff, sizeof(char), maxsize, ReadRawData[cindex]);
 
 	if (fsizeraw[cindex] <= 0) {
 		fclose(ReadRawData[cindex]);
@@ -1286,6 +1291,7 @@ int LLtdl_OpenDevice(char *board_ip_addr, int cindex) {
 	}
 	//LLBuff[cindex] = (char *)malloc(LLBUFF_SIZE);
 	initmutex(RxMutex[cindex]);
+	initmutex(rdf_mutex[cindex]);
 	QuitThread[cindex] = 0;
 	f_sem_init(&RxSemaphore[cindex]);
 
@@ -1516,6 +1522,8 @@ int LLtdl_CloseDevice(int cindex)
 		}
 	}
 
+	destroymutex(RxMutex[cindex]);
+	destroymutex(rdf_mutex[cindex]);
 	//if (LLBuff[cindex] == NULL) free(LLBuff[cindex]);
 	if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[INFO][CNC %02d] Device closed\n", cindex);
 	return 0;
@@ -1578,11 +1586,13 @@ int LLtdl_CloseRawOutputFile(int handle) {
 	if (ProcessRawData) return 0;
 
 	int bidx = FERS_CNCINDEX(handle);
+	lock(rdf_mutex[bidx]);
 	if (RawData[bidx] != NULL) {
 		fclose(RawData[bidx]);
 		RawData[bidx] = NULL;
 	}
 	size_file[bidx] = 0;
 	subrun[bidx] = 0;
+	unlock(rdf_mutex[bidx]);
 	return 0;
 }

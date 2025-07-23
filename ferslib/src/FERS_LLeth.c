@@ -22,7 +22,6 @@
 #pragma comment(lib, "ws2_32.lib") // Winsock Library
 #endif
 
-#include "FERS_MultiPlatform.h"
 #include "FERS_LL.h"
 
 
@@ -51,6 +50,7 @@ static FILE* RawData[FERSLIB_MAX_NBRD] = { NULL };		// Raw data saving for a fur
 static uint8_t ReadData_Init[FERSLIB_MAX_NBRD] = { 0 }; // Re-init read pointers after run stop
 static int subrun[FERSLIB_MAX_NBRD] = { 0 };			// Sub Run index
 static int64_t size_file[FERSLIB_MAX_NBRD] = { 0 };		// Size of Raw data output file
+static mutex_t rdf_mutex[FERSLIB_MAX_NBRD];				// Mutex to access RawData file
 
 #define ETH_BLK_SIZE  (1024)						// Max size of one packet in the recv 
 #define RX_BUFF_SIZE  (1024*1024)					// Size of the local Rx buffer
@@ -295,14 +295,16 @@ int LLeth_WriteMem(int bindex, uint32_t address, char* data, uint16_t size)
 {
 	uint32_t res;
 	char* sendbuf = (char*)malloc(12 + size);// [32];
+	uint32_t size32 = (uint32_t)size;
 	int iResult;
 	f_socket_t sck = FERS_CtrlSocket[bindex];
 	sendbuf[0] = 'A';
 	sendbuf[1] = 'B';
 	sendbuf[2] = 'B';
 	sendbuf[3] = 'D';
+
 	memcpy(&sendbuf[4], &address, 4);
-	memcpy(&sendbuf[8], &size, 4);
+	memcpy(&sendbuf[8], &size32, 4);
 	memcpy(&sendbuf[12], data, size);
 
 	iResult = send(sck, sendbuf, 12 + size, 0);
@@ -339,6 +341,7 @@ int LLeth_WriteMem(int bindex, uint32_t address, char* data, uint16_t size)
 int LLeth_ReadMem(int bindex, uint32_t address, char* data, uint16_t size)
 {
 	char sendbuf[32];
+	uint32_t size32 = (uint32_t)size;
 	int iResult;
 	f_socket_t sck = FERS_CtrlSocket[bindex];
 	sendbuf[0] = 'A';
@@ -346,7 +349,7 @@ int LLeth_ReadMem(int bindex, uint32_t address, char* data, uint16_t size)
 	sendbuf[2] = 'B';
 	sendbuf[3] = 'E';
 	memcpy(&sendbuf[4], &address, 4);
-	memcpy(&sendbuf[8], &size, 4);
+	memcpy(&sendbuf[8], &size32, 4);
 
 	iResult = send(sck, sendbuf, 12, 0);
 	if (iResult == f_socket_error) {
@@ -571,13 +574,17 @@ static void* eth_data_receiver(void* params) {
 		if (FERScfg[bindex]->OF_RawData && !FERS_Offline) {
 			size_file[bindex] += nbrx;
 			if (FERScfg[bindex]->OF_LimitedSize && size_file[bindex] > FERScfg[bindex]->MaxSizeDataOutputFile) {
+				lock(rdf_mutex[bindex]);
 				LLeth_IncreaseRawDataSubrun(bindex);
 				size_file[bindex] = nbrx;
+				unlock(rdf_mutex[bindex]);
 			}
+			lock(rdf_mutex[bindex]);
 			if (RawData[bindex] != NULL) {
 				fwrite(wpnt, sizeof(char), nbrx, RawData[bindex]);
 				fflush(RawData[bindex]);
 			}
+			unlock(rdf_mutex[bindex]);
 		}
 
 		unlock(RxMutex[bindex]);
@@ -650,6 +657,7 @@ int LLeth_ReadData_File(int bindex, char* buff, int maxsize, int* nb, int flushi
 	static int tmp_srun[FERSLIB_MAX_NBRD] = { 0 };
 	static int fsizeraw[FERSLIB_MAX_NBRD] = { 0 };
 	static FILE* ReadRawData[FERSLIB_MAX_NBRD] = { NULL };
+	int fret = 0;
 	if (flushing) {
 		if (ReadRawData[bindex] != NULL)
 			fclose(ReadRawData[bindex]);
@@ -679,7 +687,7 @@ int LLeth_ReadData_File(int bindex, char* buff, int maxsize, int* nb, int flushi
 			// Read Header keyword
 			char file_header[50];
 			//fscanf(ReadRawData[bindex], "%s", file_header);
-			fread(&file_header, 32, 1, ReadRawData[bindex]);
+			fret = fread(&file_header, 32, 1, ReadRawData[bindex]);
 			if (strcmp(file_header, "$$$$$$$FERSRAWDATAHEADER$$$$$$$") != 0) { // No header mark found
 				if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[ERROR][BRD %02d] No valid header found in Raw Data filename %s\n.", bindex, filename);
 				_setLastLocalError("ERROR: No valid keyword header found");
@@ -687,7 +695,7 @@ int LLeth_ReadData_File(int bindex, char* buff, int maxsize, int* nb, int flushi
 				return FERSLIB_ERR_GENERIC;
 			}
 			size_t jump_size_header = 0;
-			fread(&jump_size_header, sizeof(jump_size_header), 1, ReadRawData[bindex]);
+			fret = fread(&jump_size_header, sizeof(jump_size_header), 1, ReadRawData[bindex]);
 			fseek(ReadRawData[bindex], (long)(jump_size_header - sizeof(size_t)), SEEK_CUR);
 			fsizeraw[bindex] -= ftell(ReadRawData[bindex]);
 		}
@@ -697,7 +705,7 @@ int LLeth_ReadData_File(int bindex, char* buff, int maxsize, int* nb, int flushi
 	if (fsizeraw[bindex] < 0)	// Read what is missing from the current file
 		maxsize = maxsize + fsizeraw[bindex];
 
-	fread(buff, sizeof(char), maxsize, ReadRawData[bindex]);
+	fret = fread(buff, sizeof(char), maxsize, ReadRawData[bindex]);
 
 	if (fsizeraw[bindex] <= 0) {
 		fclose(ReadRawData[bindex]);
@@ -763,12 +771,14 @@ int LLeth_CloseRawOutputFile(int handle) {
 	if (ProcessRawData) return 0;
 
 	int bidx = FERS_INDEX(handle);
+	lock(rdf_mutex[bidx]);
 	if (RawData[bidx] != NULL) {
 		fclose(RawData[bidx]);
 		RawData[bidx] = NULL;
 	}
 	size_file[bidx] = 0;
 	subrun[bidx] = 0;
+	unlock(rdf_mutex[bidx]);
 	return 0;
 }
 
@@ -803,6 +813,7 @@ int LLeth_OpenDevice(char* board_ip_addr, int bindex) {
 		FERS_TotalAllocatedMem += RX_BUFF_SIZE;
 	}
 	initmutex(RxMutex[bindex]);
+	initmutex(rdf_mutex[bindex]);
 	f_sem_init(&RxSemaphore[bindex]);
 	QuitThread[bindex] = 0;
 	thread_create(eth_data_receiver, &bindex, &ThreadID[bindex]);
@@ -855,6 +866,9 @@ int LLeth_CloseDevice(int bindex)
 			FERS_TotalAllocatedMem -= RX_BUFF_SIZE;
 		}
 	}
+
+	destroymutex(RxMutex[bindex]);
+	destroymutex(rdf_mutex[bindex]);
 
 	return 0;
 }

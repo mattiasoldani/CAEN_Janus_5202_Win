@@ -526,8 +526,7 @@ void ManualController(int b_handle)
 
 					if (c == 'p') {
 						char line[500];
-						int s = 0;
-						int PLLindex = 1, ret = 0;
+						int PLLindex = 1;
 						int cnt_r = 0;
 						char fname[200] = "D:\\work\\a5203\\PLL\\Si5394_Reg.txt";
 						uint32_t addr, data, devaddr;
@@ -704,6 +703,7 @@ void RegAccessTest(int* handle, int nbrd) {
 int AcquirePedestals(int handle, uint16_t *pedestalLG, uint16_t *pedestalHG)
 {
 	int nb, dtq; 
+	int ret = 0;
 	uint32_t i, nn, rmask;
 	uint32_t ml[64], mh[64];
 	void *Event;
@@ -722,13 +722,13 @@ int AcquirePedestals(int handle, uint16_t *pedestalLG, uint16_t *pedestalHG)
 	FERS_SendCommand(handle, CMD_CFG_ASIC);  
 	*/
 
-	FERS_ReadRegister(handle, a_run_mask, &rmask);  
-	FERS_WriteRegister(handle, a_run_mask, 1);  // swrun
-	FERS_WriteRegister(handle, a_acq_ctrl, ACQMODE_SPECT);
-	FERS_WriteRegister(handle, a_trg_mask, 0x21);  // SW Trigger + PTRG
-	FERS_WriteRegister(handle, a_dwell_time, (uint32_t)(1e6 / CLK_PERIOD_5202));  // 1 ms
-	FERS_WriteRegisterSlice(handle, a_acq_ctrl, 12, 13, GAIN_SEL_BOTH);  // Set Gain Selection = Both
-	FERS_EnablePedestalCalibration(handle, 0);
+	ret = FERS_ReadRegister(handle, a_run_mask, &rmask);  
+	ret |= FERS_WriteRegister(handle, a_run_mask, 1);  // swrun
+	ret |= FERS_WriteRegister(handle, a_acq_ctrl, ACQMODE_SPECT);
+	ret |= FERS_WriteRegister(handle, a_trg_mask, 0x21);  // SW Trigger + PTRG
+	ret |= FERS_WriteRegister(handle, a_dwell_time, (uint32_t)(1e6 / CLK_PERIOD_5202));  // 1 ms
+	ret |= FERS_WriteRegisterSlice(handle, a_acq_ctrl, 12, 13, GAIN_SEL_BOTH);  // Set Gain Selection = Both
+	ret |= FERS_EnablePedestalCalibration(handle, 0);
 
 	Sleep(100);
 	FERS_SendCommand(handle, CMD_ACQ_STOP);  // Stop Command (in case the board is still running)

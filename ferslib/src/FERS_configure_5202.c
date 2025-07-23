@@ -472,7 +472,7 @@ static int ReadSCbsFromFile(char *filename, uint32_t *SCbs)
 	if ((scf = fopen(filename, "r")) == NULL) return -1;
 	memset(SCbs, 0, NW_SCBS * sizeof(uint32_t));
 	for(i=0; i<1144; i++) {
-		fscanf(scf, "%c", &c);
+		int sret = fscanf(scf, "%c", &c);
 		if ((c != '0') && (c != '1')) {
 			//if (!SockConsole) printf("Invalid CS file (%s)\n", filename);
 			return -1;

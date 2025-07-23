@@ -276,10 +276,10 @@ int FERS_CalibThresholdOffset(int handle, float min_thr, float max_thr, int *don
 {
 	int ret = 0, b, nb, ch, dtq, ntrg, niter, step, nstep;
 	int nch;
-	char cback[200];
+	char cback[256];
 	ListEvent_t* Event;
 	double tstamp_us;
-	uint32_t hit_cnt[THRCALIB_MAX_NSTEP][FERSLIB_MAX_NCH_5203], hit_cnt_max[FERSLIB_MAX_NCH_5203] = { 0 }, tot_hit, dac_start;
+	uint32_t hit_cnt[THRCALIB_MAX_NSTEP][FERSLIB_MAX_NCH_5203], tot_hit, dac_start;   // hit_cnt_max[FERSLIB_MAX_NCH_5203] = { 0 },
 	uint64_t st;
 	float thr[THRCALIB_MAX_NSTEP];
 	Config_t* Fcfg_tmp;
@@ -390,15 +390,16 @@ int FERS_CalibThresholdOffset(int handle, float min_thr, float max_thr, int *don
 		for (ch = 0; ch < nch; ch++)
 			if (hit_cnt[step][ch] == 0) {
 				//Con_printf("LSCm", "  .");
-				sprintf(cback, "%s.  ", cback);
+				strcat(cback, ".  ");
 				//(*ptr)(cback, 0);
-			} else { sprintf(cback, "%s|  ", cback); // or "%s  |"
+			} else { 
+				strcat(cback, "|  "); // or "%s  |"
 				//if (step == 0 || step == nstep)
 				//	return FERSLIB_ERR_CALIB_FAIL;
 				//else {
 					//Con_printf("LSCm", "  |");
 			}
-		sprintf(cback, "%s\n", cback);
+		strcat(cback, "\n");
 		(*ptr)(cback, -2);
 		//(*ptr)("\n", 0);
 	}

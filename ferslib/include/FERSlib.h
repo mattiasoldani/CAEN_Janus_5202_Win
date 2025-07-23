@@ -18,8 +18,8 @@
 *	\brief		CAEN FERS Library
 *	\author		Daniele Ninci, Carlo Tintori
 * 
-*	@version 1.1.2
-*	@date 15/04/2025
+*	@version 1.2.0
+*	@date 06/05/2025
 ********************************************************************************/
 
 /*!
@@ -59,6 +59,11 @@
 
 #define FERSLIB_STR_HELPER_(S)			#S
 #define FERSLIB_STR(S)					FERSLIB_STR_HELPER_(S)
+
+
+#define f_sprintf	sprintf_s
+#define f_fopen		fopen_s
+
 
 /*!
  * @defgroup structs FERS Library Structures
@@ -105,11 +110,11 @@
  * @{
  */
 #define FERSLIB_VERSION_MAJOR			1
-#define FERSLIB_VERSION_MINOR			1
-#define FERSLIB_VERSION_PATCH			2
+#define FERSLIB_VERSION_MINOR			2
+#define FERSLIB_VERSION_PATCH			0
 #define FERSLIB_RELEASE_NUM				(FERSLIB_VERSION_MAJOR * 10000) + (FERSLIB_VERSION_MINOR * 100) + (FERSLIB_VERSION_PATCH)	/*!< Library release version (int) */
 #define FERSLIB_RELEASE_STRING			FERSLIB_STR(FERSLIB_VERSION_MAJOR) "." FERSLIB_STR(FERSLIB_VERSION_MINOR) "." FERSLIB_STR(FERSLIB_VERSION_PATCH) /*!<Library release version (string) */
-#define FERSLIB_RELEASE_DATE			"15/04/2025"
+#define FERSLIB_RELEASE_DATE			"06/06/2025"
 /*! @} */
 
 #define THROUGHPUT_METER			0		///< Must be 0 in normal operation (can be used to test the data throughput in different points of the readout process)
@@ -1603,7 +1608,7 @@ extern "C" {
 	 * @param[in] value			Value to set for the parameter
 	 * @return					0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
-	CAEN_FERS_DLLAPI int FERS_SetParam(int handle, char* param_name, char* value);
+	CAEN_FERS_DLLAPI int FERS_SetParam(int handle, const char* param_name, const char* value_original);
 
 	/*!
 	 * @ingroup cfg
@@ -1834,11 +1839,11 @@ extern "C" {
 	 * @ingroup EEPROM
 	 * @brief						Check A5256 presence
 	 *
-	 * @param[in] handle			Board handle
-	 * @param[in] binfo				EEPROM bic struct
+	 * @param[in] handle			Board handle,
+	 * @param[in] tinfo				A5256 info structure (it will be removedfrom v2.0.0)
 	 * @return						0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
-	CAEN_FERS_DLLAPI int FERS_checkA5256presence(int handle, FERS_A5256_Info_t* binfo);
+	CAEN_FERS_DLLAPI int FERS_checkA5256presence(int handle, FERS_A5256_Info_t* tinfo);
 
 	/*!
 	* @ingroup A5256F
