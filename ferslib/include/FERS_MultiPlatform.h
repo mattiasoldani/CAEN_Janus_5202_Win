@@ -24,9 +24,8 @@
 #include <stdarg.h>
 #include <inttypes.h>
 
+#ifndef INT32_C
 #define INT32_C(x)   (x)
-#ifndef INFINITE
-#define INFINITE		INT32_C(-1)
 #endif
 
 // shutdown the socket before closing
@@ -47,6 +46,7 @@
 	#include <sys\stat.h>
 
 	#define access(path, amode)			_access(path, amode)
+
 #else
 	#include <pthread.h>
 	#include <time.h>
@@ -65,6 +65,9 @@
 	#include <endian.h>
 #endif
 
+#ifndef INFINITE
+#define INFINITE		INT32_C(-1)
+#endif
 
 // Socket definition
 #ifdef linux
@@ -122,7 +125,7 @@ extern "C" {
 	typedef sem_t					f_sem_t;
 	#define initmutex(m)			pthread_mutex_init(&m, NULL)
 //	#define initmutex(m)			(m = PTHREAD_MUTEX_INITIALIZER)
-	#define destroymutex(m)			(m = 0) // pthread_mutex_destroy(m)
+	#define destroymutex(m)			pthread_mutex_destroy(&m)
 	#define lock(m)					pthread_mutex_lock(&m)
 	#define unlock(m)				pthread_mutex_unlock(&m)
 	#define trylock(m)				pthread_mutex_trylock(&m) // pthread_mutex_timedlock(&m, t)

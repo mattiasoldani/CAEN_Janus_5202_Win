@@ -103,8 +103,6 @@ int PlotSpectrum()
 	char description[MAX_NTRACES][50];
 	static int LastNbin = 0, LastXcalib = 0;
 	static double LastA0 = 0, LastA1 = 0;
-	uint32_t TriggerMask = 0;
-	float PtrgPeriod = 0;
 	Histogram1D_t *Histo[MAX_NTRACES];
 
 	if (plotpipe == NULL) return -1;
@@ -270,14 +268,20 @@ int PlotSpectrum()
 
 		strcat(gnuplotSettings, "set key title ' Mean    RMS                '\n");
 
+		char tmp_settings[256];
 		if (xcalib) {    // && J_cfg.AcquisitionMode != ACQMODE_COUNT
-			sprintf(gnuplotSettings, "%sset xlabel '%s'\n", gnuplotSettings, xunit);
-			sprintf(gnuplotSettings, "%sset xrange [%f:%f]\n", gnuplotSettings, la0, la0 + Nbin * la1);
-			sprintf(gnuplotSettings, "%sbind x 'set xrange [%f:%f]'\n", gnuplotSettings, la0, la0 + Nbin * la1);
+			sprintf(tmp_settings, "set xlabel '%s'\n", xunit);
+			strcat(gnuplotSettings, tmp_settings);
+			sprintf(tmp_settings, "set xrange [%f:%f]\n", la0, la0 + Nbin * la1);
+			strcat(gnuplotSettings, tmp_settings);
+			sprintf(tmp_settings, "bind x 'set xrange [%f:%f]'\n", la0, la0 + Nbin * la1);
+			strcat(gnuplotSettings, tmp_settings);
 		} else {
-			sprintf(gnuplotSettings, "%sset xlabel 'Channels'\n", gnuplotSettings);
-			sprintf(gnuplotSettings, "%sset xrange [0:%d]\n", gnuplotSettings, Nbin);
-			sprintf(gnuplotSettings, "%sbind x 'set xrange [0:%d]'\n", gnuplotSettings, Nbin);
+			strcat(gnuplotSettings, "set xlabel 'Channels'\n");
+			sprintf(tmp_settings, "set xrange [0:%d]\n", Nbin);
+			strcat(gnuplotSettings, tmp_settings);
+			sprintf(tmp_settings, "bind x 'set xrange [0:%d]'\n", Nbin);
+			strcat(gnuplotSettings, tmp_settings);
 		}
 		fprintf(plotpipe, "%s", gnuplotSettings);
 		LastNbin = Nbin;
@@ -288,6 +292,7 @@ int PlotSpectrum()
 		LastA1 = la1;
 	}
 	if ((RunVars.PlotType == PLOT_MCS_TIME) && (J_cfg.AcquisitionMode == ACQMODE_COUNT)) {
+		fprintf(plotpipe, "set ylabel 'Counts [kcps]'\n");
 		fprintf(plotpipe, "set yrange [0:%f]'\n", max_yval * 1.25);
 		fprintf(plotpipe, "bind y 'set yrange [0:]'\n");
 	}
@@ -305,12 +310,14 @@ int PlotSpectrum()
 					if (Histo[t]->H_data[Nbin - 2] > 0)
 						ind = (i + Histo[t]->Bin_set) % (Histo[t]->Nbin - 1);
 				}
-				sprintf(line, "%s%" PRIu32 " ", line, Histo[t]->H_data[ind]);
+				char cat_line[256] = "";
+				sprintf(cat_line, "%" PRIu32 " ", Histo[t]->H_data[ind]);
+				strcat(line, cat_line);
 				//fprintf(plotpipe, "%" PRIu32 " ", Histo[t]->H_data[ind]);
 				if (debug) fprintf(debbuff, "%" PRIu32 " ", Histo[t]->H_data[ind]);
 			}
 		}
-		sprintf(line, "%s\n", line);
+		strcat(line, "\n");
 		//fprintf(plotpipe, "\n");
 		strcat(pipeData, line);
 		if (strlen(pipeData) > sizeof(pipeData) - 512) {

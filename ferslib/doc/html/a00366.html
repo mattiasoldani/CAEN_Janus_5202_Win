@@ -27,7 +27,7 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="caen_logo.svg"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;develop (95082b70)</span>
+   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;main (d27be47d)</span>
    </div>
    <div id="projectbrief">SDK for FERS systems</div>
   </td>
@@ -143,14 +143,14 @@ Log</h3>
 <p >The FERSlibLog file is enabled by default and saved in the folder where the .exe is running. User may enable other debug logging by setting the parameter <code>DebugLogMask</code> to <code>&lt;0xVALUE&gt;</code>, where <code>&lt;0xVALUE&gt;</code> can be an OR of the values in <a class="el" href="a00053.html">DebugLOG</a>.</p>
 <h3><a class="anchor" id="autotoc_md13"></a>
 Configure</h3>
-<p >The user can configure the FERS module setting the prameters available in <a class="el" href="a00047.html">CfgParam</a> both individually by using <a class="el" href="a00073.html#ga96267f9d46e6306610851b745fffd100" title="Set a parameter by name. The function assigns the value to the relevant parameter in the FERScfg stru...">FERS_SetParam()</a> </p><div class="fragment"><div class="line">            <a class="code hl_function" href="a00073.html#ga96267f9d46e6306610851b745fffd100">FERS_SetParam</a>(handle[b], parname, parvalue);</div>
-<div class="ttc" id="aa00073_html_ga96267f9d46e6306610851b745fffd100"><div class="ttname"><a href="a00073.html#ga96267f9d46e6306610851b745fffd100">FERS_SetParam</a></div><div class="ttdeci">int FERS_SetParam(int handle, char *param_name, char *value)</div><div class="ttdoc">Set a parameter by name. The function assigns the value to the relevant parameter in the FERScfg stru...</div></div>
+<p >The user can configure the FERS module setting the prameters available in <a class="el" href="a00047.html">CfgParam</a> both individually by using <a class="el" href="a00073.html#gaa8a7a3f2f86d21ac82defe7ed10e5a7b" title="Set a parameter by name. The function assigns the value to the relevant parameter in the FERScfg stru...">FERS_SetParam()</a> </p><div class="fragment"><div class="line">            <a class="code hl_function" href="a00073.html#gaa8a7a3f2f86d21ac82defe7ed10e5a7b">FERS_SetParam</a>(handle[b], parname, parvalue);</div>
+<div class="ttc" id="aa00073_html_gaa8a7a3f2f86d21ac82defe7ed10e5a7b"><div class="ttname"><a href="a00073.html#gaa8a7a3f2f86d21ac82defe7ed10e5a7b">FERS_SetParam</a></div><div class="ttdeci">int FERS_SetParam(int handle, const char *param_name, const char *value_original)</div><div class="ttdoc">Set a parameter by name. The function assigns the value to the relevant parameter in the FERScfg stru...</div></div>
 </div><!-- fragment --><p> or by reading a configuration file with <a class="el" href="a00073.html#ga7c7d9747c8d09fddc4a500281ec210e9" title="Loads a configuration file.">FERS_LoadConfigFile()</a> </p><div class="fragment"><div class="line">    ret = <a class="code hl_function" href="a00073.html#ga7c7d9747c8d09fddc4a500281ec210e9">FERS_LoadConfigFile</a>(cfg_file);</div>
 <div class="ttc" id="aa00073_html_ga7c7d9747c8d09fddc4a500281ec210e9"><div class="ttname"><a href="a00073.html#ga7c7d9747c8d09fddc4a500281ec210e9">FERS_LoadConfigFile</a></div><div class="ttdeci">int FERS_LoadConfigFile(char *filepath)</div><div class="ttdoc">Loads a configuration file.</div></div>
 </div><!-- fragment --><p >The parameters value is saved statically inside the library and can be retrieved with <a class="el" href="a00073.html#gafbadb6f61fc7318dcf4ea0dc23dfc8e8" title="Get the value of a parameter. The function reads the value from the relevant parameter in the FERScfg...">FERS_GetParam()</a> </p><div class="fragment"><div class="line">    ret = <a class="code hl_function" href="a00073.html#gafbadb6f61fc7318dcf4ea0dc23dfc8e8">FERS_GetParam</a>(handle[0], parname, parvalue);</div>
 <div class="ttc" id="aa00073_html_gafbadb6f61fc7318dcf4ea0dc23dfc8e8"><div class="ttname"><a href="a00073.html#gafbadb6f61fc7318dcf4ea0dc23dfc8e8">FERS_GetParam</a></div><div class="ttdeci">int FERS_GetParam(int handle, char *param_name, char *value)</div><div class="ttdoc">Get the value of a parameter. The function reads the value from the relevant parameter in the FERScfg...</div></div>
 </div><!-- fragment --><p >The board will be configured only after calling <a class="el" href="a00073.html#ga4e205897a2bad6522f0855ea1a55625f" title="Configures a FERS board.">FERS_configure()</a> </p><div class="fragment"><div class="line">        ret = <a class="code hl_function" href="a00073.html#ga4e205897a2bad6522f0855ea1a55625f">FERS_configure</a>(handle[b], <a class="code hl_define" href="a00049.html#ga41ae0eb8c552d5b754c0e36f6073abbc">CFG_HARD</a>);</div>
-<div class="ttc" id="aa00049_html_ga41ae0eb8c552d5b754c0e36f6073abbc"><div class="ttname"><a href="a00049.html#ga41ae0eb8c552d5b754c0e36f6073abbc">CFG_HARD</a></div><div class="ttdeci">#define CFG_HARD</div><div class="ttdoc">Configuration Mode.</div><div class="ttdef"><b>Definition:</b> <a href="a00026_source.html#l00469">FERSlib.h:469</a></div></div>
+<div class="ttc" id="aa00049_html_ga41ae0eb8c552d5b754c0e36f6073abbc"><div class="ttname"><a href="a00049.html#ga41ae0eb8c552d5b754c0e36f6073abbc">CFG_HARD</a></div><div class="ttdeci">#define CFG_HARD</div><div class="ttdoc">Configuration Mode.</div><div class="ttdef"><b>Definition:</b> <a href="a00026_source.html#l00474">FERSlib.h:474</a></div></div>
 <div class="ttc" id="aa00073_html_ga4e205897a2bad6522f0855ea1a55625f"><div class="ttname"><a href="a00073.html#ga4e205897a2bad6522f0855ea1a55625f">FERS_configure</a></div><div class="ttdeci">int FERS_configure(int handle, int mode)</div><div class="ttdoc">Configures a FERS board.</div></div>
 </div><!-- fragment --><p >For debug, both the local parameters value and the board register value can be dump on a file by setting the <code>DebugLogMask</code> to the correct Mask in <a class="el" href="a00053.html">DebugLOG</a>.</p>
 <h3><a class="anchor" id="autotoc_md14"></a>
@@ -179,7 +179,7 @@ Check last error</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Apr 15 2025 09:11:49 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+    <li class="footer">Generated on Fri Jun 6 2025 08:58:37 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
   </ul>
 </div>
 </body>

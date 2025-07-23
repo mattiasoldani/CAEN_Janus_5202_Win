@@ -62,6 +62,7 @@ mutex_t FERS_RoMutex = NULL;							// Mutex for the access to FERS_ReadoutStatus
 #else
 mutex_t FERS_RoMutex;									// Mutex for the access to FERS_ReadoutStatus
 #endif
+f_sem_t FERS_StartRunSemaphore[FERSLIB_MAX_NBRD];	// Semaphore for sync the start of the run with the data receiver thread
 int DebugLogs = 0;									// Debug Logs
 //uint8_t EnableRawData = 0;							// Enable LowLevel data saving
 uint8_t ProcessRawData = 0;							// Enable ReadingOut the RawData file saved	- Is the same of FERS_Offline, redundant
@@ -100,7 +101,7 @@ void _setLastLocalError(const char* description, ...) {
 int FERS_LibMsg(char *fmt, ...) 
 {
 	char msg[1000];
-	char FERS_MsgString[500];
+	char FERS_MsgString[1024];
 	static FILE *LibLog;
 	static int openfile = 1;
 	static uint64_t t0;
@@ -445,7 +446,7 @@ static int FERS_ReadBoardInfo(int handle, FERS_BoardInfo_t* binfo)
 			binfo->NumCh = FERSLIB_MAX_NCH_5202;
 		}
 	} else if (binfo->FERSCode == 5203) {
-		if (binfo->NumCh != FERSLIB_MAX_NCH_5203 || binfo->NumCh != FERSLIB_MAX_NCH_5202) {
+		if (binfo->NumCh != FERSLIB_MAX_NCH_5203 && binfo->NumCh != FERSLIB_MAX_NCH_5202) {
 			FERS_LibMsg("[WARNING] Inconsistent NumCh read from board %d(PID=%d): NumCh Read=%d, library forces NumCh to %d\n", FERS_INDEX(handle), binfo->pid, binfo->NumCh, FERSLIB_MAX_NCH_5202);
 			binfo->NumCh = FERSLIB_MAX_NCH_5202;
 		}
@@ -734,7 +735,7 @@ int FERS_OpenOffline(char* path, int *handle) {
 	uint16_t PedeLG[64], PedeHG[64];
 	FERS_BoardInfo_t BoardInfo;
 	//fscanf(tmp_info, "%s", &file_header);
-	fread(&file_header, 32, 1, tmp_info);
+	int fret = fread(&file_header, 32, 1, tmp_info);
 	if (strcmp(file_header, "$$$$$$$FERSRAWDATAHEADER$$$$$$$") != 0) { // No header mark found
 		if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[ERROR][OFFLINE] No valid keyword header found\n");
 		_setLastLocalError("No valid keyword header found");
@@ -747,7 +748,7 @@ int FERS_OpenOffline(char* path, int *handle) {
 	//fread(&rere, sizeof(uint8_t), 1, tmp_info);
 	//fread(&rere, sizeof(uint8_t), 1, tmp_info);
 
-	fread(&header_size, sizeof(header_size), 1, tmp_info);
+	fret = fread(&header_size, sizeof(header_size), 1, tmp_info);
 	if (header_size == 0) {
 		if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[ERROR][OFFLINE] Cannot read header of Raw Data file %s\n", filename);
 		_setLastLocalError("Cannot read header of RawData file %s", filename);
@@ -756,11 +757,12 @@ int FERS_OpenOffline(char* path, int *handle) {
 
 	header_size -= sizeof(header_size);
 
-	// if header size is larger then handle+brdInfo, a tdl connection was established 
-	if (header_size > sizeof(handle) + sizeof(FERS_BoardInfo_t) + 2 * sizeof(PedeLG)) { // For 5203, sizeof CncInfo is > 2*Pedestal. The inequality is still true
+	// if header size is larger then handle+brdInfo, a tdl connection was established.
+	// Cannot be retrieved from handle since it is not yet read
+	if (header_size > sizeof(*handle) + sizeof(FERS_BoardInfo_t) + 2 * sizeof(PedeLG)) { // For 5203, sizeof CncInfo is > 2*Pedestal. The inequality is still true.
 		FERS_CncInfo[0] = (FERS_CncInfo_t*)malloc(sizeof(FERS_CncInfo_t));
 		//fread(&cnc_handle, sizeof(int), 1, tmp_info);
-		fread(FERS_CncInfo[0], sizeof(FERS_CncInfo_t), 1, tmp_info);
+		fret = fread(FERS_CncInfo[0], sizeof(FERS_CncInfo_t), 1, tmp_info);
 		header_size -= sizeof(FERS_CncInfo_t);
 		//FERS_SetConcentratorInfo(cnc_handle, &tmpCInfo);
 	}
@@ -784,26 +786,25 @@ int FERS_OpenOffline(char* path, int *handle) {
 		FERScfg[b] = (Config_t*)calloc(1, sizeof(Config_t));
 		//strcpy(FERScfg[b]->ConnPath, filename);
 
-		fread(&handle[b], sizeof(handle[b]), 1, tmp_info);
-		fread(&BoardInfo, sizeof(FERS_BoardInfo_t), 1, tmp_info);
-		if (BoardInfo.FERSCode == 5202) {
-			fread(&PedeLG, sizeof(PedeLG), 1, tmp_info);
-			fread(&PedeHG, sizeof(PedeHG), 1, tmp_info);
+		int tmp_handle = 0;
+		fread(&tmp_handle, sizeof(int), 1, tmp_info);
+		handle[b] = tmp_handle;
+
+		fread(&BoardInfo, sizeof(FERS_BoardInfo_t), 1, tmp_info);		if (BoardInfo.FERSCode == 5202) {
+			fret = fread(&PedeLG, sizeof(PedeLG), 1, tmp_info);
+			fret = fread(&PedeHG, sizeof(PedeHG), 1, tmp_info);
 		}
 
 		// Open LL connection
-		int connection_type = FERS_CONNECTIONTYPE(handle[b]);
+		int connection_type = FERS_CONNECTIONTYPE(*handle);
 		if (connection_type == FERS_CONNECTIONTYPE_TDL) {  // Concentrator => TDlink => FE-board
 			int cindex = FERS_CNCINDEX(*handle);
-			/*ret = LLtdl_InitTDLchains(cindex, NULL);  //CTIN: need to reinit chains? Should be already done when the concentrator is open
-			if (ret < 0) return ret;*/
-			//if (node >= FERSLIB_MAX_NNODES) return FERSLIB_ERR_INVALID_PATH;
 			CncOpenHandles[cindex]++;
 		} else if (connection_type == FERS_CONNECTIONTYPE_ETH) {  // Direct to FE-board - Ethernet
 			ret |= LLeth_OpenDevice(filename, b);
 			if (ret < 0) return FERSLIB_ERR_COMMUNICATION;
 		} else if (connection_type == FERS_CONNECTIONTYPE_USB) { // USB
-			int pid = FERS_INDEX(*handle);
+			int pid = FERS_INDEX(handle[b]);
 			ret |= LLusb_OpenDevice(pid, b);
 			if (ret < 0) return FERSLIB_ERR_COMMUNICATION;
 		} else {
@@ -811,11 +812,11 @@ int FERS_OpenOffline(char* path, int *handle) {
 		}
 
 		FERS_SetBoardInfo(&BoardInfo, handle[b]);
-		if (FERS_IsXROC(handle[b])) 
+		if (FERS_IsXROC(handle[b]))
 			FERS_SetPedestalOffline(PedeLG, PedeHG, handle[b]);
 
-		header_size -= (sizeof(handle[b]) + sizeof(FERS_BoardInfo_t));
-		if (FERS_IsXROC(handle[b])) 
+		header_size -= (sizeof(*handle) + sizeof(FERS_BoardInfo_t));
+		if (FERS_IsXROC(handle[b]))
 			header_size -= 2 * sizeof(PedeLG);
 
 		BoardConnected[b] = 1;
@@ -843,9 +844,10 @@ int FERS_GetBoardInfo(int handle, FERS_BoardInfo_t* BrdInfo)
 
 int FERS_GetCncInfo(int handle, FERS_CncInfo_t* BrdInfo) 
 {
-	if (FERS_CncInfo[0] == NULL)
+	int cnc_index = FERS_CNCINDEX(handle);
+	if (FERS_CncInfo[cnc_index] == NULL)
 		return 0;  // Maybe should return something else
-	memcpy(BrdInfo, FERS_CncInfo[0], sizeof(FERS_CncInfo_t));
+	memcpy(BrdInfo, FERS_CncInfo[cnc_index], sizeof(FERS_CncInfo_t));
 	return 0;
 }
 
@@ -876,6 +878,10 @@ int FERS_CloseDevice(int handle)
 		if (CncOpenHandles[FERS_CNCINDEX(handle)] == 0) {
 			LLtdl_CloseDevice(FERS_CNCINDEX(handle));
 			CncConnected[FERS_CNCINDEX(handle)] = 0;
+			if (FERS_CncInfo[FERS_CNCINDEX(handle)] != NULL) {
+				free(FERS_CncInfo[FERS_CNCINDEX(handle)]);
+				FERS_CncInfo[FERS_CNCINDEX(handle)] = NULL;
+			}
 		}
 	} else {
 		if ((handle < 0) || (FERS_INDEX(handle) >= FERSLIB_MAX_NBRD)) return FERSLIB_ERR_INVALID_HANDLE;
@@ -1327,10 +1333,9 @@ int FERS_ReadA5256EEPROMInfo(int handle, FERS_A5256_Info_t* binfo) {
 // --------------------------------------------------------------------------------------------------------- 
 // Description: Check A5256 presence by checking EEPROM or DAC presence
 // Inputs:		handle = board handle 
-// Outputs:		binfo = board info struct
 // Return:		0=OK, negative number = error code
 // --------------------------------------------------------------------------------------------------------- 
-int FERS_checkA5256presence(int handle, FERS_A5256_Info_t* binfo) {
+int FERS_checkA5256presence(int handle, FERS_A5256_Info_t* tinfo) {
 	int ret = 0;
 	uint32_t data = 0, addr = 0;
 
@@ -1542,6 +1547,7 @@ int FERS_ReadConcentratorInfo(int handle, FERS_CncInfo_t* cinfo)
 
 	if (FERS_CncInfo[FERS_CNCINDEX(handle)] == NULL) {
 		FERS_CncInfo[FERS_CNCINDEX(handle)] = (FERS_CncInfo_t*)malloc(sizeof(FERS_CncInfo_t));
+		FERS_TotalAllocatedMem += sizeof(FERS_CncInfo_t);
 	}
 	memcpy(FERS_CncInfo[FERS_CNCINDEX(handle)], cinfo, sizeof(FERS_CncInfo_t));
 
@@ -2607,10 +2613,10 @@ int FERS_FirmwareUpgrade(int handle, char filen[200], void(*ptr)(char *msg, int 
 		fseek(fp, 0x40, SEEK_CUR);
 		char read_bit;
 		while (!feof(fp)) {	// find the last carriage of header and return byte written in the header - last byte '0x0a'
-			fread(&read_bit, sizeof(read_bit), 1, fp);
+			int fret = fread(&read_bit, sizeof(read_bit), 1, fp);
 			if (read_bit == 0x24) { // Char == $, end of the header
 				while (1) {
-					fread(&read_bit, sizeof(read_bit), 1, fp);
+					fret = fread(&read_bit, sizeof(read_bit), 1, fp);
 					if (read_bit == 0xa) // or read_bit == -1, with SEEK(fp, -1, SEEK_CUR)
 						break;
 				}
@@ -2646,7 +2652,7 @@ int FERS_FirmwareUpgrade(int handle, char filen[200], void(*ptr)(char *msg, int 
 
 	int firmware_start = ftell(fp); // in case of header, this offset point to begin of the firmware anyway (0 or byte_of_header)
 	// Check 1st byte (must be -1 in Xilinx .bin files)
- 	fread(&b0, 1, 1, fp);
+ 	int fret = fread(&b0, 1, 1, fp);
 	if (b0 != -1) {
 		FERS_LibMsg("[ERROR][BRD %02d] Error: invalid firmware\n", FERS_INDEX(handle));
 		return FERSLIB_ERR_INVALID_FWFILE;
@@ -2660,7 +2666,7 @@ int FERS_FirmwareUpgrade(int handle, char filen[200], void(*ptr)(char *msg, int 
 	msize = firmware_size_byte + (8192*4);
 	firmware = (char*)malloc(msize);
 	if (!firmware)	return FERSLIB_ERR_UPGRADE_ERROR;
-	fread(firmware, firmware_size_byte, 1, fp);
+	fret = fread(firmware, firmware_size_byte, 1, fp);
 
 	//char infoFW[1024];
 	//sprintf(infoFW, "New Firmware: %s - %s for board %hu\n", firmware_size_byte, header[2], header[3], ALTTABINFO);
@@ -2728,8 +2734,8 @@ int FERS_FirmwareUpgrade(int handle, char filen[200], void(*ptr)(char *msg, int 
 		ret |= FERS_FirmwareBootApplication_ethusb(handle);  // FirmwareBootApplication(handle);
 	}
 	
-	if (FERS_CONNECTIONTYPE(handle) == FERS_CONNECTIONTYPE_USB)
-		LLusb_StreamEnable(FERS_INDEX(handle), true);
+	//if (FERS_CONNECTIONTYPE(handle) == FERS_CONNECTIONTYPE_USB)
+	//	LLusb_StreamEnable(FERS_INDEX(handle), true);
 
 	FERS_LibMsg("[INFO][BRD %02d] Firmware upgrade completed\n", FERS_INDEX(handle));
 

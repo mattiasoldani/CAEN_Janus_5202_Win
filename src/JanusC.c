@@ -85,7 +85,6 @@ int LoadRunVariables(RunVars_t* RunVars)
 	int i;
 	FILE* ps = fopen(RUNVARS_FILENAME, "r");
 	//char plot_name[50];	// name of histofile.
-	int mline = 0;
 
 	// set defaults
 	offline_plot = 0;
@@ -99,7 +98,7 @@ int LoadRunVariables(RunVars_t* RunVars)
 	for (i = 0; i < 4; i++) RunVars->StaircaseCfg[i] = 0;
 	for (i = 0; i < 4; i++) RunVars->HoldDelayScanCfg[i] = 0;
 	for (int i = 0; i < 8; i++)
-		sprintf(RunVars->PlotTraces[i], "");
+		RunVars->PlotTraces[i][0] = '\0';
 	if (ps == NULL) return -1;
 	//for (i = 0; i < MAX_NTRACES; ++i)  Stats.offline_bin[i] = -1; // Reset offline binning
 	while (!feof(ps)) {
@@ -220,7 +219,7 @@ void job_read_parse()
 	FILE* cfg;
 	if (J_cfg.EnableJobs) {  // When running a job, load the specific config file for this run number
 		int TmpJRun = J_cfg.JobFirstRun;
-		char fname[200];
+		char fname[530];
 		sprintf(fname, "%sJanus_Config_Run%d.txt", J_cfg.DataFilePath, jobrun);
 		cfg = fopen(fname, "r");
 		if (cfg != NULL) {
@@ -285,7 +284,7 @@ void SendAcqStatusMsg(char* fmt, ...)
 // Update service event info
 int Update_Service_Info(int handle) {
 	int brd = FERS_INDEX(handle);
-	int b_on = -1, s_on = -1, ovc = -1, ovv = -1, ramp = -1, ret = 0, fail = 0;
+	int b_on = -1, s_on = -1, ovc = -1, ovv = -1, ramp = -1, ret = 0;
 	static int first_call = 1;
 	uint64_t now = j_get_time();
 
@@ -344,7 +343,6 @@ int Update_Service_Info(int handle) {
 
 	if (brd == J_cfg.NumBrd - 1) first_call = 0; // when GUI re-connect found for all the board the correct status, elsewhere HV_status for brd!=0 is 4
 
-	if (ret < 0) fail = 1;
 	return ret;
 }
 
@@ -353,12 +351,11 @@ int Update_Service_Info(int handle) {
 void Send_HV_Info(int call_update_service)
 {
 	char tmp_brdhv[1024] = "";
-	float vmon = -1, imon = -1, dtemp = -1, itemp = -1, fpga_temp = -1, pcb_temp = -1;
-	int b_on=-1, s_on = -1, ovc = -1, ovv = -1, ramp = -1, ret = 0;
-	uint32_t status = -1;
-	//int brd = FERS_INDEX(handle);
+//	float vmon = -1, imon = -1, dtemp = -1, itemp = -1, fpga_temp = -1, pcb_temp = -1;
+	int ret = 0;
 	static int first_call = 1;
-	uint64_t now = j_get_time();
+	//int brd = FERS_INDEX(handle);
+	//uint64_t now = j_get_time();
 
 	for (int brd = 0; brd < J_cfg.NumBrd; ++brd) {
 		//float vset = J_cfg.HV_Vbias[brd];
@@ -399,9 +396,10 @@ void Send_HV_Info(int call_update_service)
 			ret |= Update_Service_Info(handle[brd]);
 
 		if (brd == J_cfg.NumBrd - 1) first_call = 0; // when GUI re-connect found for all the board the correct status, elsewhere HV_status for brd!=0 is 4
-		if (brd > 0) sprintf(tmp_brdhv, "%s |", tmp_brdhv);
-
-		sprintf(tmp_brdhv, "%s %d %d %6.3f %6.3f %5.1f %5.1f %5.1f %5.1f", tmp_brdhv, brd, HV_status[brd], HVMon[brd][HV_VMON], HVMon[brd][HV_IMON], BrdTemp[brd][TEMP_DETECTOR], BrdTemp[brd][TEMP_HV], BrdTemp[brd][TEMP_FPGA], BrdTemp[brd][TEMP_BOARD]);
+		if (brd > 0) strcat(tmp_brdhv, " |");
+		char tmp_line[100];
+		snprintf(tmp_line, sizeof(tmp_line), " %d %d %6.3f %6.3f %5.1f %5.1f %5.1f %5.1f", brd, HV_status[brd], HVMon[brd][HV_VMON], HVMon[brd][HV_IMON], BrdTemp[brd][TEMP_DETECTOR], BrdTemp[brd][TEMP_HV], BrdTemp[brd][TEMP_FPGA], BrdTemp[brd][TEMP_BOARD]);
+		strcat(tmp_brdhv, tmp_line);
 		//if (fpga_temp<200) sprintf(tmp_brdhv, "%s %d %d %6.3f %6.3f %5.1f %5.1f %5.1f %5.1", tmp_brdhv, brd, HV_status[brd], vmon, imon, dtemp, itemp, fpga_temp, pcb_temp);
 		//else sprintf(tmp_brdhv, "%s %d %d %6.3f %6.3f %5.1f %5.1f -1", tmp_brdhv, brd, HV_status[brd], vmon, imon, dtemp, itemp);
 	}
@@ -411,7 +409,7 @@ void Send_HV_Info(int call_update_service)
 // HV set ON/OFF and control ramp
 int HV_Switch_OnOff(int handle, int onoff)
 {
-	int i, Err = 0, pstat = AcqStatus, b_on, ramp, ovc, ovv, hv_status;
+	int Err = 0, pstat = AcqStatus, b_on, ramp, ovc, ovv, hv_status;
 	int brd = FERS_INDEX(handle);
 	float vmon, imon, vset, imax;
 	float dtemp, itemp, fpga_temp, pcb_temp;
@@ -516,7 +514,6 @@ void reportProgress(char* msg, int progress)
 
 void CheckHVBeforeClosing() {
 	int bnf = 0, rmp, ovc, ovv, ret;
-	const int nn = J_cfg.NumBrd;
 	int brd_on[MAX_NBRD] = {};
 	if (!J_cfg.AskHVShutDownOnExit) {
 		if (SockConsole) Con_printf("LCSm", "Quitting ...\n");
@@ -690,7 +687,7 @@ int CheckFileUpdate() {
 	GetFileUpdateTime(CONFIG_FILENAME, &CurrentTime);
 	if ((CurrentTime > CfgUpdateTime) && !first) {
 		const Janus_Config_t J_cfg_1 = J_cfg;
-		int DebugLogMask1 = FERS_GetParam_hex(handle[0], "DebugLogMask");
+		uint32_t DebugLogMask1 = FERS_GetParam_hex(handle[0], "DebugLogMask");
 		//memcpy(&J_cfg_1, &J_cfg, sizeof(Config_t));
 
 		cfg = fopen(CONFIG_FILENAME, "r");
@@ -756,7 +753,7 @@ int CheckFileUpdate() {
 int RunTimeCmd(int c)
 {
 	int b, reload_cfg = 0;
-	static int CfgDataAnalysis = -1;
+	//static int CfgDataAnalysis = -1;
 	int bb = 0;
 	int cc = 0;
 	for (int m = 0; m < 8; m++) {
@@ -811,7 +808,7 @@ int RunTimeCmd(int c)
 			int i, nt;
 			printf("New Active Channels (ch# or pixel, space separ. list) = ");
 			fgets(ch_list, 100, stdin);
-			nt = sscanf(ch_list, "%s %s %s %s %s %s %s %s", &chs[0], &chs[1], &chs[2], &chs[3], &chs[4], &chs[5], &chs[6], &chs[7]);
+			nt = sscanf(ch_list, "%s %s %s %s %s %s %s %s", chs[0], chs[1], chs[2], chs[3], chs[4], chs[5], chs[6], chs[7]);
 			for (i = 0; i < MAX_NTRACES; i++) {
 				if (i < nt) {
 					if (isdigit(chs[i][0])) sscanf(chs[i], "%d", &new_ch);
@@ -822,7 +819,7 @@ int RunTimeCmd(int c)
 						ConfigureProbe(handle[RunVars.ActiveBrd]);
 					}
 				} else {
-					sprintf(RunVars.PlotTraces[i], "");
+					RunVars.PlotTraces[i][0] = '\0';
 				}
 			}
 			SaveRunVariables(RunVars);
@@ -1005,8 +1002,17 @@ int RunTimeCmd(int c)
 			} else {
 				b = RunVars.StaircaseCfg[SCPARAM_BRD];
 				if ((b >= 0) && (b < J_cfg.NumBrd)) {
+					int rawdata = FERS_GetParam_int(handle[b], "OF_RawData");
+					rawdata = FERS_GetParam_int(handle[b], "OF_RawData");
+					if (rawdata) {	// Disable raw data for special Run
+						FERS_SetParam(handle[b], "OF_RawData", "0");
+					}
 					ScanThreshold(handle[b]);
 					FERS_configure(handle[b], CFG_HARD);
+					rawdata = FERS_GetParam_int(handle[b], "OF_RawData");
+					if (rawdata) {
+						FERS_SetParam(handle[b], "OF_RawData", "1");
+					}
 				}
 				SaveHistos();
 				int newRV = RunVars.RunNumber;
@@ -1021,6 +1027,7 @@ int RunTimeCmd(int c)
 		}
 	}
 	if (c == 'Y' && !offline_conn) {	// Hold-Delay
+		int rawdata = 0;
 		if (!SockConsole) {
 			while (1) {
 				ClearScreen();
@@ -1053,11 +1060,18 @@ int RunTimeCmd(int c)
 			LoadRunVariables(&RunVars);
 		}
 		if (RunVars.HoldDelayScanCfg[HDSPARAM_NMEAN] > 9 && c != 'r') {
-			RunVars.HoldDelayScanCfg[HDSPARAM_BRD];
-			if ((b >= 0) && (b < J_cfg.NumBrd)) {
+			b = RunVars.HoldDelayScanCfg[HDSPARAM_BRD] ;
+			if ((b >= 0) && (b < J_cfg.NumBrd)) { 
+				rawdata = FERS_GetParam_int(handle[b], "OF_RawData");
+				if (rawdata) {
+					FERS_SetParam(handle[b], "OF_RawData", "0");
+				}
 				ScanHoldDelay(handle[b]);
 				FERS_configure(handle[b], CFG_HARD);
 				HoldScan_newrun = 1;
+				if (rawdata) {
+					FERS_SetParam(handle[b], "OF_RawData", "1");
+				}
 			}
 			RestartAcq = 1;
 		}
@@ -1363,7 +1377,6 @@ int report_firmware_notfound(int b, int as) {
 int main(int argc, char* argv[])
 {
 	int i = 0, ret = 0, clrscr = 0, dtq, ch, b, cnc, rdymsg; // jobrun = 0, 
-	int snd_fpga_warn = 0;
 	int PresetReached = 0;
 	int nb = 0;
 	double tstamp_us, curr_tstamp_us = 0;
@@ -1381,9 +1394,6 @@ int main(int argc, char* argv[])
 	uint32_t CrcErrorLevel = 1;
 
 	char description[1024];
-
-	srand(time(NULL));  // Inizializza il generatore
-
 
 	// Get command line options
 	for (i = 1; i < argc; i++) {
@@ -1503,7 +1513,7 @@ ReadCfg:
 				Con_printf("LCSm", "PID = %d\n", CncInfo.pid);
 			}
 			int brd_opened = FERS_GetNumBrdConnected();
-			for (int k = 0; k < brd_opened; ++k) {
+			for (int k = b; k < brd_opened; ++k) {
 				FERS_GetBoardInfo(handle[k], &BoardInfo);
 				if (BoardInfo.FERSCode != 5202) {
 					sprintf(ErrorMsg, "Cannot be proccessed data from FERS_%" PRIu16 ", because this Janus version can support only FERS_5202 boards. Please, download from www.caen.it the Janus version for the FERS_5202 board version\n", BoardInfo.FERSCode);
@@ -1516,12 +1526,12 @@ ReadCfg:
 				else sprintf(fver, "%d.%d (Build = %04X)", (BoardInfo.FPGA_FWrev >> 8) & 0xFF, BoardInfo.FPGA_FWrev & 0xFF, (BoardInfo.FPGA_FWrev >> 16) & 0xFFFF);
 				MajorFWrev = min((int)(BoardInfo.FPGA_FWrev >> 8) & 0xFF, MajorFWrev);
 				Con_printf("LCSm", "FPGA FW revision = %s\n", fver);
-				if (strstr(J_cfg.ConnPath[b], "tdl") == NULL)
+				if (strstr(J_cfg.ConnPath[b], "cnc") == NULL)
 					Con_printf("LCSm", "uC FW revision = %08X\n", BoardInfo.uC_FWrev);
 				Con_printf("LCSm", "PID = %d\n", BoardInfo.pid);
 				if (SockConsole) {
-					if (strstr(J_cfg.ConnPath[b], "tdl") == NULL) Con_printf("Si", "%d;%d;%s;%s;%08X", b, BoardInfo.pid, BoardInfo.ModelName, fver, BoardInfo.uC_FWrev); // ModelName for firmware upgrade
-					else Con_printf("Si", "%d;%d;%s;%s;N.A.", b, BoardInfo.pid, BoardInfo.ModelName, fver);
+					if (strstr(J_cfg.ConnPath[b], "cnc") == NULL) Con_printf("Si", "%d;%d;%s;%s;%08X", k, BoardInfo.pid, BoardInfo.ModelName, fver, BoardInfo.uC_FWrev); // ModelName for firmware upgrade
+					else Con_printf("Si", "%d;%d;%s;%s;N.A.", k, BoardInfo.pid, BoardInfo.ModelName, fver);
 				}
 
 			}
@@ -1621,7 +1631,7 @@ ReadCfg:
 				goto ManageError;
 			}
 			if (BoardInfo.FERSCode != 5202) {
-				sprintf(ErrorMsg, "Cannot open FERS_ % " PRIu16 ", because this Janus version can support only FERS_5202 boards. Please download the Janus version for the FERS_5202 board\n", BoardInfo.FERSCode);
+				sprintf(ErrorMsg, "Cannot open FERS_%" PRIu16 ", because this Janus version can support only FERS_5202 boards. Please download the Janus version for the FERS_5202 board\n", BoardInfo.FERSCode);
 				goto ManageError;
 			}
 			char fver[100];
@@ -1665,7 +1675,17 @@ ReadCfg:
 		RunVars.RunNumber = jobrun;
 		SaveRunVariables(RunVars);
 	}
-	//FERS_SetDebugLogs(J_cfg.DebugLogMask);  CTIN1 perché la setto dal main? deve saperlo la lib
+
+	// In USB connection live parameter change is not allowed, is automatically performed stop/configure/start
+	for (int bd = 0; bd < J_cfg.NumBrd; bd++) {
+		if (FERS_CONNECTIONTYPE(handle[bd]) == FERS_CONNECTIONTYPE_USB) {
+			J_cfg.EnLiveParamChange = 0;
+			//Con_printf("LCSw", "WARNING: Live parameter change is not allowed in USB connection mode. It will be disabled.\n");
+			break;
+		}
+	}
+
+	//FERS_SetDebugLogs(J_cfg.DebugLogMask);  CTIN1 perch\E9 la setto dal main? deve saperlo la lib
 	//FERS_SetEnergyBitsRange(J_cfg.Range_14bit);
 
 	
@@ -1775,7 +1795,7 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 			if (upd == 1) {
 				if (!SockConsole) clrscr = 1;
 				rdymsg = 1;
-				int curr_status = AcqStatus;
+				//int curr_status = AcqStatus;
 				if (!offline_conn) {
 					if (J_cfg.EnLiveParamChange == 0 && AcqStatus == ACQSTATUS_RUNNING) {
 						StopRun();
@@ -1991,7 +2011,6 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 			//double lostp[MAX_NBRD], BldPerc[MAX_NBRD];			
 			float rtime, tp;
 			static char stitle[6][20] = { "ChTrg Rate (cps)", "ChTrg Counts", "Tstamp Rate (cps)", "Tstamp Counts", "PHA Rate (cps)", "PHA Counts" };
-			int ab = RunVars.ActiveBrd;
 			char w_msg[1024] = "";
 			char e_msg[1024] = "";
 			char es_msg[1024] = "";
@@ -2112,7 +2131,7 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 				else sprintf(rinfo, "(Preset = %d cnts)", J_cfg.PresetCounts);
 			} else {
 				if (J_cfg.EnableJobs) sprintf(rinfo, "(%d of %d)", jobrun - J_cfg.JobFirstRun + 1, J_cfg.JobLastRun - J_cfg.JobFirstRun + 1);
-				else sprintf(rinfo, "");
+				else rinfo[0] = '\0';
 			}
 
 			//if ((En_HVstatus_Update && ((curr_time - print_time) > 3500)) && !offline_conn) {// DNIN: all the boards should have the same firmware   FERS_FPGA_FW_MajorRev(handle[0]) >= 4 
@@ -2196,8 +2215,11 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 							ror, 
 							torr);
 						Con_printf("CSSg", "%s\n", sg2gui);
-						for (i = 0; i < MAX_NCH; i++)
-							sprintf(ss2gui, "%s%s", ss2gui, ss[i]);
+						for (i = 0; i < MAX_NCH; i++) {
+							char tmp_ss2gui[256] = "";
+							sprintf(tmp_ss2gui, "%s", ss[i]);
+							strcat(ss2gui, tmp_ss2gui);
+						}
 						Con_printf("SS", "c%s", ss2gui);
 					} else {
 						if (J_cfg.NumBrd > 1) Con_printf("C", "Board n. %d (press [b] to change active board)\n", ab);
@@ -2228,11 +2250,14 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 					}
 				} else { // Multi boards statistics
 					if (SockConsole) {
-						char tmp_brdstat[1024] = "";
+						char tmp_brdstat[256] = "";
+						char full_brdstat[2048] = "";
 						Con_printf("CSSt", "%s\n", stitle[RunVars.SMonType]);
-						for (i = 0; i < J_cfg.NumBrd; ++i)
-							sprintf(tmp_brdstat, "%s %3d %12.2lf %12" PRIu64 " %12.5lf %12.5lf %12.2lf %12.5lf", tmp_brdstat, i, Stats.current_tstamp_us[i] / 1e6, Stats.current_trgid[i], Stats.GlobalTrgCnt[i].rate / 1000, Stats.LostTrgPerc[i], Stats.BuildPerc[i], Stats.ByteCnt[i].rate / (1024 * 1024));
-						Con_printf("CSSB", "%s\n", tmp_brdstat);
+						for (i = 0; i < J_cfg.NumBrd; ++i) {
+							sprintf(tmp_brdstat, " %3d %12.2lf %12" PRIu64 " %12.5lf %12.5lf %12.2lf %12.5lf", i, Stats.current_tstamp_us[i] / 1e6, Stats.current_trgid[i], Stats.GlobalTrgCnt[i].rate / 1000, Stats.LostTrgPerc[i], Stats.BuildPerc[i], Stats.ByteCnt[i].rate / (1024 * 1024));
+							strcat(full_brdstat, tmp_brdstat);
+						}
+						Con_printf("CSSB", "%s\n", full_brdstat);
 					} else {
 						Con_printf("C", "\n");
 						if (StatIntegral) Con_printf("C", "Statistics averaging: Integral (press [I] for Updating mode)\n");

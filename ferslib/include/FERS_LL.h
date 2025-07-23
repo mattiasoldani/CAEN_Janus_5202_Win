@@ -33,6 +33,7 @@ extern "C" {
 #include "FERS_config.h"
 
 extern mutex_t FERS_RoMutex;		// Mutex for the access to FERS_ReadoutStatus
+extern f_sem_t FERS_StartRunSemaphore[FERSLIB_MAX_NBRD];	// Semaphore for sync the start of the run with the data receiver thread
 
 // TDL fiber delay setting
 #define FIBER_DELAY(length_m) (22.f + 0.781f * (length_m))  // Delay ~= 22 + 0.781 * length (in m)

@@ -315,7 +315,7 @@ class Open_GUI(Frame):
 		else: exe_name = "JanusC.exe"
 
 		if not sh.is_exe():
-			fname = os.path.join("..", "bin", exe_name)
+			fname = os.path.join(sh.cfgfile_path, exe_name)
 			wdir = sh.cfgfile_path
 		else:
 			fname = exe_name
@@ -727,7 +727,7 @@ class Open_GUI(Frame):
 		xr = [xx/x_l for xx in xl]
 		# Legend: Brd - PID - Brd Model - Current FW Rev - New FW Rev - Upgrade Status
 		Label(self.UpgradeWin, text='Brd').place(relx=xr[0], rely=y0/y_l) # Brd
-		Label(self.UpgradeWin, text='PIC').place(relx=xr[1], rely=y0/y_l) # PIC
+		Label(self.UpgradeWin, text='PID').place(relx=xr[1], rely=y0/y_l) # PID
 		Label(self.UpgradeWin, text='Current FW Rev').place(relx=xr[2], rely=y0/y_l) # Current FW
 		Label(self.UpgradeWin, text='New FW Rev').place(relx=xr[3], rely=y0/y_l) # New FW
 		Label(self.UpgradeWin, text='Upgrade Status').place(relx=xr[4], rely=y0/y_l) # Status
@@ -890,16 +890,19 @@ class Open_GUI(Frame):
 # *****************************************************************************
 # Main
 # *****************************************************************************
-if not sh.is_exe():
-	pardef_file = os.path.join(sh.cfgfile_path, "param_defs.txt")
-	sh.CfgFile = os.path.join(sh.cfgfile_path, sh.CfgFile)
-	sh.GuiModeFile = os.path.join(sh.cfgfile_path, sh.GuiModeFile)
-	sh.GUIParamOptions = os.path.join(sh.cfgfile_path, sh.GUIParamOptions)
-	sh.RunVars = os.path.join(sh.cfgfile_path, sh.RunVars)
-	sh.ParRename = os.path.join(sh.cfgfile_path, sh.ParRename)
-	sh.PixelMap = os.path.join(sh.cfgfile_path, sh.PixelMap)
+if sh.is_exe():
+	sh.cfgfile_path = ""
 else:
-	pardef_file = "param_defs.txt"
+	sh.cfgfile_path = os.path.join("..", "bin")
+
+pardef_file = os.path.join(sh.cfgfile_path, "param_defs.txt")
+sh.CfgFile = os.path.join(sh.cfgfile_path, sh.CfgFile)
+sh.GuiModeFile = os.path.join(sh.cfgfile_path, sh.GuiModeFile)
+sh.GUIParamOptions = os.path.join(sh.cfgfile_path, sh.GUIParamOptions)
+sh.RunVars = os.path.join(sh.cfgfile_path, sh.RunVars)
+sh.ParRename = os.path.join(sh.cfgfile_path, sh.ParRename)
+sh.PixelMap = os.path.join(sh.cfgfile_path, sh.PixelMap)
+
 
 sh.Version = cfg.ReadParamDescription(pardef_file, sh.sections, sh.params)
 cfg.ReadConfigFile(sh.params, sh.CfgFile, 0)

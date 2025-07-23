@@ -10,6 +10,9 @@
     
 ------------------------------------------------------------------------------
 
+TABLE OF CONTENTS
+------------------
+
 A.  SYSTEM REQUIREMENTS
 B.  INSTALLATION
 C.  SUPPORT
@@ -18,18 +21,18 @@ C.  SUPPORT
 A. SYSTEM REQUIREMENTS
 -----------------------
    
-  - OS 64-bit only. Microsoft Windows 10 or higher, Linux
+  - **OS**: 64-bit only. Microsoft Windows 10 or higher, Linux
  
-  - On Windows:
+  - **On Windows**:
     - Python 3.8 or higher (for development or debugging purposes)
     - Tkinter
     - Pillow (with Tkinter support)
     - Visual C++ runtime libraries
 
-  - On Linux:
+  - **On Linux**:
     - g++
 	- make
-	- libsub-1.0
+	- libusb-1.0
 	- pkg-config
     - gnuplot (with wxt terminal support)
     - Python 3.8 or higher
@@ -43,18 +46,18 @@ B. INSTALLATION
 
 ### Windows:
  1. **Run**:
-    - For GUI mode:
+    - **For GUI mode**:
         cd bin
         Run `JanusPy.exe`
-    - For console mode:
+    - **For console mode**:
         cd bin
         Run `JanusC.exe`
 
 ### Linux:
 *********************************************************************************************
-N.B. Janus self installation is supported only in debian-like and fedora distribution. 
-Please, run anyway Janus_Install.bash as root, it provides a short guide on how install
-Janus stp by step in a non-supported distribution and sets the USB rules for usb connection
+**Note**: Janus self-installation is supported only on Debian-based and Fedora distributions.
+However, you can still run `Janus_Install.bash` as root. It provides a short guide on how to 
+install Janus step by step on unsupported distributions and sets the USB rules for USB connections.
 *********************************************************************************************
 
  1. **Installation**:
@@ -63,11 +66,11 @@ Janus stp by step in a non-supported distribution and sets the USB rules for usb
      
 
  2. **Run**:
-    - For GUI mode:
+    - **For GUI mode**:
         cd gui
         python3 JanusPy.pyw
          
-    - For console mode:
+    - **For console mode**:
         cd bin
         ./JanusC
 
@@ -75,4 +78,4 @@ Janus stp by step in a non-supported distribution and sets the USB rules for usb
 C. SUPPORT   
 -----------
         
-For technical support, go to https://www.caen.it/mycaen/support/ (login and MyCAEN+ account required)
+For technical support, visit https://www.caen.it/mycaen/support/ (login and MyCAEN+ account required)

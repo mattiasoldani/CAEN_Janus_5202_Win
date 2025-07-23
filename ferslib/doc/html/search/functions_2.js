@@ -2,7 +2,7 @@ var searchData=
 [
   ['fers_5fadapternch_0',['FERS_AdapterNch',['../a00078.html#ga7cf113e953eb8b6624fed4c71d27c20d',1,'FERSlib.h']]],
   ['fers_5fcalibthresholdoffset_1',['FERS_CalibThresholdOffset',['../a00079.html#ga30422e3e8784d6cb91f2d4ec247cc682',1,'FERSlib.h']]],
-  ['fers_5fchecka5256presence_2',['FERS_checkA5256presence',['../a00077.html#ga0d9c71bba97b39cb90d5ab5165aa0bdc',1,'FERSlib.h']]],
+  ['fers_5fchecka5256presence_2',['FERS_checkA5256presence',['../a00077.html#ga3ca915859bd477ccd74a6a2d3162b672',1,'FERSlib.h']]],
   ['fers_5fcheckbootloaderversion_3',['FERS_CheckBootloaderVersion',['../a00075.html#ga31117e38b1252a434aefb09644bd7a97',1,'FERSlib.h']]],
   ['fers_5fchindex_5fada2tdc_4',['FERS_ChIndex_ada2tdc',['../a00078.html#ga337256edb5ac018f3c98962cfb727e6b',1,'FERSlib.h']]],
   ['fers_5fchindex_5ftdc2ada_5',['FERS_ChIndex_tdc2ada',['../a00078.html#gaff1feb6e31e4d742b6903fdebc179a10',1,'FERSlib.h']]],
@@ -86,7 +86,7 @@ var searchData=
   ['fers_5fset_5fdiscrthreshold_83',['FERS_Set_DiscrThreshold',['../a00079.html#ga225cd3a6d9c053a7db6221b6def2507f',1,'FERSlib.h']]],
   ['fers_5fsetcommonpedestal_84',['FERS_SetCommonPedestal',['../a00069.html#ga4a62372507a37db6f6de74ac99a15d70',1,'FERSlib.h']]],
   ['fers_5fsetenergybitsrange_85',['FERS_SetEnergyBitsRange',['../a00026.html#a2901e31174d0a1ed4645788a4ab5fad1',1,'FERSlib.h']]],
-  ['fers_5fsetparam_86',['FERS_SetParam',['../a00073.html#ga96267f9d46e6306610851b745fffd100',1,'FERSlib.h']]],
+  ['fers_5fsetparam_86',['FERS_SetParam',['../a00073.html#gaa8a7a3f2f86d21ac82defe7ed10e5a7b',1,'FERSlib.h']]],
   ['fers_5fstartacquisition_87',['FERS_StartAcquisition',['../a00074.html#ga8ef85039bf40ebf22fca066dd374383e',1,'FERSlib.h']]],
   ['fers_5fstopacquisition_88',['FERS_StopAcquisition',['../a00074.html#ga74d0354d2f20efe2a1898c6848b27a21',1,'FERSlib.h']]],
   ['fers_5ftdc_5fconfig_89',['FERS_TDC_Config',['../a00026.html#a23b479c4252bc7e52d753031d229c807',1,'FERSlib.h']]],

@@ -1,6 +1,6 @@
 TARGET = JanusC
 CXX = g++
-CFLAGS = -Wall -Wno-write-strings -std=c++11 -Dlinux
+CFLAGS = -Wall -Wno-write-strings -std=c++17 -Dlinux
 LDFLAGS = -pthread -lrt 
 LDPATH = -Lferslib/local/lib
 INCLUDE = -I/usr/include/libusb-1.0
