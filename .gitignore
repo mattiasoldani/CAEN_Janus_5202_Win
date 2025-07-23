@@ -2,6 +2,7 @@ bin/DataFiles/*
 bin/PlotData*
 bin/ScanThr*
 bin/*Log*
+bin/*CitirocCfg*
 
 build/Win32
 build/x64
