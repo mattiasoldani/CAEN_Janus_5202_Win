@@ -44,7 +44,7 @@ OF_MaxSize                         1 GB                 # Max size of List files
 OF_RawData                         0                    # Event List file (Raw data)
 OF_ListBin                         0                    # Event List file (binary)
 OF_ListAscii                       0                    # Event List file (ASCII)
-OF_ListCSV                         0                    # Event List file (CSV)
+OF_ListCSV                         1                    # Event List file (CSV)
 OF_Sync                            0                    # List with BrdID-Tstamp-TrgID (for sync check)
 OF_ServiceInfo                     0                    # Service event info (temperature, Vmon, Imon, HVstatus)
 OF_RunInfo                         0                    # Run Info
@@ -59,7 +59,7 @@ OF_Staircase                       0                    # Staircase
 # ------------------------------------------------------------------------------------------
 AcquisitionMode                    SPECTROSCOPY         # Acquisition mode. Options: SPECTROSCOPY, SPECT_TIMING, TIMING_CSTART, TIMING_CSTOP, COUNTING, WAVEFORM
 EnableToT                          1                    # Enable ToT in timing mode (Enabled: ToA = 16 bits, ToT = 9 bits; Disabled: ToA = 25 bits)
-BunchTrgSource                     PTRG                 # Bunch Trigger source (for spectroscopy and counting modes). Options: T0-IN, T1-IN, Q-OR, T-OR, TLOGIC, PTRG
+BunchTrgSource                     T0-IN                # Bunch Trigger source (for spectroscopy and counting modes). Options: T0-IN, T1-IN, Q-OR, T-OR, TLOGIC, PTRG
 VetoSource                         DISABLED             # The veto signal inhibits the bunch trigger (active high). Options: DISABLED, SW_CMD, T0-IN, T1-IN
 ValidationSource                   T0-IN                # Source of the trigger validation signal. It must arrive within the window is opened by the bunch trigger and closed after Tv ~= 120 ns + HoldDelay.. Options: SW_CMD, T0-IN, T1-IN
 ValidationMode                     DISABLED             # ACCEPT: Trigger validated by the signal in the val. window. REJECT: trigger rejected if a signal arrives in the val. window. Options: DISABLED, ACCEPT, REJECT. Options: DISABLED, ACCEPT, REJECT
