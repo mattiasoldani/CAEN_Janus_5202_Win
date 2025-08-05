@@ -1574,6 +1574,8 @@ ReadCfg:
 		goto ManageError;
 	}
 //	Con_printf("LCSm", "Reading configuration file %s\n", ConfigFileName);
+	// 2025/08 Mattia's debug:
+	Con_printf("LCSm", "Reading configuration file (1st round) %s\n", ConfigFileName);
 	ret = ParseConfigFile(cfg, &J_cfg, PARSEMODE_PARSE_CONNECTION);
 	fclose(cfg);
 
@@ -1771,7 +1773,9 @@ ReadCfg:
 
 	// Second pass of the config file parser. Now the boards are open, it is possible to read the board parameters
 	cfg = fopen(ConfigFileName, "r");
-	Con_printf("LCSm", "Reading configuration file %s\n", ConfigFileName);
+	//Con_printf("LCSm", "Reading configuration file %s\n", ConfigFileName);
+	// 2025/08 Mattia's debug:
+	Con_printf("LCSm", "Reading configuration file (2nd round) %s\n", ConfigFileName);
 	ret = ParseConfigFile(cfg, &J_cfg, PARSEMODE_PARSE_ALL | PARSEMODE_FIRST_CALL);
 	HVLimitCheck(handle);
 	fclose(cfg);
