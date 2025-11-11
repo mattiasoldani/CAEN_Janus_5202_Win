@@ -304,10 +304,17 @@ int WriteListfileHeader() {
 		// Write parname header
 		fprintf(of_list_c, "TStamp_us,");
 		if ((type_file & 0x80) && ((type_file & 0xF) != ACQMODE_TIMING_CSTART)) fprintf(of_list_c, "Rel_TStamp_us,");
+<<<<<<< HEAD
 		if (type_file == ACQMODE_TSPECT) fprintf(of_list_c, "Tref_TStamp_us,");
 		if ((type_file & 0xF) != ACQMODE_TIMING_CSTART) fprintf(of_list_c, "Trg_Id,");
 		if ((type_file & 0xF) == ACQMODE_TIMING_CSTART) fprintf(of_list_c, "Board_Id,Num_Hits,");
 		else fprintf(of_list_c, "Board_Id,Num_Chs,");
+=======
+		//if (!(type_file & ACQMODE_TIMING_CSTART)) fprintf(of_list_c, "Trg_Id,");
+		// 2025/?? Mattia's debug:
+		if (!(type_file & ACQMODE_TIMING_CSTART) || ((type_file & ACQMODE_TIMING_CSTART) && (type_file & ACQMODE_SPECT))) fprintf(of_list_c, "Trg_Id,");
+		fprintf(of_list_c, "Board_Id,Num_Hits,");
+>>>>>>> 086d66a (tweaking everything with the new version)
 		if ((type_file & ACQMODE_SPECT)) {
 			fprintf(of_list_c, "ChannelMask,CH_Id,DataType,PHA_LG,PHA_HG");
 			if (type_file & ACQMODE_TIMING_CSTART) {
