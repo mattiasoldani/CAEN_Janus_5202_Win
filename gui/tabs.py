@@ -35,8 +35,6 @@ class TabsPanel():
 
 		# self.defaultFont = font.nametofont("TkDefaultFont")
 		# print(self.defaultFont)
-		if sys.platform.find('win') < 0:
-			sh.ImgPath = '../img/'
 		self.img_hvon = PhotoImage(file=sh.ImgPath + "pwon.png").subsample(3, 3)
 
 		self.MaskWinIsOpen = False
@@ -928,6 +926,7 @@ class TabsPanel():
 		self.StopUpdate = False	
 		self.CfgChanged.set(1)				
 
+
 	def TabsUpdateStatus(self, status):
 		self.UpdateVnom()
 		for brd in sh.Boards:
@@ -971,6 +970,7 @@ class TabsPanel():
 				self.path_entry[brd].config(state=DISABLED)
 				self.brd_enable_cb[brd].config(state=DISABLED)
 
+
 	def set_reg_addr(self):
 		if self.reg_base.get() == '02':
 			base = '02'+str(self.reg_ch.get().rjust(2, '0'))
@@ -979,21 +979,24 @@ class TabsPanel():
 		offs = self.reg_offs.get().rjust(4, '0')
 		self.reg_addr.set(base + offs)
 
+
 	def read_reg(self):
 		comm.SendCmd('Rr' + self.reg_addr.get() + '\n')
+
 
 	def write_reg(self):
 		comm.SendCmd('Rw' + self.reg_addr.get() + '\n' + self.reg_data.get() + '\n')
 		self.RWregLog.insert(END, "Wr-Reg: A=" + self.reg_addr.get() + " D=" + self.reg_data.get() + '\n')
 		self.RWregLog.see(END)
 
+
 	def send_cmd(self):
 		comm.SendCmd('Rw 0x01008000' + self.cmd.get() + '\n')
 		self.RWregLog.insert(END, "Send Command " + self.cmd.get() + '\n')
 		self.RWregLog.see(END)
 
+
 	def BrowseOutDir(self):
-#		OutDir = filedialog.askdirectory()
 		try:
 			OutDir = askdirectory()
 			OutDir = os.path.relpath(OutDir)
@@ -1009,7 +1012,7 @@ class TabsPanel():
 		# Take Num of board connected from connect tab
 		# Divide the message in x blocks of that length (8: brd, status, vmon, imon, dtemp, itemp, fpgatemp)
 		# From SW 3.5.0 (8: brd, status, vmon, imon, dtemp, itemp, fpgatemp, pcbtemp)
-		# Do what is doing below
+	
 		if len(hvfullstring) == 0: return
 
 		hvstring = hvfullstring.split("|")	# As many string as the board number 
@@ -1069,12 +1072,14 @@ class TabsPanel():
 		elif 1 in self.hvon: self.hvled.set_color("green")
 		else: self.hvled.set_color("grey")
 
+
 	def HVonoff(self, brd):
 		if self.HVcb_status[brd].get() == 1: # HV ON
 			comm.SendCmd('H1 ' + str(brd))
 		else: # HV OFF
 			comm.SendCmd('H0 ' + str(brd))
 		#self.DisableOnOffUpdateCnt = 3
+
 
 	def UpdateVnom(self):
 		if params['HV_Adjust_Range'].default == '4.5': 
@@ -1083,7 +1088,7 @@ class TabsPanel():
 			dacfs = 2.5
 		else:
 			dacfs = 0
-		stdunit = "V"	# DNIN: the manage of the unit is not yet implemented
+		stdunit = "V"	
 		try:
 			if params['HV_Vbias'].default.split()[1] == 'mV': stdunit = "mV"
 			elif params['HV_Vbias'].default.split()[1] == 'uV': stdunit = "uV"
@@ -1111,16 +1116,17 @@ class TabsPanel():
 					vnom = float(params['HV_Vbias'].value[brd].split()[0]) - vdac
 				self.par_ch_label['Vnom'][brd][i].config(text = '%.2f %s' % (vnom, stdunit)) 
 
+
 	# ***************************************************************************************
 	# Update Statistics Tab 
 	# ***************************************************************************************
 	def UpdateStatsTab(self, cmsg:str): 
 		cmsg = cmsg.rstrip()
-		if cmsg[0] == '0': return # exit, JanusC closed the comm forcibly 
-		if cmsg[1] == 'b':	# write only if the active Brd is the one sending data
+		if cmsg[0] == '0': return # Exit, JanusC closed the comm forcibly 
+		if cmsg[1] == 'b':	# Write only if the active Brd is the one sending data
 			if cmsg[2:] == str(self.ActiveBrd.get()): self.update_stats = True
 			else: self.update_stats = False
-		if cmsg[1] == 'c':  # channel value
+		if cmsg[1] == 'c':  # Channel value
 			if (list(self.Mtabs_shown)[self.Mtabs_nb.index('current')] == 'Statistics'):
 				for ch in range(64):
 					ss = cmsg[8*ch+2:8*ch+10]
@@ -1166,7 +1172,7 @@ class TabsPanel():
 				if float(msg_spl[3]) < 1: col = 'white' 
 				for b in range(int(len(msg_spl)/mlen)):
 					if mlen == 6: msg_spl.insert(5+msglen*b, "-")
-					for l in range(msglen): # adding the "-" in case of no tdl the actual len of the mesg read is = len(AllBrdLabel)
+					for l in range(msglen): # Adding the "-". In case of no tdl the actual msg length read is = len(AllBrdLabel)
 						self.AllBrdCounts[msg_spl[msglen*b]][l].config(text = msg_spl[msglen*b+l], bg = col)
 
 
@@ -1220,6 +1226,7 @@ class TabsPanel():
 		for param in params.values():
 			if param.type == 'c':
 				self.par_def_combo[param.name].config(state = mystate)
+
 
 	# ***************************************************************************************
 	# Popup window for Mask Setting

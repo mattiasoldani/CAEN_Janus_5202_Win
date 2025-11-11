@@ -1,7 +1,10 @@
 var a00078 =
 [
-    [ "FERS_ChIndex_ada2tdc", "a00078.html#ga337256edb5ac018f3c98962cfb727e6b", null ],
-    [ "FERS_ChIndex_tdc2ada", "a00078.html#gaff1feb6e31e4d742b6903fdebc179a10", null ],
-    [ "FERS_AdapterNch", "a00078.html#ga7cf113e953eb8b6624fed4c71d27c20d", null ],
-    [ "FERS_ChMask_ada2tdc", "a00078.html#ga295b3a6756c24b1c508943e49157d8d7", null ]
+    [ "Status", "a00078.html#ada867201db4267c42d610764b42b9525", null ],
+    [ "BoardCount", "a00078.html#ab778aa69635d57ccf541d8b7e22b664d", null ],
+    [ "rrt", "a00078.html#a3812118673e68c4b48f3ebd730ad18cf", null ],
+    [ "EventCount", "a00078.html#a37d7446ebf0e0e9491397d0a8acd198b", null ],
+    [ "ByteCount", "a00078.html#aa520946042817ef97b59854c7ad5fb67", null ],
+    [ "EventRate", "a00078.html#a11b1c2fef9f68c715320883ddb7c29e9", null ],
+    [ "Mbps", "a00078.html#aeb5f0180c5e0dff09862fe77e79d9ed9", null ]
 ];

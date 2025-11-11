@@ -343,6 +343,27 @@ static void LoadMacro(char* parval, Janus_Config_t* J_cfg2, int ParsingMode) {
 
 
 // ---------------------------------------------------------------------------------
+// Description: check return value of FERS_SetParam
+// Inputs:      parameter name
+//              return value of FERS_SetParam
+// ---------------------------------------------------------------------------------
+static void CheckSetParamStatus(int ret, char* parname, char* parval) {
+
+	ValidParameterName = (ret == FERSLIB_ERR_INVALID_PARAM) ? 0 : 1;
+	ValidParameterValue = (ret == FERSLIB_ERR_INVALID_PARAM_VALUE) ? 0 : 1;
+	ValidUnits = (ret == FERSLIB_ERR_INVALID_PARAM_UNIT) ? 0 : 1;
+
+
+	if (!ValidParameterName)
+		Con_printf("LCSw", "WARNING: %s: unkwown parameter\n", parname);
+	else if (!ValidParameterValue)
+		Con_printf("LCSw", "WARNING: %s: unkwown value '%s'\n", parname, parval);
+	else if (!ValidUnits)
+		Con_printf("LCSw", "WARNING: %s: unkwown units. Janus use as default V, mA, ns\n", parname);
+
+}
+
+// ---------------------------------------------------------------------------------
 // Description: Read a config file, parse the parameters and set the relevant fields in the J_cfg structure
 // Inputs:		f_ini: config file pinter
 // Outputs:		J_cfg: struct with all parameters
@@ -389,6 +410,7 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 		J_cfg->MaxOutFileSize = 1e9; // 1 GB
 		J_cfg->EnableRawDataRead = 0;
 		J_cfg->EnableMaxFileSize = 0;
+		J_cfg->EnableListZeroSuppr = 0;
 
 	}
 	
@@ -534,6 +556,7 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 		if (streq(parname, "PresetCounts"))				J_cfg->PresetCounts			= GetInt(parval);
 		if (streq(parname, "RunNumber_AutoIncr"))		J_cfg->RunNumber_AutoIncr	= GetInt(parval);
 		if (streq(parname, "AskHVShutDownOnExit"))		J_cfg->AskHVShutDownOnExit  = GetInt(parval);
+		if (streq(parname, "EnableListZeroSuppr"))		J_cfg->EnableListZeroSuppr	= GetInt(parval);	
 
 			
 		if (streq(parname, "Load")) {
@@ -641,10 +664,14 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 	char buffMS[50];
 	sprintf(buffLS, "%" PRIu8, J_cfg->EnableMaxFileSize);
 	sprintf(buffMS, "%f", J_cfg->MaxOutFileSize);
+	int ret = 0;
 	for (int i = 0; i < J_cfg->NumBrd; ++i) {
-		FERS_SetParam(handle[i], "OF_RawDataPath", J_cfg->DataFilePath);
-		FERS_SetParam(handle[i], "OF_LimitedSize", buffLS);
-		FERS_SetParam(handle[i], "MaxSizeOutputDataFile", buffMS);
+		ret = FERS_SetParam(handle[i], "OF_RawDataPath", J_cfg->DataFilePath);
+		CheckSetParamStatus(ret, "OF_RawDataPath", J_cfg->DataFilePath);
+		ret = FERS_SetParam(handle[i], "OF_LimitedSize", buffLS);
+		CheckSetParamStatus(ret, "OF_LimitedSize", buffLS);
+		ret = FERS_SetParam(handle[i], "MaxSizeDataOutputFile", buffMS);
+		CheckSetParamStatus(ret, "MaxSizeDataOutputFile", buffMS);
 	}
 
 	return 0;

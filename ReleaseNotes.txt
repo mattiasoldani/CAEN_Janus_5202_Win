@@ -5,6 +5,32 @@
 *************************************************************************************************************************
 
 -------------------------------------------------------------------------------------------------------------------------
+Release 4.2.4 - 07/10/2025
+-------------------------------------------------------------------------------------------------------------------------
+- Update FERSlib to v1.2.3, which includes documentation in the Linux package
+- Bug fix in binary file output for Spect/SpectTiming mode: channel ID is now correctly stored as uint8_t instead of int
+- Bug fix in HV monitor for console mode with multiple boards
+
+-------------------------------------------------------------------------------------------------------------------------
+Release 4.2.3 - 16/09/2025
+-------------------------------------------------------------------------------------------------------------------------
+- Bug fix on ascii and csv file in spect timing acquisition mode
+- Bug fix on correct assignment of PREAMP_LG and PREAMP_HG analog probes
+
+-------------------------------------------------------------------------------------------------------------------------
+Release 4.2.2 - 10/09/2025
+-------------------------------------------------------------------------------------------------------------------------
+- Update FERSlib to v1.2.2, fixing a bug in Threshold and Hold Delay scan
+- Added EnableListZeroSuppr parameter to skip list events with 0 hits in timing mode
+- Bug fix when setting Max Size List output file in paramparser.c
+
+-------------------------------------------------------------------------------------------------------------------------
+Release 4.2.1 - 10/07/2025
+-------------------------------------------------------------------------------------------------------------------------
+- Improved missing service event check
+- Bug fix when saving configuration file for a specific run
+
+-------------------------------------------------------------------------------------------------------------------------
 Release 4.2.0 - 06/06/2025
 -------------------------------------------------------------------------------------------------------------------------
 - Improved Janus installation instruction on linux

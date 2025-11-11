@@ -72,7 +72,7 @@ int FERS_DumpBoardRegister(int handle) {
 	int brd = FERS_INDEX(handle);
 	int ret = 0;
 	char filename[128];
-	sprintf(filename, "FERSLIB_brd_registers_brd%02d_PID%d.txt", brd, FERS_BoardInfo[brd]->pid);
+	sprintf(filename, "FERSLIB_Registers_brd%02d_PID%d.txt", brd, FERS_BoardInfo[brd]->pid);
 	if (FERS_BoardInfo[brd]->FERSCode == 5202)
 		ret |= FERS_DumpBoardRegister5202(handle, filename);
 	if (FERS_BoardInfo[brd]->FERSCode == 5203)

@@ -35,14 +35,14 @@ Win_Nb_H = Win_Tabs_H
 Win_Tabs_X = 0
 Win_Tabs_W = Win_W-5
 
-BgCol = 'grey95'  # default background color
-ErCol = 'red'     # default error color
-WrCol = 'yellow'  # defualt warning color
-OkCol = 'green'   # defualt 'is fine' color
+BgCol = 'grey95'  # Default background color
+ErCol = 'red'     # Default error color
+WrCol = 'yellow'  # Defualt warning color
+OkCol = 'green'   # Defualt 'is fine' color
 
 # Versions
 Version = "5202"
-Release = "4.2.0 - 06/06/2025"
+Release = "4.2.4 - 07/10/2025"
 
 # Ranges
 MaxCh = 64
@@ -53,7 +53,7 @@ Channels = range(NumCh)
 Boards = range(NumBrd)
 
 # acquisition variables
-ImgPath = "..\\img\\"
+ImgPath = os.path.join("..", "img", "")
 CfgFile = "Janus_Config.txt"
 GuiModeFile = "GUI_hide_parameters.txt"
 GUIParamOptions = "GUI_param_options.json"

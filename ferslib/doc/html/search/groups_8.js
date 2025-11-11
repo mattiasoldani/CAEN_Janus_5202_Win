@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['macros_0',['Macros',['../a00049.html',1,'']]],
-  ['measurement_20modes_1',['Measurement modes',['../a00058.html',1,'']]],
-  ['messaging_20and_20errors_2',['Messaging and errors',['../a00066.html',1,'']]],
-  ['min_2fmax_3',['Min/Max',['../a00062.html',1,'']]]
+  ['indexing_0',['Handles and indexing',['../a00055.html',1,'']]],
+  ['info_1',['Board Info',['../a00040.html',1,'']]],
+  ['info_2',['info',['../a00065.html',1,'Board info'],['../a00059.html',1,'Library info']]]
 ];

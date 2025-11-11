@@ -34,11 +34,11 @@
 // ******************************************************************************************
 Janus_Config_t J_cfg;					// struct with all parameters
 RunVars_t RunVars;						// struct containing run time variables
-ServEvent_t sEvt[MAX_NBRD];		// struct containing the service information of each boards
+ServEvent_t sEvt[MAX_NBRD];				// struct containing the service information of each boards
 int SockConsole = 0;					// 0=stdio, 1=socket
 int AcqStatus = 0;						// Acquisition Status (running, stopped, fail, etc...)
 int HoldScan_newrun = 0;
-int handle[MAX_NBRD];			// Board handles
+int handle[MAX_NBRD];					// Board handles
 int cnc_handle[FERSLIB_MAX_NCNC];		// Concentrator handles
 int UsingCnc = 0;						// Using concentrator
 int Freeze = 0;							// stop plot
@@ -49,7 +49,8 @@ int Quit = 0;							// Quit readout loop
 int RestartAcq = 0;						// Force restart acq (reconfigure HW)
 int RestartAll = 0;						// Restart from the beginning (recovery after error)
 int SkipConfig = 0;						// Skip board configuration
-int first_sEvt = 0;						// Skip check on the first service event in Update_Service_Event
+int first_sEvt[MAX_NBRD] = { 0 };		// Skip check on the first service event in Update_Service_Event
+int startreceived = 0;
 int offline_conn = 0;					// Offline connection for raw data reprocessing
 int plot_changed = 0;					// Active when the plot type is changed
 uint8_t offline_plot = 0;				// Offline plot in RunVars. Enable plot visualization when boards are stopped
@@ -57,18 +58,22 @@ double build_time_us = 0;				// Time of the event building (in us)
 int En_HVstatus_Update = 0;				// Enable periodic update of HV status
 
 // Service Event Variable
-float BrdTemp[MAX_NBRD][4] = { 0. };		// Board Temperatures (near PIC/FPGA)
+float BrdTemp[MAX_NBRD][4] = { 0. };	// Board Temperatures (near PIC/FPGA)
 float HVMon[MAX_NBRD][2] = { 0. };		// V and I monitor from HV module
-uint32_t StatusReg[MAX_NBRD];	// Acquisition Status Register
-int HV_status[MAX_NBRD] = { 0 };// HV status; bit 0 = ON/OFF, bit 1 = Over current/voltage, bit 2 = ramping up/down
+uint32_t StatusReg[MAX_NBRD];			// Acquisition Status Register
+int HV_status[MAX_NBRD] = { 0 };		// HV status; bit 0 = ON/OFF, bit 1 = Over current/voltage, bit 2 = ramping up/down
 char ErrorMsg[250];						// Error Message
 FILE* MsgLog = NULL;					// message log output file
 
 int jobrun = 0;
-uint8_t stop_sw = 0; // Used to disable automatic start during jobs
+uint8_t stop_sw = 0;					// Used to disable automatic start during jobs
 
+int isCncMaster[FERSLIB_MAX_NCNC] = { 0 };	// Flag indicating if the concentrator is master or slave
+int isMasterSlave = 0;		// Flag indicating if there is one slave concentrator. In this case a new T0 will be sent		
+
+// Warning/error tracking vairablles
 int ServerDead = 0;
-uint8_t sEvt_missing = 0;
+uint8_t sEvt_missing[FERSLIB_MAX_NBRD] = { 0 };
 uint8_t wMsg_sent = 0, eMsg_sent = 0, is_running = 0;
 int brdInFail[MAX_NBRD] = { 0 };
 
@@ -288,14 +293,6 @@ int Update_Service_Info(int handle) {
 	static int first_call = 1;
 	uint64_t now = j_get_time();
 
-	if (first_sEvt >= 1 && first_sEvt < 5) {	// Skip the check on the first event service missing
-		++first_sEvt;
-		return 0;
-	} else if (first_sEvt == 5) {
-		first_sEvt = 0;
-		return 0;
-	}
-
 	if (sEvt[brd].update_time > (now - 2000) && J_cfg.EnableServiceEvent) {
 		HVMon[brd][HV_VMON] = sEvt[brd].hv_Vmon;
 		HVMon[brd][HV_IMON] = sEvt[brd].hv_Imon;
@@ -323,12 +320,14 @@ int Update_Service_Info(int handle) {
 		//ret |= FERS_Get_FPGA_Temp(handle, &BrdTemp[brd][TEMP_FPGA]);
 		//ret |= FERS_Get_Board_Temp(handle, &BrdTemp[brd][TEMP_BOARD]);
 		ret |= FERS_ReadRegister(handle, a_acq_status, &StatusReg[brd]);
-		if (AcqStatus == ACQSTATUS_RUNNING && J_cfg.EnableServiceEvent && !sEvt_missing) {
+		// Skip service event warning if it is the first sEvt or it has already been notify
+		if (AcqStatus == ACQSTATUS_RUNNING && J_cfg.EnableServiceEvent && !sEvt_missing[brd] && !first_sEvt[brd]) {
 			Con_printf("LCSp", "Brd %d Service Event Missing. AcqStatus = 0x%08X (ret = %d)\n", FERS_INDEX(handle), StatusReg[brd], ret);	// WARNING
-			sEvt_missing = 1;
+			sEvt_missing[brd] = 1;
 		}
 	}
 
+	if (first_sEvt[brd]) first_sEvt[brd] = 0;
 	float vset = J_cfg.HV_Vbias[brd];
 	if (first_call)
 		HV_status[brd] = b_on | ((ovc | ovv) << 1);
@@ -603,15 +602,17 @@ int StartRun() {
 		Con_printf("LCSw", "WARNING: StartRunMode: can't start run in TDL mode; switching to Async mode\n");
 		if (SockConsole) Con_printf("SM", "StartRunMode:%d", J_cfg.StartRunMode);
 		for (b = 0; b < J_cfg.NumBrd; ++b) {
-			FERS_SetParam(handle[b], "StartRunMode", "0");
+			FERS_SetParam(handle[b], "StartRunMode", "ASYNC");
 			FERS_configure(handle[b], CFG_SOFT);
 			Con_printf("LCSm", "Brd%d Start mode: Async\n", b);
 		}
 	}
 
 	wMsg_sent = 0;
-	sEvt_missing = 0;
-	first_sEvt = 1;
+	for (int bb = 0; bb < J_cfg.NumBrd; ++bb) {
+		sEvt_missing[bb] = 0;
+		first_sEvt[bb] = 1;
+	}
 
 	ret = FERS_StartAcquisition(handle, J_cfg.NumBrd, J_cfg.StartRunMode, RunVars.RunNumber);
 
@@ -671,6 +672,7 @@ int StopRun() {
 
 	if (AcqStatus == ACQSTATUS_RUNNING || AcqStatus == ACQSTATUS_ERROR) AcqStatus = ACQSTATUS_READY;
 	is_running = 0;
+	startreceived = 0;
 
 	return ret;
 }
@@ -776,6 +778,11 @@ int RunTimeCmd(int c)
 	if ((c == 's') && (AcqStatus == ACQSTATUS_READY)) {
 		ResetStatistics();
 		StartRun();
+
+
+
+
+
 	}
 	if ((c == 'S') && (AcqStatus == ACQSTATUS_RUNNING)) {
 		StopRun();
@@ -1379,6 +1386,7 @@ int main(int argc, char* argv[])
 	int i = 0, ret = 0, clrscr = 0, dtq, ch, b, cnc, rdymsg; // jobrun = 0, 
 	int PresetReached = 0;
 	int nb = 0;
+	int tdlset = 0;
 	double tstamp_us, curr_tstamp_us = 0;
 	int MajorFWrev = 255;
 	uint64_t kb_time, curr_time, print_time, wave_time;
@@ -1574,6 +1582,10 @@ ReadCfg:
 						Con_printf("LCSm", "FPGA FW revision = %s\n", CncInfo.FPGA_FWrev);
 						Con_printf("LCSm", "SW revision = %s\n", CncInfo.SW_rev);
 						Con_printf("LCSm", "PID = %d\n", CncInfo.pid);
+					
+
+
+
 						if (CncInfo.ChainInfo[0].BoardCount == 0) { 	// Rising error if no board is connected to link 0
 							sprintf(ErrorMsg, "No board connected to link 0\n");
 							goto ManageError;
@@ -1634,6 +1646,15 @@ ReadCfg:
 				sprintf(ErrorMsg, "Cannot open FERS_%" PRIu16 ", because this Janus version can support only FERS_5202 boards. Please download the Janus version for the FERS_5202 board\n", BoardInfo.FERSCode);
 				goto ManageError;
 			}
+
+			uint32_t FWver;
+			ret = FERS_HV_Get_FWVer(handle[b], &FWver);
+			if (ret != 0) {
+				sprintf(ErrorMsg, "Can't read HV module Firmware Version\n");
+				goto ManageError;
+			}
+			float* FWVersion = (float*)&FWver;
+
 			char fver[100];
 			sprintf(fver, "%d.%d (Build = %04X)", (BoardInfo.FPGA_FWrev >> 8) & 0xFF, BoardInfo.FPGA_FWrev & 0xFF, (BoardInfo.FPGA_FWrev >> 16) & 0xFFFF);
 			MajorFWrev = min((int)(BoardInfo.FPGA_FWrev >> 8) & 0xFF, MajorFWrev);
@@ -1641,6 +1662,8 @@ ReadCfg:
 			if (strstr(J_cfg.ConnPath[b], "tdl") == NULL)
 				Con_printf("LCSm", "uC FW revision = %08X\n", BoardInfo.uC_FWrev);
 			Con_printf("LCSm", "PID = %d\n", BoardInfo.pid);
+			Con_printf("LCSm", "A7585 FW version = %.1f\n", *FWVersion);
+
 			if (SockConsole) {
 				if (strstr(J_cfg.ConnPath[b], "tdl") == NULL) Con_printf("Si", "%d;%d;%s;%s;%08X", b, BoardInfo.pid, BoardInfo.ModelName, fver, BoardInfo.uC_FWrev); // ModelName for firmware upgrade
 				else Con_printf("Si", "%d;%d;%s;%s;N.A.", b, BoardInfo.pid, BoardInfo.ModelName, fver);
@@ -1651,6 +1674,7 @@ ReadCfg:
 			}
 		}
 	}
+
 	if ((J_cfg.NumBrd > 1) || (cnc > 0))  Con_printf("LCSm", "\n");
 	if (AcqStatus != ACQSTATUS_RESTARTING) {
 		AcqStatus = ACQSTATUS_HW_CONNECTED;
@@ -1663,6 +1687,23 @@ ReadCfg:
 	ret = ParseConfigFile(cfg, &J_cfg, PARSEMODE_PARSE_ALL | PARSEMODE_FIRST_CALL);
 	HVLimitCheck(handle);
 	fclose(cfg);
+	
+	// If TDL connection if established, set StartRunMode: TDL - ToBeTested
+	for (int bb = 0; bb < J_cfg.NumBrd; ++bb) {
+		if (FERS_CONNECTIONTYPE(handle[bb]) == FERS_CONNECTIONTYPE_TDL && (J_cfg.StartRunMode != STARTRUN_TDL)) {
+			int rtr = FERS_SetParam(handle[bb], "StartRunMode", (char*)"TDL");
+			if (rtr < 0) {
+				FERS_GetLastError(description);
+				Con_printf("LCSe", "Failed to set StartRun TDL for board %d: %s\n", bb, description);
+			}
+			tdlset = 1;
+		}
+	}
+
+	if (tdlset == 1) {
+		Con_printf("LCSM", "StartRunMode: %d\n", STARTRUN_TDL);
+		J_cfg.StartRunMode = STARTRUN_TDL;
+	}
 
 	// Dump configuration if selected (known by Lib)
 	for (int bb = 0; bb < J_cfg.NumBrd; ++bb) {
@@ -1848,7 +1889,11 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 		// ---------------------------------------------------
 		if (AcqStatus == ACQSTATUS_RUNNING) {
 			ret = FERS_GetEvent(handle, &b, &dtq, &tstamp_us, &Event, &nb);
-			if (nb > 0) curr_tstamp_us = tstamp_us;
+			if (nb > 0) {
+				curr_tstamp_us = tstamp_us;
+				// if startRunExtern, nb is > 0 after the start has been received
+				startreceived = 1;
+			}
 			if (ret < 0) {
 				AcqStatus = ACQSTATUS_ERROR;
 				StopRun();
@@ -2020,8 +2065,8 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 			if (!offline_conn) {
 				for (b = 0; b < J_cfg.NumBrd; b++) {
 					ret = Update_Service_Info(handle[b]);
-					int brd = b;
-					sprintf(tmp_brdhv, "%s %d %d %6.3f %6.3f %5.1f %5.1f %5.1f %5.1f", tmp_brdhv, brd, HV_status[brd], HVMon[brd][HV_VMON], HVMon[brd][HV_IMON], BrdTemp[brd][TEMP_DETECTOR], BrdTemp[brd][TEMP_HV], BrdTemp[brd][TEMP_FPGA], BrdTemp[brd][TEMP_BOARD]);
+					//int brd = b;
+					//sprintf(tmp_brdhv, "%s %d %d %6.3f %6.3f %5.1f %5.1f %5.1f %5.1f", tmp_brdhv, brd, HV_status[brd], HVMon[brd][HV_VMON], HVMon[brd][HV_IMON], BrdTemp[brd][TEMP_DETECTOR], BrdTemp[brd][TEMP_HV], BrdTemp[brd][TEMP_FPGA], BrdTemp[brd][TEMP_BOARD]);
 
 					if (ret < 0) {	// Most probably lost connection with FERS card
 						sprintf(es_msg, "%sLost Connection to board %d\n", es_msg, b);
@@ -2054,7 +2099,7 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 					// Check CRC errors in concentrator 
 					if ((FERS_CONNECTIONTYPE(handle[0]) == FERS_CONNECTIONTYPE_TDL) && (b == 0)) {
 						uint32_t errcnt;
-						FERS_GetCrcErrorCnt(FERS_CNCINDEX(handle[0]), &errcnt);
+						FERS_GetCrcErrorCnt(FERS_CNC_HANDLE(handle[0]), &errcnt);
 						if ((errcnt >= CrcErrorLevel) && (crcCncError == 1)) {
 							sprintf(w_msg, "%sWARNING: CRC Errors in Concentrator (num errors = %d)\n", w_msg, errcnt);
 							CrcErrorLevel *= 100;
@@ -2065,9 +2110,9 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 
 				}
 
-				if (En_HVstatus_Update)
-					Con_printf("Sh", "%s\n", tmp_brdhv);
-					//Send_HV_Info(0);
+				//if (En_HVstatus_Update)
+				//	Send_HV_Info(0);
+					//Con_printf("Sh", "%s\n", tmp_brdhv);
 
 				// Manage warning message, Janus does not quit
 				if (strlen(w_msg) > 0 && !wMsg_sent) {
@@ -2119,7 +2164,7 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 					goto ManageError;
 				}
 
-				Send_HV_Info(0);
+				if (SockConsole) Send_HV_Info(0);
 
 			}
 

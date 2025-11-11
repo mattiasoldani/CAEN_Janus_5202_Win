@@ -12,10 +12,10 @@ CAEN FERS Library Readme
 
  Content
  -----------------------------------------------------------------------------
- README				: This file.
- ReleaseNotes		: Revision History and notes.
- src				: source files.
- include			: header files.
+ README				: this file
+ ReleaseNotes		: revision History and notes
+ src				: source files
+ include			: header files
  build				: VS project
  bin				: .dll output folder
  lib				: .lib output folder

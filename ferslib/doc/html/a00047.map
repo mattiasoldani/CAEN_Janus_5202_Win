@@ -1,4 +1,4 @@
-<map id="Configuration parameters" name="Configuration parameters">
-<area shape="rect" id="node1" title="FERS configuration parameters structure (lib + board)" alt="" coords="305,5,568,31"/>
-<area shape="rect" id="node2" href="$a00044.html" title="Structures of FERS Library." alt="" coords="5,5,257,31"/>
+<map id="Debug Log bitmask" name="Debug Log bitmask">
+<area shape="rect" id="Node000001" title="Debug Log bitmask values." alt="" coords="118,5,255,33"/>
+<area shape="rect" id="Node000002" href="$a00043.html" title="Common macros." alt="" coords="5,5,70,33"/>
 </map>

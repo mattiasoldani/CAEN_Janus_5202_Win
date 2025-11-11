@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    //filenames.push_back("Run1.0_list.dat");
+    //filenames.push_back("Run11_list.dat");
 
     // Define the binfile to convert and the csvfile
     std::ifstream to_convert;

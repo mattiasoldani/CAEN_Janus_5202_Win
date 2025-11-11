@@ -1,11 +1,19 @@
 var searchData=
 [
-  ['leadtrail_5flsb_0',['LeadTrail_LSB',['../a00123.html#a587f14beb47c164f77ad2ea136139351',1,'Config_t']]],
-  ['left_5fsuppress_1',['left_suppress',['../a00147.html#a414d1bbf83e047f95aaa92b349f238c0',1,'picoTDC_Cfg_t']]],
-  ['lg_5fgain_2',['LG_Gain',['../a00123.html#a2efdc831718f4235346e1318b1ad7889',1,'Config_t']]],
-  ['lg_5fshapingtime_3',['LG_ShapingTime',['../a00123.html#a5dd75060faec91f92425961864636280',1,'Config_t']]],
-  ['lg_5fshapingtime_5find_4',['LG_ShapingTime_ind',['../a00123.html#a957e17e99ff0d8eb021aa45ddf55ce9a',1,'Config_t']]],
-  ['library_20info_5',['Library info',['../a00065.html',1,'']]],
-  ['library_20version_6',['Library version',['../a00051.html',1,'']]],
-  ['listevent_5ft_7',['ListEvent_t',['../a00111.html',1,'']]]
+  ['i2c_5faddr_5feeprom_5fmem_0',['I2C_ADDR_EEPROM_MEM',['../a00029.html#a076114f7cf70e6bd313dd9e0f536596b',1,'FERS_Registers_520X.h']]],
+  ['i2c_5faddr_5fpll0_1',['I2C_ADDR_PLL0',['../a00029.html#a36c0d4ed3bdc30e68729627ee18a19d5',1,'FERS_Registers_520X.h']]],
+  ['i2c_5faddr_5fpll1_2',['I2C_ADDR_PLL1',['../a00029.html#aabab108d08b0f682c1939b1eaad5b23c',1,'FERS_Registers_520X.h']]],
+  ['i2c_5faddr_5fpll2_3',['I2C_ADDR_PLL2',['../a00029.html#ad6d20a6f802b18b6848f0cc6bc61b49a',1,'FERS_Registers_520X.h']]],
+  ['i2c_5faddr_5ftdc_4',['I2C_ADDR_TDC',['../a00029.html#afa0f6b0048d00caf0d0ae9530a79e239',1,'FERS_Registers_520X.h']]],
+  ['i2c_5faddr_5fxr_5',['I2C_ADDR_XR',['../a00029.html#a8f40380872d108a15b8d88beda7ec12a',1,'FERS_Registers_520X.h']]],
+  ['indexing_6',['Handles and indexing',['../a00055.html',1,'']]],
+  ['indiv_5faddr_7',['INDIV_ADDR',['../a00029.html#a116ba9d99dc2ecb5f1f60001adc5defe',1,'FERS_Registers_520X.h']]],
+  ['info_8',['Board Info',['../a00040.html',1,'']]],
+  ['info_9',['info',['../a00065.html',1,'Board info'],['../a00059.html',1,'Library info']]],
+  ['inputpolarity_10',['InputPolarity',['../a00118.html#ab24ecdec21d4a0be36a6c9537ad6b322',1,'Config_t']]],
+  ['install_2emd_11',['INSTALL.md',['../a00005.html',1,'']]],
+  ['installation_12',['Installation',['../a00360.html',1,'']]],
+  ['introduction_13',['Introduction',['../index.html',1,'']]],
+  ['introduction_2emd_14',['INTRODUCTION.md',['../a00008.html',1,'']]],
+  ['invalid_5ftemp_15',['INVALID_TEMP',['../a00020.html#ac3f60d2997dde2465d6b7ed633dd742a',1,'FERSlib.h']]]
 ];

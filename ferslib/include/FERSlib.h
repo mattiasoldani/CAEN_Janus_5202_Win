@@ -18,8 +18,8 @@
 *	\brief		CAEN FERS Library
 *	\author		Daniele Ninci, Carlo Tintori
 * 
-*	@version 1.2.0
-*	@date 06/05/2025
+*	@version 1.2.3
+*	@date 07/10/2025
 ********************************************************************************/
 
 /*!
@@ -111,11 +111,11 @@
  */
 #define FERSLIB_VERSION_MAJOR			1
 #define FERSLIB_VERSION_MINOR			2
-#define FERSLIB_VERSION_PATCH			0
+#define FERSLIB_VERSION_PATCH			3
 #define FERSLIB_RELEASE_NUM				(FERSLIB_VERSION_MAJOR * 10000) + (FERSLIB_VERSION_MINOR * 100) + (FERSLIB_VERSION_PATCH)	/*!< Library release version (int) */
 #define FERSLIB_RELEASE_STRING			FERSLIB_STR(FERSLIB_VERSION_MAJOR) "." FERSLIB_STR(FERSLIB_VERSION_MINOR) "." FERSLIB_STR(FERSLIB_VERSION_PATCH) /*!<Library release version (string) */
-#define FERSLIB_RELEASE_DATE			"06/06/2025"
-/*! @} */
+#define FERSLIB_RELEASE_DATE			"07/10/2025"
+ /*! @} */
 
 #define THROUGHPUT_METER			0		///< Must be 0 in normal operation (can be used to test the data throughput in different points of the readout process)
 
@@ -571,6 +571,8 @@ typedef struct {
 typedef struct {
 	double tstamp_us;		//!< Timestamp in us
 	double rel_tstamp_us;	//!< Relative timestamp in us, reset by Tref
+	uint64_t tstamp_clk;	//!< Timestamp in LSB
+	uint64_t Tref_tstamp;	//!< Timestamp of reference time signal (5202 only)
 	uint64_t trigger_id;	//!< Trigger ID
 	uint64_t chmask;		//!< Channel Mask
 	uint64_t qdmask;		//!< QD Mask
@@ -830,18 +832,20 @@ extern "C" {
 	 * @brief   Open raw data file, to be done before starting the run
 	 * @param[in] *handle		pointer to the handles array
 	 * @param[in] RunNum		number of the starting run
+	 * @param[in] NumBrd		number of raw data file to open
 	 * @return					0 
 	 * @ingroup RawData
 	*/
-	CAEN_FERS_DLLAPI int FERS_OpenRawDataFile(int* handle, int RunNum);
+	CAEN_FERS_DLLAPI int FERS_OpenRawDataFile(int* handle, int RunNum, int NumBrd);
 
 	/*!
      * @brief   Close raw data file after run stops
      * @param[in] *handle		pointer to the board handles array
+	 * @param[in] NumBrd		number of raw data file to close
      * @return					0
      * @ingroup RawData
     */
-	CAEN_FERS_DLLAPI int FERS_CloseRawDataFile(int* handle);
+	CAEN_FERS_DLLAPI int FERS_CloseRawDataFile(int* handle, int NumBrd);
 	
 	/*!
 	* @brief	Get the clock of the FERS board
@@ -1448,6 +1452,16 @@ extern "C" {
 	 * @return					0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
 	CAEN_FERS_DLLAPI int FERS_HV_Get_Status(int handle, int* OnOff, int* Ramping, int* OvC, int* OvV);
+
+	/*!
+	 * @ingroup HV
+	 * @brief				Get the Firmware Version of the high voltage module
+	 *
+	 * @param[out] sernum	Pointer to the get Fimware version
+	 * @param[in] handle	Handle to the FERS device
+	 * @return				0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
+	 */
+	CAEN_FERS_DLLAPI int FERS_HV_Get_FWVer(int handle, uint32_t* FWver);
 
 	/*!
 	 * @ingroup HV

@@ -1,4 +1,4 @@
-<map id="Debug Log bitmask" name="Debug Log bitmask">
-<area shape="rect" id="node1" title="Debug Log bitmask values." alt="" coords="136,5,328,31"/>
-<area shape="rect" id="node2" href="$a00049.html" title="Common macros." alt="" coords="5,5,88,31"/>
+<map id="EEPROM A5256 constants" name="EEPROM A5256 constants">
+<area shape="rect" id="Node000001" title="EEPROM A5256 constants." alt="" coords="118,5,294,33"/>
+<area shape="rect" id="Node000002" href="$a00043.html" title="Common macros." alt="" coords="5,5,70,33"/>
 </map>

@@ -22,20 +22,15 @@ import tooltips as tt
 params = sh.params
 sections = sh.sections
 
-#def resource_path(relative_path):
-#        if hasattr(sys, '_MEIPASS'):
-#            return os.path.join(sys._MEIPASS, relative_path)
-#        return os.path.join(os.path.abspath("."), relative_path)
 
 # *******************************************************************************
-# Control Panel
-# *******************************************************************************
 class CtrlPanel():
+	# *******************************************************************************
+	# Control Panel
+	# *******************************************************************************
 	def __init__(self):
 
 		# images and logos
-		if sys.platform.find('win') < 0:
-			sh.ImgPath = '../img/'
 		self.img_CAENlogo   = PhotoImage(file=sh.ImgPath + "CAENlogo.png"   ).subsample(3, 3)
 		self.img_FERSlogo   = PhotoImage(file=sh.ImgPath + "FERSlogo.png"   ).subsample(3, 3)
 		self.img_plug       = PhotoImage(file=sh.ImgPath + "plug.png"       ).subsample(3, 3)
@@ -72,7 +67,6 @@ class CtrlPanel():
 		self.prev_brd = [0, 0] # enter in Ramping, board
 
 		self.PlotTraceSel = ["0 0 B", "", "", "", "", "", "", ""]
-		# self.PlotTraceSel = ["", "", "", "", "", "", "", ""]
 		self.StaircaseSettings = ""
 		self.HoldScanSettings = ""
 
@@ -115,10 +109,12 @@ class CtrlPanel():
 		self.list_of_bfile = IntVar()
 		self.list_of_bfile.set(0)
 
+
 	def validate_RunNumber(self, new_value):
 		if new_value.isdigit(): return int(new_value) < 10000
 		elif not new_value: return True
 		else: return False
+
 
 	def OpenControlPanel(self, parent):
 		# ------------------------------------------------------------
@@ -290,16 +286,9 @@ class CtrlPanel():
 			comm.SendCmd('f0')
 			self.bsingle.config(state=DISABLED)
 
+
 	def SaveCfgFile(self):
-		# DNIN: to decide: is better to implement everything in py or do with socket?
-		# if not self.CfgReloaded.get():	# new cfg file not loaded, update the Vbias from socket
-		# 	mycmd = "B" + params['HV_Vbias'].default	# not needed, the control is performed on Janus
-		# 	comm.SendCmd(mycmd)
-		# 	for i in range(sh.MaxBrd):
-		# 		if params['HV_Vbias'].value[i] != "": 
-		# 			comm.SendCmd("B"+ params['HV_Vbias'].value[i] + " b" + str(i))
-		# time.sleep(0.2)
-		############	Write and update Janus_config.txt
+		# Write and update Janus_config.txt
 		cfg.WriteConfigFile(sections, params, sh.CfgFile, self.show_warning.get())
 		self.CfgReloaded.set(0)
 		# GUI rising Warning 
@@ -307,6 +296,7 @@ class CtrlPanel():
 			self.CfgWarning.set(1)
 		self.RisedWarning.set(0)
 		self.b_apply.configure(bg = sh.BgCol, state=DISABLED)
+
 
 	def SaveCfgFileAs(self):
 		files = [('All Files', '*.*'), 
@@ -317,13 +307,15 @@ class CtrlPanel():
 			# self.SaveCfgFile()
 			self.CfgNameSaved.set(name)
 
+
 	def SaveCfgFileForRun(self):
 		filename, file_extension = os.path.splitext(sh.CfgFile)
-		filename = filename.split("/")[-1]
+		filename = filename.split(os.sep)[-1]
 		filename = os.path.join(sh.cfgfile_path, params['DataFilePath'].default, filename + '_Run' + str(self.RunNumber.get()))
 		
 		name = filename + file_extension
 		cfg.WriteConfigFile(sections, params, name, self.show_warning.get())
+
 
 	def ReadCfgFile(self):
 		try:
@@ -334,6 +326,7 @@ class CtrlPanel():
 			self.CfgReloaded.set(1)
 		except:
 			name = ''
+
 
 	def SaveRunVars(self):
 		if self.enable_runvarsave:
@@ -349,7 +342,7 @@ class CtrlPanel():
 			for i in range(8):
 				if self.PlotTraceSel[i] != "": 
 					default_PltTrSel = 0
-					rf.write("PlotTraces     " + str(i) + " " + self.PlotTraceSel[i] + "\n") #+ "  ")	# save Plot Trace on different lines
+					rf.write("PlotTraces     " + str(i) + " " + self.PlotTraceSel[i] + "\n") #+ "  ")	# Save Plot Trace on different lines
 					
 			if default_PltTrSel == 1:
 				rf.write    ("PlotTraces     " + "0 0 0 B\n")
@@ -394,6 +387,7 @@ class CtrlPanel():
 						self.HoldScanSettings = " ".join(p[1:])
 			rf.close()
 			self.enable_runvarsave = True
+
 
 	def SetAcqStatus(self, status, msg, offline = False):
 		self.AcqStatus["state"] = NORMAL
@@ -459,10 +453,10 @@ class CtrlPanel():
 			self.bstart.config(state=DISABLED)
 			self.staircase_button.config(state=DISABLED)
 			self.holdscan_button.config(state=DISABLED)
-			self.bin2csv_button["state"] = DISABLED # DNIN: it is meant to avoid to convert a file that is going to be written during DAQ..is that useful?
+			self.bin2csv_button["state"] = DISABLED # It is meant to avoid the conversion of a file which is currently being written
 			self.bstop.config(state=NORMAL)
 			self.bpause.config(state=NORMAL)
-			self.LoadCfg_button.config(state=DISABLED)	# Is it correct to have this option?
+			self.LoadCfg_button.config(state=DISABLED)	
 			self.SaveAs_button.config(state=DISABLED)
 			self.SaveToRun_button.config(state=DISABLED)
 			if self.FreezeStat.get() == 1: self.bsingle.config(state=NORMAL)
@@ -483,7 +477,7 @@ class CtrlPanel():
 				self.HV_ON[rmp_board] = self.HV_ON[rmp_board]^1
 				self.prev_brd[0] = 1
 				self.prev_brd[1] = rmp_board
-		elif status == sh.ACQSTATUS_STAIRCASE or status == sh.ACQSTATUS_HOLDSCAN: # running staircase or holdscan
+		elif status == sh.ACQSTATUS_STAIRCASE or status == sh.ACQSTATUS_HOLDSCAN: # Running staircase or holdscan
 			self.AcqStatus.config(bg='white')
 			# if status == sh.ACQSTATUS_STAIRCASE: self.runled.set_color("green")   DNIN: Is there a reason to not turn on the led during DelayScan?
 			self.runled.set_color("green") 
@@ -565,7 +559,9 @@ class CtrlPanel():
 
 		self.no_update2 = False
 	
-	def AppendCfgFile(self): # Active when you save, 
+
+	def AppendCfgFile(self): 
+		# Active when you save, 
 		cfg_not_found = []
 		idx = [i for i in range(len(self.myint)) if self.myint[i].get()==1]
 		cfg.cfg_file_list.clear()
@@ -589,9 +585,10 @@ class CtrlPanel():
 		self.SaveCfgFile()
 		self.CloseExternalCfg()
 
+
 	def CloseExternalCfg(self):
-		# self.AppendCfgFile()
 		self.ExtCfgLoad.destroy()
+
 
 	def set_cfg_path(self, turn_on):
 		if self.no_update2: return
@@ -626,6 +623,7 @@ class CtrlPanel():
 		self.no_update2 = False
 		self.previous_idx = midx
 
+
 	def RmAllFile(self): 
 		self.no_update2 = True
 		self.VarList.set("0")
@@ -635,11 +633,13 @@ class CtrlPanel():
 			self.myint[i].set(0)
 		self.no_update2 = False
 
+
 	def RmCfgFile(self):
 		j=int(self.VarList.get(),10)
 		self.ExtCfgFileName[j].set("") 
 		self.NumCfgFile[j].config(fg='black')
 		self.myint[j].set(0)
+
 
 	def AddCfgFile(self):
 		j=int(self.VarList.get(),10)
@@ -648,10 +648,10 @@ class CtrlPanel():
 		self.ExtCfgFileName[j].set(name)
 
 		
-	# ***************************************************************************************
-	# Popup window for Plot enable mask
-	# ***************************************************************************************
 	def OpenPlotMaskWin(self):
+		# ***************************************************************************************
+		# Popup window for Plot enable mask
+		# ***************************************************************************************
 		if self.PlotMaskWinIsOpen: self.ClosePlotMaskWin()
 		self.Tbrd = IntVar()
 		self.Tbrd.set(0)
@@ -769,10 +769,11 @@ class CtrlPanel():
 		self.no_update = False
 		self.InitPlotMaskButtons = False
 
-	############################################################
-	## Methods for OpenPlotMaskWin
-	############################################################
+
 	def UpdateMask(self):
+		############################################################
+		## Methods for OpenPlotMaskWin
+		############################################################
 		if self.no_update: return
 		sel = self.PlotTraceSelVar.get()
 		# self.PlotMaskVar.set(str(self.Tch.get()))
@@ -839,6 +840,7 @@ class CtrlPanel():
 			[self.EntryRunFile[i].place_forget() for i in range(len(self.EntryRunFile))]
 		return True
 
+
 	def AssignOctet(self, octet):
 		if self.no_update: return
 		# Set Variable
@@ -858,10 +860,12 @@ class CtrlPanel():
 		self.PlotMaskVar.set(str(cc))
 		self.SaveRunVars()
 
+
 	def ActiveTrace(self):
 		if self.no_update: return
 		if self.GetBrdCh():	self.PlotMaskVar.set(str(self.Tch.get()))
 		else: self.PlotMaskVar.set("")
+
 
 	def DisableTrace(self):
 		if self.no_update: return
@@ -872,6 +876,7 @@ class CtrlPanel():
 		self.selbutton[sel].config(fg='black')
 		self.SaveRunVars()
 		
+
 	def DisableAllTraces(self):
 		if self.no_update: return
 		self.no_update = True # Prevent Updating Mask while setting RunVars
@@ -883,6 +888,7 @@ class CtrlPanel():
 			self.selbutton[sel].config(fg='black')
 		self.SaveRunVars()
 		self.no_update = False
+
 
 	def PixelMap(self):
 		x0, y0 = self.xm, self.ym
@@ -901,6 +907,7 @@ class CtrlPanel():
 					xp, yp = x, y
 				self.maskbutton[i].place(relx=float(x0+xp*self.sp)/270, rely=float(y0+(yp+1)*self.sp)/420)  #  x = x0+xp*self.sp, y=y0+(yp+1)*self.sp)
 
+
 	def EnableRunFile(self):
 		if self.FromBrdFile.get() == 'B':
 			[self.SelRunFile[i].place_forget() for i in range(len(self.SelRunFile))]
@@ -917,7 +924,7 @@ class CtrlPanel():
 		elif self.FromBrdFile.get() == 'S':	# not yey implemented
 			[self.SelRunFile[i].place_forget() for i in range(2)]
 			# self.SelRunFile[2].place(x=17, y=125+5)
-			self.SelRunFile[2].place(relx=0.64, rely=104./420, relwidth=25.2/270, relheight=25.2/420)  # DNIN: scale to 420 and 270 x=17+155, y=104)
+			self.SelRunFile[2].place(relx=0.64, rely=104./420, relwidth=25.2/270, relheight=25.2/420)  # Scale to 420 and 270 x=17+155, y=104)
 			# self.SelRunFile[2].config(state = 'readonly')
 			self.EntryRunFile[self.PlotTraceSelVar.get()].place(relx=17./270, rely=130./420, relwidth=0.88, relheight=19/420)  #  x=17, y=125+5)
 			[self.octetbutton[i].config(state = "disabled") for i in range(8)]
@@ -930,7 +937,9 @@ class CtrlPanel():
 		# 	[self.SelRunFile[i].config(state="disabled") for i in range(2)]
 		# 	self.BrdFile = self.FromBrdFile.get()
 
-	def OpenExtRunFile(self):	# for loading histograms from specific file
+
+	def OpenExtRunFile(self):	
+		# Loading histograms from specific file
 		[self.EntryRunFile[i].place_forget() for i in range(8)]
 		self.EntryRunFile[int(self.PlotTraceSelVar.get())].place(relx=17./270, rely=130./420, relwidth=0.88, relheight=19/420)  #  x=17, y=125+5)
 		try:
@@ -939,16 +948,18 @@ class CtrlPanel():
 			self.ExtRunFile[int(self.PlotTraceSelVar.get())].set("")  # self.ExtRunFile.get()[int(self.PlotTraceSelVar.get())])   To CHECK
 		self.UpdateMask() 
 		
+
 	def ClosePlotMaskWin(self):
 		self.UpdateMask()
 		self.PlotMaskWin.destroy()
 		self.PlotMaskWinIsOpen = False
 
 
-	# ***************************************************************************************
-	# Popup window for Staircase
-	# ***************************************************************************************
 	def OpenSpecialRunWin(self, RunType, parent):
+		# ***************************************************************************************
+		# Popup window for Staircase/HoldDelayScan
+		# ***************************************************************************************
+
 		self.MinScan = StringVar()
 		self.MaxScan = StringVar()
 		self.StepScan = StringVar()
@@ -1016,6 +1027,7 @@ class CtrlPanel():
 		self.sc_progress = Progressbar(self.SpecialRunWin, orient = HORIZONTAL, length = 185, mode = 'determinate') 
 		self.sc_progress.place(relx=float(x0)/xw, rely=float(y0)/yw, relwidth=0.95, relheight=25.3/yw) # x = x0, y = y0)
 
+
 	def StartScan(self):
 		self.sc_run.config(state=DISABLED)
 		if self.RunType == 'Staircase': self.StaircaseSettings = self.SpecialRunBoard.get() + ' ' + self.MinScan.get() + ' ' + self.MaxScan.get() + ' ' + self.StepScan.get() + ' ' + self.DwellNpts.get()
@@ -1025,6 +1037,7 @@ class CtrlPanel():
 			comm.SendCmd('y')
 		else: 
 			comm.SendCmd('Y')
+
 
 	def CloseSpecialRunWin(self):
 		self.SpecialRunWin.destroy()
@@ -1080,10 +1093,12 @@ class CtrlPanel():
 		Checkbutton(self.ConvWin, text='List of binary files names', font=("Arial Bold", 10), variable=self.list_of_bfile).place(relx=0.097, rely=0.09+0.06*14)
 		Button(self.ConvWin, text='Convert', command=self.ConvertFile, bg='light blue').place(relx=0.097+0.55, rely=0.06+0.06*14, relwidth=0.25, relheight=0.075) # , width=12  x=displ_x+170, y=start_y+displ_y*14+5)
 
+
 	def ActivePath(self):
 		self.BinFilesList[int(self.pr_idx)].config(state='readonly')
 		self.BinFilesList[int(self.BinVarList.get())].config(state='normal')
 		self.pr_idx = self.BinVarList.get()
+
 
 	def SelectToConvertFile(self, index):
 		try:
@@ -1092,17 +1107,18 @@ class CtrlPanel():
 		except:
 			self.Bin_fname[index].set("")
 
+
 	def ConvertFile(self):
 		ON_POSIX = 'posix' in sys.builtin_module_names
-		exe_cmd = [] # list with the command to execute - executable + input arguments
+		exe_cmd = [] # List with the command to execute - executable + input arguments
 		if sys.platform.find('win') < 0: 
-			fname = "./BinToCsv"	# name of the executable on linux
+			fname = "./BinToCsv"	# Name of the executable on linux
 		else:
 			fname = "BinToCsv.exe"
 		
 		exe_name = os.path.join(sh.cfgfile_path, fname)
 
-		if not os.path.exists(exe_name):	#   Error: BinToCsv is not the folder and cannot be launched
+		if not os.path.exists(exe_name):	#   Error: BinToCsv is not the expected folder and cannot be launched
 			Jmsg="Warning, BinToCsV executable is missing!!!\nPlease, check if the antivirus cancel it during the unzip (Windows)"
 			Jmsg=Jmsg+"\nor run Janus_Install.sh from the main folder (Linux)"
 			messagebox.showwarning(title=None, message=Jmsg)
@@ -1111,14 +1127,14 @@ class CtrlPanel():
 
 		exe_cmd.append(exe_name)
 		if self.time_unit.get(): exe_cmd.append('--ns') # The time is forced to be converted in ns
-		if self.list_of_bfile.get(): exe_cmd.append("--lfile") # The file inserted contains the list of binary file to convert
-		else: exe_cmd.append("--bfile")  # Option to append binary files to convert
+		if self.list_of_bfile.get(): exe_cmd.append("--lfile") # The file inserted contains the list of binary file to be converted
+		else: exe_cmd.append("--bfile")  # Option to append binary files to be converted
 		for ffb in self.Bin_fname:
 			if len(ffb.get()) > 0:
 				exe_cmd.append(ffb.get())
 		
 		self.ConvCsvTrace.set(1)
-		# display on log that the conversion started
+		# Display on log that the conversion started
 		process = subprocess.Popen(exe_cmd, shell=False) # Run on a separate process from the GUI
 		# process = subprocess.Popen(["BinToCsv.exe", self.Bin_fname], shell=False) # Run on a separate process from the GUI
 		self.CloseConvWin()

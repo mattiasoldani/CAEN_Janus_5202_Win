@@ -55,6 +55,7 @@
 #define a_acq_status       0x01000304   //!< Acquisition Status
 #define a_real_time        0x01000308   //!< Real Time in ms
 #define a_dead_time        0x01000310   //!< Dead Time in ms
+#define a_board_temp       0x01000340	//!< Board Temp
 #define a_fpga_temp        0x01000348   //!< FPGA die Temperature 
 #define a_pid              0x01000400	//!< PID
 #define a_pcb_rev          0x01000404	//!< PCB revision
@@ -140,7 +141,6 @@
 #define a_rej_trg_cnt      0x0100031C   //!< Rejected Trigger counter
 #define a_zs_trg_cnt       0x01000320   //!< Zero Suppressed Trigger counter
 #define a_clk_out_phase    0x01000330   //!< Phase between TDC clock and FPGA clock (0x0000 = 0 deg; 0xFFFF = 180 deg)
-#define a_board_temp       0x01000340	//!< Board Temp
 #define a_tdc0_temp		   0x01000354	//!< TDC0 Temperature
 #define a_tdc1_temp		   0x01000358	//!< TDC1 Temperature
 #define a_spi_data         0x01000224   //!< SPI R/W data (for Flash Memory access)
@@ -232,8 +232,8 @@
 #define TEST_PULSE_SOURCE_PTRG			3
 #define TEST_PULSE_SOURCE_SW_CMD		4
 
-#define TEST_PULSE_PREAMP_LG 			1
-#define TEST_PULSE_PREAMP_HG 			2
+#define TEST_PULSE_PREAMP_HG 			1
+#define TEST_PULSE_PREAMP_LG 			2
 #define TEST_PULSE_PREAMP_BOTH			3
 
 #define TEST_PULSE_DEST_ALL 			-1
