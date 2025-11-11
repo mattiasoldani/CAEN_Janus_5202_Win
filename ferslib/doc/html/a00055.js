@@ -1,11 +1,13 @@
 var a00055 =
 [
-    [ "DTQ_SPECT", "a00055.html#ga9a1e9d48be42769ab1f44c5c21348b85", null ],
-    [ "DTQ_TIMING", "a00055.html#gab9021f991fb7339356f0537c4333ed3a", null ],
-    [ "DTQ_COUNT", "a00055.html#gafb6a68c8ec55a99d4c2fe6f302674034", null ],
-    [ "DTQ_WAVE", "a00055.html#gae6d2a5f34f37482a7b7b6f6cb33f9dd8", null ],
-    [ "DTQ_TSPECT", "a00055.html#ga9907af75e102fb3a48d3b2422ba06741", null ],
-    [ "DTQ_SERVICE", "a00055.html#ga03c61ea56ee7ad9af7135b16803230ae", null ],
-    [ "DTQ_TEST", "a00055.html#ga8b60e257270f8f27e8a00cd8a7ecfda8", null ],
-    [ "DTQ_START", "a00055.html#ga3ab68e1db174434b59b504326e0227d5", null ]
+    [ "FERS_INDEX", "a00055.html#gada24a03855f045f1b01277d85fc1c2c9", null ],
+    [ "FERS_CONNECTIONTYPE", "a00055.html#gad154e7a7b1b1835eccf7c01be2e3f22c", null ],
+    [ "FERS_CONNECTIONTYPE_ETH", "a00055.html#gafe839bf7b22bc6ebf551a85d6fd5a6c4", null ],
+    [ "FERS_CONNECTIONTYPE_USB", "a00055.html#ga170c56ab0985e6d314e178b5838b3324", null ],
+    [ "FERS_CONNECTIONTYPE_TDL", "a00055.html#gaa6286033eebcd70a907212bf0500a973", null ],
+    [ "FERS_CONNECTIONTYPE_CNC", "a00055.html#ga3bccd24a3657fca3680ccc865fbc8188", null ],
+    [ "FERS_NODE", "a00055.html#ga8d8172791483ea582016390407ea0bfd", null ],
+    [ "FERS_CHAIN", "a00055.html#ga2f231dd77081b11594fb9565dad3347c", null ],
+    [ "FERS_CNCINDEX", "a00055.html#ga42746935cf618a8db41bce7343371bb0", null ],
+    [ "FERS_CNC_HANDLE", "a00055.html#ga2d72378af61f40dae35ae9745738bf34", null ]
 ];

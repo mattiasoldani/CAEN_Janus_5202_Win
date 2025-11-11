@@ -1,7 +1,7 @@
 var a00073 =
 [
-    [ "FERS_configure", "a00073.html#ga4e205897a2bad6522f0855ea1a55625f", null ],
-    [ "FERS_LoadConfigFile", "a00073.html#ga7c7d9747c8d09fddc4a500281ec210e9", null ],
-    [ "FERS_SetParam", "a00073.html#gaa8a7a3f2f86d21ac82defe7ed10e5a7b", null ],
-    [ "FERS_GetParam", "a00073.html#gafbadb6f61fc7318dcf4ea0dc23dfc8e8", null ]
+    [ "FERS_ChIndex_ada2tdc", "a00073.html#ga337256edb5ac018f3c98962cfb727e6b", null ],
+    [ "FERS_ChIndex_tdc2ada", "a00073.html#gaff1feb6e31e4d742b6903fdebc179a10", null ],
+    [ "FERS_AdapterNch", "a00073.html#ga7cf113e953eb8b6624fed4c71d27c20d", null ],
+    [ "FERS_ChMask_ada2tdc", "a00073.html#ga295b3a6756c24b1c508943e49157d8d7", null ]
 ];

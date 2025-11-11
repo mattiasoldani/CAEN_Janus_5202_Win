@@ -95,6 +95,8 @@ AcquisitionMode					SPECTROSCOPY		g		c		# Acquisition mode
 	- WAVEFORM					
 	
 EnableToT						1					g	 	b		# Enable ToT in timing mode (Enabled: ToA = 16 bits, ToT = 9 bits; Disabled: ToA = 25 bits)
+
+EnableListZeroSuppr				0					g		b		# Enable suppression of event with 0 hits in Timing mode for output list files
 	
 BunchTrgSource					T-OR				g		c		# Bunch Trigger source (for spectroscopy and counting modes)
 	- T0-IN
@@ -322,7 +324,7 @@ DigitalProbe0					OFF					g		c		# Select the signal connected to the digital pro
 	- T_OR
 	- Q_OR
 	
-ProbeChannel0				0					g		d		# Select the channel connected to the analog and digital probes0
+ProbeChannel0				0					g		d		# Select the channel connected to the analog and digital probes0. Channels 0-31
 	
 
 AnalogProbe1					OFF					g		c		# Select the signal connected to the analog probe1 
@@ -346,7 +348,7 @@ DigitalProbe1					OFF					g		c		# Select the signal connected to the digital pro
 	- T_OR
 	- Q_OR
 
-ProbeChannel1					0					g		d		# Select the channel connected to the analog and digital probes1
+ProbeChannel1					0					g		d		# Select the channel connected to the analog and digital probes1. Channels 32-63
 
 _BLANK 							-					-		-
 

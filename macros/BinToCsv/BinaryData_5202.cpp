@@ -233,15 +233,23 @@ void t_BinaryData::ReadTmpEvt(std::ifstream& binfile) {
 uint16_t t_BinaryData::ReadSpectTime(std::ifstream& binfile) {
     uint8_t  tmp_u8;
     uint16_t tmp_u16;
+    uint16_t mysize;
     uint32_t tmp_u32;
     float tmp_f;
 
-    binfile.read((char*)&tmp_u8, sizeof(uint8_t));
-    t_ch_id.push_back(tmp_u8);
+    if (t_BinaryData::t_s_sw_version == "4.2.2" || t_BinaryData::t_s_sw_version == "4.2.3") {
+        binfile.read((char*)&tmp_u32, sizeof(uint32_t));
+        t_ch_id.push_back((uint8_t)tmp_u32);
+        mysize = 5; // ch_id+data_type
+	} else {
+		binfile.read((char*)&tmp_u8, sizeof(uint8_t));
+		t_ch_id.push_back(tmp_u8);
+		mysize = 2; // ch_id+data_type
+	}
     binfile.read((char*)&tmp_u8, sizeof(uint8_t));
     t_data_type.push_back(tmp_u8);
 
-    uint16_t mysize = 2;
+
     if (t_data_type.back() & 0x01) {
         binfile.read((char*)&tmp_u16, sizeof(uint16_t));
         t_PHA_LG.push_back(tmp_u16);

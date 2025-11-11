@@ -777,6 +777,7 @@ static int FERS_DecodeEvent_5202(int handle, uint32_t* EvBuff_d, int nb, int* Da
 	} else if (((*DataQualifier & 0xF) == DTQ_SPECT) || ((*DataQualifier & 0xF) == DTQ_TSPECT)) {
 		uint32_t nhits, both_g;
 		*tstamp_us = (double)(((uint64_t)EvBuff_d[4] << 32) | (uint64_t)EvBuff_d[3]) * CLK_PERIOD[FERS_INDEX(handle)] / 1000.0;
+		SpectEvent[h].tstamp_clk = ((uint64_t)EvBuff_d[4] << 32) | ((uint64_t)EvBuff_d[3]);
 		SpectEvent[h].tstamp_us = *tstamp_us;
 		SpectEvent[h].trigger_id = ((uint64_t)EvBuff_d[2] << 32) | (uint64_t)EvBuff_d[1];
 		pnt = 5;
@@ -816,11 +817,18 @@ static int FERS_DecodeEvent_5202(int handle, uint32_t* EvBuff_d, int nb, int* Da
 		}
 		if ((*DataQualifier & DTQ_TIMING) && (pnt < size)) {
 			nhits = size - pnt - 1;
+			// Tref 1 + 31bits timetamp
+			// Hits 0 + 7 bit ch + data 
 			for (i = 0; i < nhits; i++) {
-				int ch = (EvBuff_d[pnt + i + 1] >> 25) & 0xFF;
-				if (ch >= 64) continue;
-				if (SpectEvent[h].tstamp[ch] == 0) SpectEvent[h].tstamp[ch] = EvBuff_d[pnt + i + 1] & 0xFFFF;  // take 1st hit only
-				if (SpectEvent[h].ToT[ch] == 0) SpectEvent[h].ToT[ch] = (EvBuff_d[pnt + i + 1] >> 16) & 0x1FF;
+				if ((EvBuff_d[pnt + i] >> 31)  == 1) // Tref has bit31 = 1 
+					SpectEvent[h].Tref_tstamp = EvBuff_d[pnt + i] & 0x7FFFFFFF;  // It will be introduce in the next list data
+				else if ((EvBuff_d[pnt + i + 1] >> 31) == 0) { // hit has bit31 = 0
+					int ch = (EvBuff_d[pnt + i + 1] >> 25) & 0x7F;
+					if (ch >= 64)
+						continue;
+					if (SpectEvent[h].tstamp[ch] == 0) SpectEvent[h].tstamp[ch] = EvBuff_d[pnt + i + 1] & 0xFFFF;  // take 1st hit only
+					if (SpectEvent[h].ToT[ch] == 0) SpectEvent[h].ToT[ch] = (EvBuff_d[pnt + i + 1] >> 16) & 0x1FF;
+				}
 			}
 		}
 		*Event = (void*)&SpectEvent[h];
@@ -854,7 +862,7 @@ static int FERS_DecodeEvent_5202(int handle, uint32_t* EvBuff_d, int nb, int* Da
 	} else if ((*DataQualifier & 0x0F) == DTQ_TIMING) {
 		*tstamp_us = (double)(((uint64_t)EvBuff_d[4] << 32) | (uint64_t)EvBuff_d[3]) * CLK_PERIOD[FERS_INDEX(handle)] / 1000.0;
 		ListEvent[h].tstamp_clk = (((uint64_t)EvBuff_d[4] << 32) | (uint64_t)EvBuff_d[3]);
-		ListEvent[h].Tref_tstamp = EvBuff_d[5] & 0x7FFFFFFF;
+		ListEvent[h].Tref_tstamp = ((ListEvent[h].tstamp_clk) << 4) | EvBuff_d[5] & 0xF;  // EvBuff_d[5] & 0x7FFFFFFF;
 		ListEvent[h].nhits = size - 6;  // 5 word for header + 1 word for time stamp of Tref CTIN: need to take fine time stamp of Tref
 		for (i = 0; i < ListEvent[h].nhits; i++) {
 			ListEvent[h].channel[i] = (EvBuff_d[i + 6] >> 25) & 0xFF;
@@ -1528,7 +1536,7 @@ int FERS_StartAcquisition(int *handle, int NumBrd, int StartMode, int RunNum) {
 
 	if (!FERS_Offline) {
 		// Open Raw Data files (check if they are enabled in the function)
-		FERS_OpenRawDataFile(handle, RunNum);
+		FERS_OpenRawDataFile(handle, RunNum, NumBrd);
 
 		// Check that all RX-threads are in idle state (not running)	
 		for (int i = 0; i < 100; i++) {
@@ -1628,7 +1636,7 @@ int FERS_StopAcquisition(int *handle, int NumBrd, int StartMode, int RunNum) {
 	if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[INFO] Run #%d stopped\n", RunNum);
 	FERS_ReadoutStatus = ROSTATUS_EMPTYING;
 	 // Close RawData file (checks done inside function
-	if (!FERS_Offline) FERS_CloseRawDataFile(handle);
+	if (!FERS_Offline) FERS_CloseRawDataFile(handle, NumBrd);
 
 	if (ret < 0) {
 		if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[ERROR] Stop Command failed. Ret = %d\n", ret);
@@ -1707,7 +1715,7 @@ int FERS_GetEvent(int *handle, int *bindex, int *DataQualifier, double *tstamp_u
 		static int timed_out[FERSLIB_MAX_NBRD] = { 0 };
 
 		// Check if there are empty queues and try to fill them
-		for (i = 0; i < FERSLIB_MAX_NBRD; i++) {
+		for (i = 0; i < NumBoardConnected; i++) {
 			if (handle[i] == -1) break;
 			qi = FERS_INDEX(handle[i]);
 			if ((q_tstamp[FERS_INDEX(handle[i])] == 0) && !q_busy) {  // queue is empty => try to read new data
@@ -1746,7 +1754,7 @@ int FERS_GetEvent(int *handle, int *bindex, int *DataQualifier, double *tstamp_u
 		// Search for oldest tstamp
 		oldest_ev = (uint64_t)-1;
 		qsel = -1;
-		for (i = 0; i < FERSLIB_MAX_NBRD; i++) {
+		for (i = 0; i < NumBoardConnected; i++) {
 			if (handle[i] == -1) break;
 			qi = FERS_INDEX(handle[i]);
 			if (ReadoutMode == ROMODE_TRGTIME_SORTING) {
@@ -1786,7 +1794,7 @@ int FERS_GetEvent(int *handle, int *bindex, int *DataQualifier, double *tstamp_u
 		// First call: find number of concentrators and direct connections
 		if (init) {
 			int ci = -1;
-			for(i=0; (i < FERSLIB_MAX_NBRD) && (handle[i] >= 0); i++) {
+			for(i=0; (i < NumBoardConnected) && (handle[i] >= 0); i++) {
 				if (FERS_CONNECTIONTYPE(handle[i]) == FERS_CONNECTIONTYPE_TDL) {
 					if (FERS_CNCINDEX(handle[i]) > ci) ci = FERS_CNCINDEX(handle[i]);  // highest cnc index
 				} else {
@@ -1822,7 +1830,7 @@ int FERS_GetEvent(int *handle, int *bindex, int *DataQualifier, double *tstamp_u
 				}
 			}
 		} else {
-			for(i=0; (i < FERSLIB_MAX_NBRD) && (handle[i] >= 0); i++) {
+			for (i = 0; (i < NumBoardConnected) && (handle[i] >= 0); i++) {
 				h = FERS_INDEX(handle[i]);
 				if (EvBuff_nb[h] == 0) {
 					ret = eth_usb_ReadRawEvent(handle[i], nb);

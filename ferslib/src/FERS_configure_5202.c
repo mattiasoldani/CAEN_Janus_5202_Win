@@ -86,7 +86,10 @@ int Configure5202(int handle, int mode) {
 
 	ret |= FERS_WriteRegisterSlice(handle, a_acq_ctrl, 24, 25, FERScfg[brd]->Validation_Mode); // 0=disabled, 1=accept, 2=reject
 
-	ret |= FERS_WriteRegisterSlice(handle, a_acq_ctrl, 27, 29, FERScfg[brd]->Counting_Mode); // 0=singles, 1=paired_AND
+	uint32_t count_mode = 0;  // Force singles counting mode when counting Mode is not set
+	if (FERScfg[brd]->AcquisitionMode == ACQMODE_COUNT)
+		count_mode = FERScfg[brd]->Counting_Mode; // 0=singles, 1=paired_AND
+	ret |= FERS_WriteRegisterSlice(handle, a_acq_ctrl, 27, 29, count_mode); 
 	ret |= FERS_WriteRegister(handle, a_hit_width, (uint32_t)(FERScfg[brd]->ChTrg_Width / CLK_PERIOD[FERS_INDEX(handle)])); /// Monostable on Citiroc Self triggers => Coinc Window for Trigger logic and counting in paired-AND mode
 	ret |= FERS_WriteRegister(handle, a_tlogic_width, (uint32_t)(FERScfg[brd]->Tlogic_Width / CLK_PERIOD[FERS_INDEX(handle)])); // Monostable on Trigger Logic Output (0=linear)
 

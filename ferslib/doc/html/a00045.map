@@ -1,4 +1,4 @@
-<map id="Data" name="Data">
-<area shape="rect" id="node1" title="Data structures for the FERS library." alt="" coords="305,5,368,31"/>
-<area shape="rect" id="node2" href="$a00044.html" title="Structures of FERS Library." alt="" coords="5,5,257,31"/>
+<map id="Library version" name="Library version">
+<area shape="rect" id="Node000001" title="Macros to define the library version." alt="" coords="118,5,226,33"/>
+<area shape="rect" id="Node000002" href="$a00043.html" title="Common macros." alt="" coords="5,5,70,33"/>
 </map>

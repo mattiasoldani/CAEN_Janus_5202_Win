@@ -1,15 +1,18 @@
 var a00063 =
 [
-    [ "A5256_CH0_POSITIVE", "a00063.html#ga45ee57f03b88e5eeb83030da20a70e16", null ],
-    [ "A5256_CH0_NEGATIVE", "a00063.html#ga32eb54b2ac8a33ed8d4ebc80f1be4d5f", null ],
-    [ "A5256_CH0_DUAL", "a00063.html#ga936789237cd3cbbdf666776351ce9864", null ],
-    [ "ADAPTER_NONE", "a00063.html#ga9526b983fa6940d208553aae6e8bb11c", null ],
-    [ "ADAPTER_A5255", "a00063.html#gabee7c646315aaf8a6a11b646de67ebec", null ],
-    [ "ADAPTER_A5256", "a00063.html#ga752b57c2d19a35d312b1de8de44b2157", null ],
-    [ "ADAPTER_A5256_REV0_POS", "a00063.html#gab71dea992788ec42dd8b94f8ea6140bc", null ],
-    [ "ADAPTER_A5256_REV0_NEG", "a00063.html#ga5f408440224159cc88dfd39eb271a932", null ],
-    [ "NC", "a00063.html#ga1fa2460e32327ade49189c95740bc1b5", null ],
-    [ "A5256_DAC_LSB", "a00063.html#ga6c2876a9609215113a75cb76e6786149", null ],
-    [ "A5256_mV_to_DAC", "a00063.html#ga39bcae8bae49acd7cc4014f20abaf988", null ],
-    [ "A5256_DAC_to_mV", "a00063.html#ga5ee8ba218977a8dfb28c549e3d32f841", null ]
+    [ "FERS_ReadRegister", "a00063.html#ga27d71bb7a00c16aedf46fbc3a06163f3", null ],
+    [ "FERS_WriteRegister", "a00063.html#ga9f38c426952b711107aed4c51f3a3182", null ],
+    [ "FERS_WriteRegisterSlice", "a00063.html#gac2d385b716a0454d21fd652dc3f22bbc", null ],
+    [ "FERS_SendCommand", "a00063.html#ga1b94b7cec9902aa16804db8610281a5f", null ],
+    [ "FERS_SendCommandBroadcast", "a00063.html#ga68127c2a0961ddb72aae964dc8edaf4b", null ],
+    [ "FERS_I2C_ReadRegister", "a00063.html#ga2a0b764adb4565873013645f76ccdb97", null ],
+    [ "FERS_I2C_WriteRegister", "a00063.html#gac2a5cde073bd8bfe994a7b52f312f6c6", null ],
+    [ "FERS_I2C_WriteRegisterSlice", "a00063.html#gab50aee448dd8e381d1f5a0504b4b9fce", null ],
+    [ "FERS_ReadFlashPage", "a00063.html#gabe0e210b94af956c07c572e08761cedc", null ],
+    [ "FERS_WriteFlashPage", "a00063.html#gadf4dcd891d852b3a10602b7b9d594745", null ],
+    [ "FERS_XROC_WriteRegister", "a00063.html#gaaed033eb478c69abcd56163dbc65b41c", null ],
+    [ "FERS_XROC_ReadRegister", "a00063.html#ga815e08b2cc8a16bb1fbd15e959efa85e", null ],
+    [ "FERS_XROC_WriteRegisterSilce", "a00063.html#ga2232f4e49cdfb2b9ba6c48888f7ca930", null ],
+    [ "FERS_ReadConcentratorInfo", "a00063.html#gad77bf70c9a6967f47f7cd6114fd94508", null ],
+    [ "FERS_WriteBoardInfo", "a00063.html#gacbd49ce720c627544a5d811cc0187a40", null ]
 ];

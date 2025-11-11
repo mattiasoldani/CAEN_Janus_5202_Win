@@ -57,8 +57,8 @@
 	#endif
 #endif
 
-#define SW_RELEASE_NUM			"4.2.0"
-#define SW_RELEASE_DATE			"06/06/2025"
+#define SW_RELEASE_NUM			"4.2.4"
+#define SW_RELEASE_DATE			"07/10/2025"
 #define FILE_LIST_VER			"3.3"
 
 #ifdef _WIN32
@@ -229,6 +229,7 @@ typedef struct Config_t {
 	// Board Settings
 	uint32_t AcquisitionMode;						// ACQMODE_COUNT, ACQMODE_SPECT, ACQMODE_TIMING, ACQMODE_WAVE
 	uint32_t EnableToT;								// Enable readout of ToT (time over threshold)
+	uint8_t EnableListZeroSuppr;					// Enable zero suppression in list mode
 
 	uint32_t TriggerMask;	// Variable needed in plot.c. There no handle is passed
 	//uint32_t WaveformLength;

@@ -449,15 +449,14 @@ static void SetChannelParamFloat(int handle, float *param, float val, int ch) {
 // #################################################################################
 // Set/Get Parameter
 // #################################################################################
-
 // ---------------------------------------------------------------------------------
 // Description: Inizialize Configuration for each opened board
 // Inputs:		brd: board index
 // Outputs:		-
 // Return:		0=OK, -1=error
 // ---------------------------------------------------------------------------------
-static int _SetDefaultConfig(int brd) {
-
+int _setDefaultConfig(int brd)
+{
 	// reset all parameters, then set the default value of those ones that are not zero
 	memset(FERScfg[brd], 0, sizeof(Config_t));
 
@@ -562,7 +561,6 @@ static int _SetDefaultConfig(int brd) {
 }
 
 
-
 // ---------------------------------------------------------------------------------
 // Description: Set a parameter by name. The function assigns the value to the relevant parameter in the 
 //				FERScfg struct, but it doesn't actually write it into the board (this is done by the "FERS_configure" function)
@@ -593,10 +591,10 @@ int FERS_SetParam(int handle, const char *param_name, const char *value_original
 		return FERSLIB_ERR_OPER_NOT_ALLOWED;
 	}
 
-	if (!SetDefault[brd]) {
-		_SetDefaultConfig(brd);
-		SetDefault[brd] = 1;
-	}
+	//if (!FERScfg[brd]->DefaultSet) {
+	//	_SetDefaultConfig(brd);
+	//	FERScfg[brd]->DefaultSet = 1;
+	//}
 
 	if (token != NULL) {
 		sscanf(token, "%d", &ch);
@@ -609,7 +607,7 @@ int FERS_SetParam(int handle, const char *param_name, const char *value_original
 	// Some name replacement for back compatibility
 	char* str = NULL;
 	if (streq(before_str, "TriggerSource"))
-		str = j_strdup("BunchtrgSource");
+		str = j_strdup("BunchTrgSource");
 	else if (streq(before_str, "DwellTime"))
 		str = j_strdup("PtrgPeriod");
 	else if (streq(before_str, "Hit_HoldOff"))
@@ -635,9 +633,9 @@ int FERS_SetParam(int handle, const char *param_name, const char *value_original
 	// Raw Data Saving
 	// -------------------------------------------------------------
 	if (streq(str, "OF_RawData") && !FERS_Offline)		FERScfg[brd]->OF_RawData			= GetInt(value);
-	if (streq(str, "OF_LimitedSize"))		FERScfg[brd]->OF_LimitedSize		= GetInt(value);
-	if (streq(str, "MaxSizeOutputFile"))	FERScfg[brd]->MaxSizeDataOutputFile = GetFloat(value);
-	if (streq(str, "OF_RawDataPath"))		GetDatapath(value, FERScfg[brd]);
+	if (streq(str, "OF_LimitedSize"))					FERScfg[brd]->OF_LimitedSize		= GetInt(value);
+	if (streq(str, "MaxSizeDataOutputFile"))			FERScfg[brd]->MaxSizeDataOutputFile = GetFloat(value);
+	if (streq(str, "OF_RawDataPath"))					GetDatapath(value, FERScfg[brd]);
 
 	// -------------------------------------------------------------
 	// Generic Register Read/Write

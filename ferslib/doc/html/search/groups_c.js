@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['tdc_20constants_0',['TDC constants',['../a00057.html',1,'']]]
+  ['parameters_0',['Configuration parameters',['../a00041.html',1,'']]],
+  ['pedestal_1',['Pedestal',['../a00064.html',1,'']]]
 ];

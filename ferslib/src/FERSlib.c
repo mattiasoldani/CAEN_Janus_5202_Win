@@ -235,6 +235,7 @@ uint16_t FERS_GetNumBrdConnected() {
 }
 
 bool FERS_IsXROC(int handle) {
+	int mybrd = FERS_INDEX(handle);
 	if ((FERS_INDEX(handle) >= 0) && ((FERS_BoardInfo[FERS_INDEX(handle)]->FERSCode == 5202) || 
 									  (FERS_BoardInfo[FERS_INDEX(handle)]->FERSCode == 5204) ||
 									  (FERS_BoardInfo[FERS_INDEX(handle)]->FERSCode == 5205)))
@@ -300,12 +301,12 @@ static int FERS_SetRawdataReadFile(char DataRawFilePath[500], int brd)
 
 
 // Open raw data file to dump raw data
-int FERS_OpenRawDataFile(int *handle, int RunNum) 
+int FERS_OpenRawDataFile(int *handle, int RunNum, int NumBrd) 
 {
 	uint16_t brd_conn = FERS_GetNumBrdConnected();
 	uint8_t tdl_opened = 0;
 
-	for (int i = 0; i < brd_conn; ++i) {
+	for (int i = 0; i < NumBrd; ++i) {
 		// Open if RawData saving is enabled
 		if (!FERScfg[FERS_INDEX(handle[i])]->OF_RawData) continue;
 
@@ -326,11 +327,11 @@ int FERS_OpenRawDataFile(int *handle, int RunNum)
 }
 
 // Close raw data file
-int FERS_CloseRawDataFile(int *handle)
+int FERS_CloseRawDataFile(int *handle, int NumBrd)
 {
 	uint16_t brd_conn = FERS_GetNumBrdConnected();
 	uint8_t tdl_closed = 0;
-	for (int i = 0; i < brd_conn; ++i) {
+	for (int i = 0; i < NumBrd; ++i) {
 		if (!FERScfg[FERS_INDEX(handle[i])]->OF_RawData) continue;
 
 		if (FERS_CONNECTIONTYPE(handle[i]) == FERS_CONNECTIONTYPE_TDL && !tdl_closed) {
@@ -639,6 +640,7 @@ int FERS_OpenDevice(char *path, int *handle)
 		//}
 
 		FERScfg[BoardIndex]->handle = *handle;
+		_setDefaultConfig(BoardIndex);
 		FERS_SetClockPeriodLib(*handle);
 		if (ret != 0) {
 			if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[ERROR][BRD %02d] Can't read board info or invalid BIC\n", BoardIndex);
@@ -790,7 +792,8 @@ int FERS_OpenOffline(char* path, int *handle) {
 		fread(&tmp_handle, sizeof(int), 1, tmp_info);
 		handle[b] = tmp_handle;
 
-		fread(&BoardInfo, sizeof(FERS_BoardInfo_t), 1, tmp_info);		if (BoardInfo.FERSCode == 5202) {
+		fread(&BoardInfo, sizeof(FERS_BoardInfo_t), 1, tmp_info);		
+		if (BoardInfo.FERSCode == 5202) {
 			fret = fread(&PedeLG, sizeof(PedeLG), 1, tmp_info);
 			fret = fread(&PedeHG, sizeof(PedeHG), 1, tmp_info);
 		}
@@ -1926,6 +1929,22 @@ int FERS_HV_Get_Status(int handle, int *OnOff, int *Ramping, int *OvC, int *OvV)
 	}
 	return ret;
 }
+
+
+// --------------------------------------------------------------------------------------------------------- 
+// Description: Get HV Firmware Version
+// Inputs:		handle = device handle
+// Outputs:		FWver = Firmware version
+// Return:		0=OK, negative number = error code
+// --------------------------------------------------------------------------------------------------------- 
+int FERS_HV_Get_FWVer(int handle, uint32_t* FWver) {
+	if (!FERS_IsXROC(handle)) return FERSLIB_ERR_NOT_APPLICABLE;
+	int ret = 0;
+	ret |= FERS_HV_ReadReg(handle, 252, 3, FWver);
+	return ret;
+}
+
+
 
 // --------------------------------------------------------------------------------------------------------- 
 // Description: Get HV Serial Number

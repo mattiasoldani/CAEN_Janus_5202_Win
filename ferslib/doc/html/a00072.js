@@ -1,19 +1,8 @@
 var a00072 =
 [
-    [ "FERS_HV_Init", "a00072.html#ga65790cc9646c387c5387612c9dde0312", null ],
-    [ "FERS_HV_WriteReg", "a00072.html#gae30a7bab90dace364630864979e000ae", null ],
-    [ "FERS_HV_ReadReg", "a00072.html#ga274ba0924f93cd5fb141c03dc5dc07d8", null ],
-    [ "FERS_HV_Set_OnOff", "a00072.html#ga290d603905800f231e9386646fe4be50", null ],
-    [ "FERS_HV_Get_Status", "a00072.html#ga19c67169d5b7555e5df068f3749a4d20", null ],
-    [ "FERS_HV_Get_SerNum", "a00072.html#gac0c1f63a6eedd65f6bc0172adf5767a0", null ],
-    [ "FERS_HV_Set_Vbias", "a00072.html#gaf610678a0749def4d49d387eb1abaf66", null ],
-    [ "FERS_HV_Get_Vbias", "a00072.html#gab47c1758ee066a952aa071c7e6a66716", null ],
-    [ "FERS_HV_Get_Vmon", "a00072.html#ga1990249ea573f983a0a456b141412077", null ],
-    [ "FERS_HV_Set_Imax", "a00072.html#gafdccc2a34678d19e0617ca11a18d56c0", null ],
-    [ "FERS_HV_Get_Imax", "a00072.html#gaa0c479110051c4c1a53d1a244b16d10b", null ],
-    [ "FERS_HV_Get_Imon", "a00072.html#ga701fc16cd3e1f3f24316e9cbdedd4f0c", null ],
-    [ "FERS_HV_Get_IntTemp", "a00072.html#ga93e2de8a7e014eb5913179452c03b567", null ],
-    [ "FERS_HV_Get_DetectorTemp", "a00072.html#gaf1ff67fc0febf8da7da5971d98fdb2a8", null ],
-    [ "FERS_HV_Set_Tsens_Coeff", "a00072.html#ga21cc85602d9e61692cdea05cda340f77", null ],
-    [ "FERS_HV_Set_TempFeedback", "a00072.html#ga9ad188225530bf6be0f6cd3239850c66", null ]
+    [ "FERS_ReadA5256EEPROMInfo", "a00072.html#gaf694b43621c7375bb30b11365ffb55d7", null ],
+    [ "FERS_WriteA5256EEPROMInfo", "a00072.html#ga80f619c24a9767ad167ee83570a35528", null ],
+    [ "FERS_ReadEEPROMBlock", "a00072.html#gaa324ec9790f55fcab82201180afb3c32", null ],
+    [ "FERS_WriteEEPROMBlock", "a00072.html#ga7c535ea1ab836ea5d4e3c8458bc0c6a1", null ],
+    [ "FERS_checkA5256presence", "a00072.html#ga3ca915859bd477ccd74a6a2d3162b672", null ]
 ];

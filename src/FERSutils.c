@@ -206,26 +206,27 @@ void PrintMap()
 // ****************************************************
 void HVControlPanel(int b_handle) 
 {
-	int handle = b_handle;
-	int brd, c=0;
+	int h_handle = handle[0];
+	int brd, c = 0;
 	int HV_onoff, Ramp, OvC, OvV;
-	uint64_t ct=0, pt=0;
-	uint32_t RegAddr=0, DataType=1, Rdata=0, Wdata=0;
+	uint64_t ct = 0, pt = 0;
+	uint32_t RegAddr = 0, DataType = 1, Rdata = 0, Wdata = 0;
 	float vbias = 0, imax = 10, vmon = 0, imon = 0, temp = 0;
-	char onoff_string[2][4] = {"OFF", "ON "};
+	char onoff_string[2][4] = { "OFF", "ON " };
+	int ret = 0;
 
 	ClearScreen();
-	while(1) {
+	while (1) {
 		ct = j_get_time();
-		if ((pt == 0) || ((ct-pt) > 1000)) {
-			FERS_HV_Get_Vmon(handle, &vmon);
-			FERS_HV_Get_Imon(handle, &imon);
-			FERS_HV_Get_Vbias(handle, &vbias);
-			FERS_HV_Get_Imax(handle, &imax);
-			FERS_HV_Get_Status(handle, &HV_onoff, &Ramp, &OvC, &OvV);
-			FERS_HV_Get_DetectorTemp(handle, &temp);
+		if ((pt == 0) || ((ct - pt) > 1000)) {
+			ret |= FERS_HV_Get_Vmon(h_handle, &vmon);
+			ret |= FERS_HV_Get_Imon(h_handle, &imon);
+			ret |= FERS_HV_Get_Vbias(h_handle, &vbias);
+			ret |= FERS_HV_Get_Imax(h_handle, &imax);
+			ret |= FERS_HV_Get_Status(h_handle, &HV_onoff, &Ramp, &OvC, &OvV);
+			ret |= FERS_HV_Get_DetectorTemp(h_handle, &temp);
 			gotoxy(1, 2);
-			printf("[b] Board        %d              \n", FERS_INDEX(handle));
+			printf("[b] Board        %d              \n", FERS_INDEX(h_handle));
 			printf("[v] Vset         %.3f V          \n", vbias);
 			printf("[i] Imax         %.3f mA         \n", imax);
 			printf("[H] ON/OFF       %s              \n", onoff_string[HV_onoff]);
@@ -248,22 +249,22 @@ void HVControlPanel(int b_handle)
 				printf("Board = ");
 				scanf("%d", &brd);
 				if ((brd >= 0) && (brd < FERS_GetNumBrdConnected())) {
-					handle = (handle & 0xFFFFFF00) + brd;
+					h_handle = handle[brd];
 				}
 			}
 			if (c == 'v') {
 				float newvset;
 				printf("Set HV (V) = ");
 				scanf("%f", &newvset);
-				FERS_HV_Set_Vbias(handle, newvset);
-				FERS_HV_Get_Vbias(handle, &vbias);
+				ret |= FERS_HV_Set_Vbias(h_handle, newvset);
+				ret |= FERS_HV_Get_Vbias(h_handle, &vbias);
 			}
 			if (c == 'i') {
 				float newimax;
 				printf("Set Imax (mA) = ");
 				scanf("%f", &newimax);
-				FERS_HV_Set_Imax(handle, newimax);
-				FERS_HV_Get_Imax(handle, &imax);
+				ret |= FERS_HV_Set_Imax(h_handle, newimax);
+				ret |= FERS_HV_Get_Imax(h_handle, &imax);
 			}
 			if (c == 'a') {
 				printf("Reg Addr = ");
@@ -274,7 +275,7 @@ void HVControlPanel(int b_handle)
 				scanf("%d", (int*)&DataType);
 			}
 			if (c == 'r') {
-				FERS_HV_ReadReg(handle, RegAddr, DataType, &Rdata);
+				ret |= FERS_HV_ReadReg(h_handle, RegAddr, DataType, &Rdata);
 			}
 			if (c == 'w') {
 				char str[100];
@@ -282,11 +283,11 @@ void HVControlPanel(int b_handle)
 				scanf("%s", str);
 				if (str[1] == 'x') sscanf(str + 2, "%x", &Wdata);
 				else sscanf(str, "%d", &Wdata);
-				FERS_HV_WriteReg(handle, RegAddr, DataType, Wdata);
+				ret |= FERS_HV_WriteReg(h_handle, RegAddr, DataType, Wdata);
 			}
 			if (c == 'H') {
 				HV_onoff ^= 1;
-				FERS_HV_Set_OnOff(handle, HV_onoff);
+				ret |= FERS_HV_Set_OnOff(h_handle, HV_onoff);
 			}
 			if (c == 'q') break;
 			ClearScreen();

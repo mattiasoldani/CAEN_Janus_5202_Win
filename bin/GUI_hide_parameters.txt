@@ -18,10 +18,11 @@ Trg Time Window         b
 Veto Source				b45
 Validation Source		b2345
 Validation Mode			b2345
-Counting Mode			b1235
+Counting Mode			b01235
 Paired-Cnt Coinc Win	b01235
 Channel Trigger Width	b
 Enable Counts ZS		b01235
+Enable List ZS			b0145
 
 Enable ToT				b045
 TrefDelay				045

@@ -67,7 +67,7 @@ typedef struct Config_t {
 	// System info 
 	//char ConnPath[200];					// IP address of the board. Set by FERSlib_open
 	int handle;
-
+	
 	// -------------------------------------------------------------
 	// Raw data parameters
 	// -------------------------------------------------------------
@@ -272,6 +272,7 @@ void Set_picoTDC_Default(picoTDC_Cfg_t* pcfg);
 int Write_picoTDC_Cfg(int handle, int tdc, picoTDC_Cfg_t pcfg, int skipch);
 int Read_picoTDC_Cfg(int handle, int tdc, picoTDC_Cfg_t* pcfg);
 int Save_picoTDC_Cfg(int handle, int tdc, char* fname);
+int _setDefaultConfig(int brd);
 /*!
 * @endcond
 */

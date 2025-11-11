@@ -1,11 +1,8 @@
 var a00074 =
 [
-    [ "FERS_InitReadout", "a00074.html#gac1ad3591d4ef73fdfd57cc5593427e1b", null ],
-    [ "FERS_CloseReadout", "a00074.html#ga46a54c2b42a0b2bd8839980978e7f76e", null ],
-    [ "FERS_FlushData", "a00074.html#ga6408cd38c5d98865fc4cd2b16fd48100", null ],
-    [ "FERS_GetCrcErrorCnt", "a00074.html#ga702264a7a23034ac47c2563179f8ee5f", null ],
-    [ "FERS_StartAcquisition", "a00074.html#ga8ef85039bf40ebf22fca066dd374383e", null ],
-    [ "FERS_StopAcquisition", "a00074.html#ga74d0354d2f20efe2a1898c6848b27a21", null ],
-    [ "FERS_GetEvent", "a00074.html#gad8c806459bb3d46d413789f0fb210e1c", null ],
-    [ "FERS_GetEventFromBoard", "a00074.html#ga14b97cc57b940ccd23485d432879615e", null ]
+    [ "FERS_FindMemThrDest", "a00074.html#ga7b1d8091aec67edd5a96957ae120112e", null ],
+    [ "FERS_ReadThrCalib", "a00074.html#ga355db160368b7f257e9049e0d507c610", null ],
+    [ "FERS_Set_DiscrThreshold", "a00074.html#ga225cd3a6d9c053a7db6221b6def2507f", null ],
+    [ "FERS_CalibThresholdOffset", "a00074.html#ga30422e3e8784d6cb91f2d4ec247cc682", null ],
+    [ "FERS_WriteThrCalib", "a00074.html#gabea8ec5d7fcc6f882fd93700c492cdb5", null ]
 ];
