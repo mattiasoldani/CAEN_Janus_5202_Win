@@ -14,7 +14,7 @@ Open[0] eth:192.168.50.3
 # ------------------------------------------------------------------------------------------
 # HV_bias
 # ------------------------------------------------------------------------------------------
-HV_Vbias                           70.91                # Bias voltage, Range=[20 V, 85 V] (common to all channels, fine adjustable channel by channel by "HV_IndivAdj")
+HV_Vbias                           63.84                # Bias voltage, Range=[20 V, 85 V] (common to all channels, fine adjustable channel by channel by "HV_IndivAdj")
 HV_Imax                            1.0 mA               # Max current provided by the HV. The HV will be shut down if the current exceeds this limit.
 HV_Adjust_Range                    4.5                  # DAC range for the individual HV adjust.. Options: 4.5, 2.5, DISABLED
 HV_IndivAdj                        255                  # DAC setting for the Individual HV Adjust. Range from 0 to 255
@@ -42,11 +42,11 @@ OF_OutFileUnit                     ns                   # ToA and ToT unit. Opti
 OF_EnMaxSize                       0                    # Enable List file maximum size (Raw, binary, ASCII, CSV)
 OF_MaxSize                         1 GB                 # Max size of List files (in Bytes), minimum size allowed 1 MB
 OF_RawData                         0                    # Event List file (Raw data)
-OF_ListBin                         1                    # Event List file (binary)
+OF_ListBin                         0                    # Event List file (binary)
 OF_ListAscii                       0                    # Event List file (ASCII)
-OF_ListCSV                         1                    # Event List file (CSV)
+OF_ListCSV                         0                    # Event List file (CSV)
 OF_Sync                            0                    # List with BrdID-Tstamp-TrgID (for sync check)
-OF_ServiceInfo                     1                    # Service event info (temperature, Vmon, Imon, HVstatus)
+OF_ServiceInfo                     0                    # Service event info (temperature, Vmon, Imon, HVstatus)
 OF_RunInfo                         0                    # Run Info
 OF_SpectHisto                      0                    # PHA spectrum
 OF_ToAHisto                        0                    # ToA spectrum
@@ -57,7 +57,7 @@ OF_Staircase                       0                    # Staircase
 # ------------------------------------------------------------------------------------------
 # AcqMode
 # ------------------------------------------------------------------------------------------
-AcquisitionMode                    TIMING_CSTART        # Acquisition mode. Options: SPECTROSCOPY, SPECT_TIMING, TIMING_CSTART, TIMING_CSTOP, COUNTING, WAVEFORM
+AcquisitionMode                    SPECTROSCOPY         # Acquisition mode. Options: SPECTROSCOPY, SPECT_TIMING, TIMING_CSTART, TIMING_CSTOP, COUNTING, WAVEFORM
 EnableToT                          1                    # Enable ToT in timing mode (Enabled: ToA = 16 bits, ToT = 9 bits; Disabled: ToA = 25 bits)
 BunchTrgSource                     T0-IN                # Bunch Trigger source (for spectroscopy and counting modes). Options: T0-IN, T1-IN, Q-OR, T-OR, TLOGIC, PTRG
 VetoSource                         DISABLED             # The veto signal inhibits the bunch trigger (active high). Options: DISABLED, SW_CMD, T0-IN, T1-IN
@@ -117,7 +117,7 @@ MCSHistoNbin                       4K                   # Number of channels (bi
 # ------------------------------------------------------------------------------------------
 AnalogProbe0                       SLOW_HG              # Select the signal connected to the analog probe0. Options: OFF, FAST, SLOW_LG, SLOW_HG, PREAMP_LG, PREAMP_HG
 DigitalProbe0                      OFF                  # Select the signal connected to the digital probe0. Options: OFF, PEAK_LG, PEAK_HG, HOLD, START_CONV, DATA_COMMIT, DATA_VALID, CLK_1024, VAL_WINDOW, T_OR, Q_OR
-ProbeChannel0                      2                    # Select the channel connected to the analog and digital probes0
+ProbeChannel0                      30                   # Select the channel connected to the analog and digital probes0
 AnalogProbe1                       OFF                  # Select the signal connected to the analog probe1. Options: OFF, FAST, SLOW_LG, SLOW_HG, PREAMP_LG, PREAMP_HG
 DigitalProbe1                      OFF                  # Select the signal connected to the digital probe1. Options: OFF, PEAK_LG, PEAK_HG, HOLD, START_CONV, DATA_COMMIT, DATA_VALID, CLK_1024, VAL_WINDOW, T_OR, Q_OR
 ProbeChannel1                      0                    # Select the channel connected to the analog and digital probes1
