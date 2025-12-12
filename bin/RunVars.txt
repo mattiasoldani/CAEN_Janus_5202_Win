@@ -1,9 +1,12 @@
 ActiveBrd     0
 ActiveCh      0
-PlotType      1
+PlotType      4
 SMonType      0
-RunNumber     314
+RunNumber     530
 Xcalib        0
-PlotTraces		0 0 30 B  
+PlotTraces		0 0 1 B  
+PlotTraces		1 0 33 B  
+PlotTraces		2 1 1 B  
+PlotTraces		3 1 33 B  
 Staircase     0 100 300 1 1000
 HoldDelayScan 0 0 256 8 500
