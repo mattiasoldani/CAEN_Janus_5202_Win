@@ -522,16 +522,8 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				char cat_line[256] = "";	
 				if (!masked[i]) continue;
 				datatype = 0;
-				////
-				//if (tmp_enL[i] >= 0 && ((GainSelect & GAIN_SEL_LOW) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x01;
-				//if (tmp_enH[i] >= 0 && ((GainSelect & GAIN_SEL_HIGH) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x02;
-				//if (isTSpect) {
-				//	if (ev->tstamp[i] > 0) datatype = datatype | 0x10;
-				//	if (EnableToT && (ev->tstamp[i] > 0) && (ev->ToT[i] > 0)) datatype = datatype | 0x20;
-				//}
-				// 2025/06 Mattia's debug:
-				if (tmp_enL[j] >= 0 && ((GainSelect & GAIN_SEL_LOW) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x01;
-				if (tmp_enH[j] >= 0 && ((GainSelect & GAIN_SEL_HIGH) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x02;
+				if (tmp_enL[i] >= 0 && ((GainSelect & GAIN_SEL_LOW) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x01;
+				if (tmp_enH[i] >= 0 && ((GainSelect & GAIN_SEL_HIGH) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x02;
 				if (isTSpect) {
 					if (ev->tstamp[i] > 0) datatype = datatype | 0x10;
 					if (EnableToT && (ev->tstamp[i] > 0) && (ev->ToT[i] > 0)) datatype = datatype | 0x20;
@@ -540,22 +532,13 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				strcat(line, cat_line);
 				//fprintf(of_list_c, "%lf,", ts);
 				if (dtq & 0x80) {
-					sprintf(cat_line, "%.3f,", ev->rel_tstamp_us); //fprintf(of_list_c, "%lf,", ev->rel_tstamp_us);
+					sprintf(cat_line, "%lf,", ev->rel_tstamp_us); //fprintf(of_list_c, "%lf,", ev->rel_tstamp_us);
 					strcat(line, cat_line);
 				}
-				if (isTSpect) {
-					if (DeltaTref_f > 0) sprintf(cat_line, "%.4f,", DeltaTref_f);
-					else sprintf(cat_line, "-1,");
-					strcat(line, cat_line);
-				}
-				sprintf(cat_line, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8, trgid, brd, num_of_hits, ev->chmask, i, datatype);				
+				sprintf(cat_line, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8, trgid, brd, num_of_hits, ev->chmask, i, datatype);
 				strcat(line, cat_line);
 				//fprintf(of_list_c, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8 ",", trgid, brd, num_of_hits, ev->chmask, j, datatype);
-				////
-				//if (datatype & 0x1) sprintf(cat_line, ",%" PRIu16 "", tmp_enL[i]); //fprintf(of_list_c, "%" PRIu16, tmp_enL[j]);
-				// 2025/06 Mattia's debug:
-				if (datatype & 0x1) sprintf(cat_line, ",%" PRIu16 "", tmp_enL[j]); //fprintf(of_list_c, "%" PRIu16, tmp_enL[j]);
-				////
+				if (datatype & 0x1) sprintf(cat_line, ",%" PRIu16 "", tmp_enL[i]); //fprintf(of_list_c, "%" PRIu16, tmp_enL[j]);
 				else sprintf(cat_line, ",-1");  //fprintf(of_list_c, "-1");
 				strcat(line, cat_line);
 				if (datatype & 0x2) sprintf(cat_line, ",%" PRIu16, tmp_enH[i]);   //fprintf(of_list_c, ",%" PRIu16, tmp_enH[j]);
