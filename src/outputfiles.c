@@ -533,8 +533,13 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				if (tmp_enL[j] >= 0 && ((GainSelect & GAIN_SEL_LOW) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x01;
 				if (tmp_enH[j] >= 0 && ((GainSelect & GAIN_SEL_HIGH) || GainSelect == GAIN_SEL_AUTO)) datatype = datatype | 0x02;
 				if (isTSpect) {
+<<<<<<< HEAD
 					if (ev->tstamp[j] > 0) datatype = datatype | 0x10;
 					if (EnableToT && (ev->tstamp[j] > 0) && (ev->ToT[j] > 0)) datatype = datatype | 0x20;
+=======
+					if (ev->tstamp[i] > 0) datatype = datatype | 0x10;
+					if (EnableToT && (ev->tstamp[i] > 0) && (ev->ToT[i] > 0)) datatype = datatype | 0x20;
+>>>>>>> 2746420309792c7bea27e8f3eae238657ccc3ad7
 				}
 				sprintf(cat_line, "%lf,", ts);
 				strcat(line, cat_line);
@@ -563,8 +568,13 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				strcat(line, cat_line);
 				if (isTSpect) {
 					if (datatype & 0x10) {
+<<<<<<< HEAD
 						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->tstamp[j]);   //fprintf(of_list_c, ",%f", 0.5*ev->tstamp[j]);
 						else sprintf(cat_line, ",%" PRIu32, ev->tstamp[j]);   //fprintf(of_list_c, ",%" PRIu32, ev->tstamp[j]);
+=======
+						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->tstamp[i]);   //fprintf(of_list_c, ",%f", 0.5*ev->tstamp[j]);
+						else sprintf(cat_line, ",%" PRIu32, ev->tstamp[i]);   //fprintf(of_list_c, ",%" PRIu32, ev->tstamp[j]);
+>>>>>>> 2746420309792c7bea27e8f3eae238657ccc3ad7
 					}
 					////
 					//else sprintf(line, "%s,-1", line);   //fprintf(of_list_c, ",-1");
@@ -573,6 +583,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 					////
 					strcat(line, cat_line);
 
+<<<<<<< HEAD
 					if (datatype & 0x20) {
 						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->ToT[j]);   //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[j]);
 						else sprintf(cat_line, ",%" PRIu16, ev->ToT[j]);   //fprintf(of_list_c, ",%" PRIu16, ev->ToT[j]);
@@ -580,6 +591,23 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 					else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
 					strcat(line, cat_line);
 
+=======
+					////
+					// 2025/11 Mattia: in latest update this part was wrapped in the EnableTot if
+					//if (datatype & 0x20) {
+					//	if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->ToT[i]);   //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[j]);
+					//	else sprintf(cat_line, ",%" PRIu16, ev->ToT[i]);   //fprintf(of_list_c, ",%" PRIu16, ev->ToT[j]);
+					//} else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
+					//strcat(line, cat_line);
+					if (EnableToT) {
+						if (datatype & 0x20) {
+							if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->ToT[i]);   //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[j]);
+							else sprintf(cat_line, ",%" PRIu16, ev->ToT[i]);   //fprintf(of_list_c, ",%" PRIu16, ev->ToT[j]);
+						} else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
+						strcat(line, cat_line);
+					}
+					////
+>>>>>>> 2746420309792c7bea27e8f3eae238657ccc3ad7
 				}
 
 				strcat(line, "\n"); //fprintf(of_list_c, "\n");
