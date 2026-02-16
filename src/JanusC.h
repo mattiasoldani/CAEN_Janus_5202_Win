@@ -57,9 +57,9 @@
 	#endif
 #endif
 
-#define SW_RELEASE_NUM			"4.2.4"
-#define SW_RELEASE_DATE			"07/10/2025"
-#define FILE_LIST_VER			"3.3"
+#define SW_RELEASE_NUM			"4.3.0"
+#define SW_RELEASE_DATE			"14/01/2026"
+#define FILE_LIST_VER			"3.4"
 
 #ifdef _WIN32
 #define CONFIG_FILENAME			"Janus_Config.txt"

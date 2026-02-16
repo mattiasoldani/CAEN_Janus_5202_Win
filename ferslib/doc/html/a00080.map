@@ -1,5 +1,6 @@
-<map id="FERS_CncInfo_t" name="FERS_CncInfo_t">
-<area shape="rect" id="Node000001" title="Concentrator board information structure." alt="" coords="18,277,145,505"/>
-<area shape="rect" id="Node000002" href="$a00078.html" title="TDL chain information structure." alt="" coords="5,5,157,212"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,212,84,260,78,260,78,212"/>
+<map id="FERS Library Structures" name="FERS Library Structures">
+<area shape="rect" id="Node000003" href="$a00082.html" title="Board Info structures for the FERS library." alt="" coords="259,5,344,33"/>
+<area shape="rect" id="Node000004" href="$a00083.html" title="FERS configuration parameters structure (lib + board)" alt="" coords="213,57,390,85"/>
+<area shape="rect" id="Node000002" href="$a00081.html" title="Data structures for the FERS library." alt="" coords="277,109,326,137"/>
+<area shape="rect" id="Node000001" title="Structures of FERS Library." alt="" coords="5,57,165,85"/>
 </map>

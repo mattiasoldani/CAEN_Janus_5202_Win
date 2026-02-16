@@ -23,6 +23,9 @@
 #define STATS_MAX_NBRD				128
 #define STATS_MAX_NCH				128
 
+#define PARSE_CONN		0
+#define PARSE_CFG		1
+
 //****************************************************************************
 // Counter Data Structure
 //****************************************************************************

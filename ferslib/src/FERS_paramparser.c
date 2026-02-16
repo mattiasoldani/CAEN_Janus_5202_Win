@@ -529,8 +529,8 @@ int _setDefaultConfig(int brd)
 	FERScfg[brd]->EnableChannelTrgout = 1;					// 0 = Channel Trgout Disabled, 1 = Enabled
 	FERScfg[brd]->FastShaperInput = 0;						// Fast Shaper (Tdiscr) connection: 0 = High Gain PA, 1 = Low Gain PA
 	FERScfg[brd]->CncBufferSize = 0;
-	FERScfg[brd]->CncProbe_A = (uint32_t)-1;
-	FERScfg[brd]->CncProbe_B = (uint32_t)-1;
+	FERScfg[brd]->CncProbe_A = (uint32_t)0;
+	FERScfg[brd]->CncProbe_B = (uint32_t)0;
 
 	FERScfg[brd]->HV_Vbias = 55;							// Voltage setting for HV
 	FERScfg[brd]->HV_Imax = 1.0;							// Imax for HV
@@ -1194,8 +1194,8 @@ int FERS_SetParam(int handle, const char *param_name, const char *value_original
 			else if (streq(value, "FAST"))				FERScfg[brd]->AnalogProbe[ap] = 1;
 			else if (streq(value, "SLOW_LG"))			FERScfg[brd]->AnalogProbe[ap] = 2;
 			else if (streq(value, "SLOW_HG"))			FERScfg[brd]->AnalogProbe[ap] = 3;
-			else if (streq(value, "PREAMP_LG"))			FERScfg[brd]->AnalogProbe[ap] = 4;
-			else if (streq(value, "PREAMP_HG"))			FERScfg[brd]->AnalogProbe[ap] = 5;
+			else if (streq(value, "PREAMP_HG"))			FERScfg[brd]->AnalogProbe[ap] = 4;
+			else if (streq(value, "PREAMP_LG"))			FERScfg[brd]->AnalogProbe[ap] = 5;
 			else ValidParameterValue = 0;
 		} else if (FERS_Code(handle) == 5204) {
 			if (streq(value, "OFF"))					FERScfg[brd]->AnalogProbe[ap] = 0;
@@ -1424,7 +1424,6 @@ int FERS_SetParam(int handle, const char *param_name, const char *value_original
 	if (streq(str, "DebugLogMask"))				DebugLogs = GetHex32(value);
 
 
-
 	// -------------------------------------------------------------
 	// Error checking
 	// -------------------------------------------------------------
@@ -1470,7 +1469,7 @@ int FERS_SetParam(int handle, const char *param_name, const char *value_original
 // Outputs:		-
 // Return:		0=OK, -1=error
 // ---------------------------------------------------------------------------------
-int FERS_GetParam(int handle, char *param_name, char *value) {
+int FERS_GetParam(int handle, const char *param_name, char *value) {
 	int8_t brd = -1, ch = -1, node = -1;
 	char* str_to_split = j_strdup(param_name);
 	const char* delim = "[]";
@@ -1514,14 +1513,13 @@ int FERS_GetParam(int handle, char *param_name, char *value) {
 	if (streq(str, "QD_Mask"))					sprintf(value, "%" PRIu64, FERScfg[brd]->QD_Mask);
 	if (streq(str, "TD1_Mask"))					sprintf(value, "%" PRIu64, FERScfg[brd]->TD1_Mask);
 	if (streq(str, "TD2_Mask"))					sprintf(value, "%" PRIu64, FERScfg[brd]->TD2_Mask);
-	if (streq(str, "DebugLogMask"))				sprintf(value, "%x", DebugLogs);
-	if (streq(str, "TriggerMask")	|| streq(str, "TriggerSource"))		sprintf(value, "%x", FERScfg[brd]->TriggerMask);
-	if (streq(str, "T0_outMask")	|| streq(str, "T0_Out"))			sprintf(value, "%x", FERScfg[brd]->T0_outMask);
-	if (streq(str, "T1_outMask")	|| streq(str, "T1_Out"))			sprintf(value, "%x", FERScfg[brd]->T1_outMask);
-	if (streq(str, "Tref_Mask")		|| streq(str, "TrefSource"))		sprintf(value, "%x", FERScfg[brd]->Tref_Mask);
-	if (streq(str, "Veto_Mask")		|| streq(str, "VetoSource"))		sprintf(value, "%x", FERScfg[brd]->Veto_Mask);
-	if (streq(str, "Validation_Mask"))			sprintf(value, "%x", FERScfg[brd]->Validation_Mask);
-
+	if (streq(str, "DebugLogMask"))				sprintf(value, "%" PRIu32, DebugLogs);
+	if (streq(str, "TriggerMask")	|| streq(str, "TriggerSource") || streq(str, "BunchTrgSource"))		sprintf(value, "%" PRIu32, FERScfg[brd]->TriggerMask);
+	if (streq(str, "T0_outMask")	|| streq(str, "T0_Out"))			sprintf(value, "%" PRIu32, FERScfg[brd]->T0_outMask);
+	if (streq(str, "T1_outMask")	|| streq(str, "T1_Out"))			sprintf(value, "%" PRIu32, FERScfg[brd]->T1_outMask);
+	if (streq(str, "Tref_Mask")		|| streq(str, "TrefSource"))		sprintf(value, "%" PRIu32, FERScfg[brd]->Tref_Mask);
+	if (streq(str, "Veto_Mask")		|| streq(str, "VetoSource"))		sprintf(value, "%" PRIu32, FERScfg[brd]->Veto_Mask);
+	if (streq(str, "Validation_Mask"))			sprintf(value, "%" PRIu32, FERScfg[brd]->Validation_Mask);
 	if (streq(str, "FiberDelayAdjust"))			sprintf(value, "%f", TDL_FiberDelayAdjust[brd][ch][node]);  // CTIN: are link and node correct? Maybe better to make a string with all values (8x16)
 
 	if (streq(str, "StartRunMode"))				sprintf(value, "%d", (int)FERScfg[brd]->StartRunMode);

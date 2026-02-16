@@ -816,18 +816,18 @@ static int FERS_DecodeEvent_5202(int handle, uint32_t* EvBuff_d, int nb, int* Da
 			}
 		}
 		if ((*DataQualifier & DTQ_TIMING) && (pnt < size)) {
-			nhits = size - pnt - 1;
+			nhits = size - pnt;
 			// Tref 1 + 31bits timetamp
 			// Hits 0 + 7 bit ch + data 
 			for (i = 0; i < nhits; i++) {
-				if ((EvBuff_d[pnt + i] >> 31)  == 1) // Tref has bit31 = 1 
+				if ((EvBuff_d[pnt + i] >> 31) == 1) // Tref has bit31 = 1 
 					SpectEvent[h].Tref_tstamp = EvBuff_d[pnt + i] & 0x7FFFFFFF;  // It will be introduce in the next list data
-				else if ((EvBuff_d[pnt + i + 1] >> 31) == 0) { // hit has bit31 = 0
-					int ch = (EvBuff_d[pnt + i + 1] >> 25) & 0x7F;
+				else if ((EvBuff_d[pnt + i] >> 31) == 0) { // hit has bit31 = 0
+					int ch = (EvBuff_d[pnt + i] >> 25) & 0x7F;
 					if (ch >= 64)
 						continue;
-					if (SpectEvent[h].tstamp[ch] == 0) SpectEvent[h].tstamp[ch] = EvBuff_d[pnt + i + 1] & 0xFFFF;  // take 1st hit only
-					if (SpectEvent[h].ToT[ch] == 0) SpectEvent[h].ToT[ch] = (EvBuff_d[pnt + i + 1] >> 16) & 0x1FF;
+					if (SpectEvent[h].tstamp[ch] == 0) SpectEvent[h].tstamp[ch] = EvBuff_d[pnt + i] & 0xFFFF;  // take 1st hit only
+					if (SpectEvent[h].ToT[ch] == 0) SpectEvent[h].ToT[ch] = (EvBuff_d[pnt + i] >> 16) & 0x1FF;
 				}
 			}
 		}

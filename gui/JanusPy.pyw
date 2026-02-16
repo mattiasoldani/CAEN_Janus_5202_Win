@@ -354,6 +354,12 @@ class Open_GUI(Frame):
 
 
 	def CloseAndQuit(self):
+		# Ask before quitting if boards are still connected
+		if cfg.status != sh.ACQSTATUS_DISCONNECTED:
+			res = messagebox.askyesno('Quitting', 'WARNING: An active connection to the boards has been detected. \
+Exiting the program will disconnect the boards and disable the HV (if enabled). Continue?')
+			if res == False: return
+
 		if cfg.status == 4: # JanusC is in Running
 			comm.SendCmd('S')
 			time.sleep(0.1)
@@ -362,7 +368,7 @@ class Open_GUI(Frame):
 		self.stop_thread = True
 		time.sleep(0.1)
 		try: 
-			if self.t.is_alive(): self.t.join()
+			if self.t.is_alive(): self.t.join(timeout=1.0)
 		except: pass
 		if comm.SckConnected and not comm.SckError:
 			comm.SendCmd('q0')
@@ -466,8 +472,9 @@ class Open_GUI(Frame):
 				continue
 			if comm.SckConnected:
 				try: self.Tabs.Mtabs_nb.index('current')
-				except: 
-					time.sleep(100)
+				except:
+					# During shutdown widgets may already be destroyed; don't hang for long.
+					time.sleep(0.1)
 					continue
 				if (list(self.Tabs.Mtabs)[self.Tabs.Mtabs_nb.index('current')] == 'HV_bias'):
 					if enable_hvmon == 0: comm.SendCmd('V1')
@@ -623,7 +630,10 @@ class Open_GUI(Frame):
 					tmp_val = ""
 					tmp_lval = {}
 					tmp_type = "g"
-					if tmp_par[0] == "StartRunMode": tmp_val = sh.STARTRUN_MODE[int(tmp_par[1])]
+					if tmp_par[0] == "StartRunMode" or \
+					   tmp_par[0] == "TrefSource": 
+						try: tmp_val = sh.InverValues[tmp_par[0]][int(tmp_par[1], 10)]
+						except: tmp_val = sh.InverValues[tmp_par[0]][int(tmp_par[1], 16)]
 					if tmp_par[0] == "HV_Vbias": 
 						hv_set = {index:value for index, value in enumerate(self.Tabs.par_brd_svar[tmp_par[0]]) if len(value.get().strip()) > 0}
 						if len(hv_set) == 0: # Just global HV bias set
@@ -633,7 +643,7 @@ class Open_GUI(Frame):
 							if float(self.Tabs.par_def_svar[tmp_par[0]].get().split()[0]) < 20: self.Tabs.par_def_svar[tmp_par[0]].set("20 V")
 							elif float(self.Tabs.par_def_svar[tmp_par[0]].get().split()[0]) > 85: self.Tabs.par_def_svar[tmp_par[0]].set("85 V")
 							tmp_lval = {int(t.split()[0]):int(t.split()[1]) for t in tmp_par[1].split(',') if len(t) > 0}
-							tmp_type = 'b'							
+							tmp_type = 'b'						
 							
 					if tmp_type == "g": # global parameter
 						self.Tabs.par_def_svar[tmp_par[0]].set(tmp_val)
@@ -884,7 +894,11 @@ sh.ParRename = os.path.join(sh.cfgfile_path, sh.ParRename)
 sh.PixelMap = os.path.join(sh.cfgfile_path, sh.PixelMap)
 
 
-sh.Version = cfg.ReadParamDescription(pardef_file, sh.sections, sh.params)
+tmp = cfg.ReadParamDescription(pardef_file, sh.sections, sh.params)
+if "ERROR" in tmp:
+	messagebox.showerror("ERROR", tmp)
+	sys.exit(1)
+
 cfg.ReadConfigFile(sh.params, sh.CfgFile, 0)
 cfg.WriteConfigFile(sections, sh.params, sh.CfgFile, 1)
 

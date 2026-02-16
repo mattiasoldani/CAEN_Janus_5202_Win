@@ -168,6 +168,9 @@ copy "$(SolutionDir)..\..\..\bin\$(Platform)\$(Configuration)\ferslib.dll" "$(So
   <ItemGroup>
     <ClInclude Include="..\src\Demo5203.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\bin\Demo5203_Config.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

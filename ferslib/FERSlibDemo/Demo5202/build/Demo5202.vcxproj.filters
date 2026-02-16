@@ -7,6 +7,9 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{c3bb3f71-1e8e-4c50-ae07-1c21ec73cd81}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{7b2e70b1-9f9d-43fa-be26-4b532221ca4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Demo5202.cpp">
@@ -17,5 +20,10 @@
     <ClInclude Include="..\src\Demo5202.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\bin\Demo5202_Config.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

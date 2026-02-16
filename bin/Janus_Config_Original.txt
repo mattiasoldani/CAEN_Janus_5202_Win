@@ -18,7 +18,7 @@ HV_Vbias                           55 V                # Bias voltage (common to
 HV_Imax                            1.0 mA              # Max current provided by the HV. The HV will be shut down if the current exceeds this limit.
 HV_Adjust_Range                    4.5                 # DAC range for the individual HV adjust.. Options: 4.5, 2.5, DISABLED
 HV_IndivAdj                        255                 # DAC setting for the Individual HV Adjust. Range from 0 to 255
-TempSensType                       TMP37               # Temperature Sensor Type (or generic coefficients in the form "c0 c1 c2"). Options: TMP37, LM94021_G11, LM94021_G00
+TempSensType                       TMP37               # Temperature Sensor Type (or generic coefficients in the form "c0 c1 c2", T = V*V*c2 + V*c1 + c0). Options: TMP37, LM94021_G11, LM94021_G00
 TempFeedbackCoeff                  35                  # Temperature Feedback Coeff (mV/degC): Vout = Vset + k * (T-25)
 EnableTempFeedback                 0                   # Enable Vbias Temperature Feedback
 
@@ -124,7 +124,7 @@ DigitalProbe1                      OFF                 # Select the signal conne
 ProbeChannel1                      0                   # Select the channel connected to the analog and digital probes1
 TestPulseSource                    OFF                 # Select the source for the test pulse signal. Options: OFF, EXT, T0-IN, T1-IN, PTRG, SW-CMD
 TestPulseAmplitude                 200                 # DAC setting for the internal test pulser (12 bit)
-TestPulseDestination               ALL                 # Select which channels are connected to the test pulse input. Options: NONE, ALL, EVEN, ODD, CH 0, CH 1, CH 2, CH 3, CH 4, CH 5, CH 6, CH 7, CH 8, CH 9, CH 10, CH 11, CH 12, CH 13, CH 14, CH 15, CH 16, CH 17, CH 18, CH 19, CH 20, CH 21, CH 22, CH 23, CH 24, CH 25, CH 26, CH 27, CH 28, CH 29, CH 30, CH 31, CH 32, CH 33, CH 34, CH 35, CH 36, CH 37, CH 38, CH 39, CH 40, CH 41, CH 42, CH 43, CH 44, CH 45, CH 46, CH 47, CH 48, CH 49, CH 50, CH 51, CH 52, CH 53, CH 54, CH 55, CH 56, CH 57, CH 58, CH 59, CH 60, CH 61, CH 62, CH 63
+TestPulseDestination               ALL                 # Select which channels are connected to the test pulse input. Options: ALL, EVEN, ODD, CH 0, CH 1, CH 2, CH 3, CH 4, CH 5, CH 6, CH 7, CH 8, CH 9, CH 10, CH 11, CH 12, CH 13, CH 14, CH 15, CH 16, CH 17, CH 18, CH 19, CH 20, CH 21, CH 22, CH 23, CH 24, CH 25, CH 26, CH 27, CH 28, CH 29, CH 30, CH 31, CH 32, CH 33, CH 34, CH 35, CH 36, CH 37, CH 38, CH 39, CH 40, CH 41, CH 42, CH 43, CH 44, CH 45, CH 46, CH 47, CH 48, CH 49, CH 50, CH 51, CH 52, CH 53, CH 54, CH 55, CH 56, CH 57, CH 58, CH 59, CH 60, CH 61, CH 62, CH 63
 TestPulsePreamp                    BOTH                # Test pulse can feed both HG and LG preamps or only one of them. Options: LG, HG, BOTH
 
 

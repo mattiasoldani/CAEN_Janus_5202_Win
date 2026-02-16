@@ -363,6 +363,28 @@ static void CheckSetParamStatus(int ret, char* parname, char* parval) {
 
 }
 
+
+// ---------------------------------------------------------------------------------
+// Description: Mapping Trigger:Tref value for SpectTiming mode
+// Inputs:		TriggerMask as returned from GetParam
+// Outputs:		
+// Return:		TrefMask value pointing to the same source of trigger, or -1 if the input is incorrect
+// ---------------------------------------------------------------------------------
+static uint32_t TriggerTrefMap(uint32_t TrgMask)
+{
+	if (TrgMask == 0x3)  return 0x2;  // T1-In  Trg=0x3:  Tref=0x2
+	else if (TrgMask == 0x5)  return 0x4;  // Q-OR   Trg=0x5:  Tref=0x4
+	else if (TrgMask == 0x9)  return 0x8;  // T-OR   Trg=0x9:  Tref=0x8
+	else if (TrgMask == 0x11) return 0x1;  // T0-In  Trg=0x11: Tref=0x1
+	else if (TrgMask == 0x21) return 0x10; // PTRG   Trg=0x21: Tref=0x10
+	else if (TrgMask == 0x41) return 0x40; // TLOGIC Trg=0x41: Tref=0x40
+	else {
+		Con_printf("LCSw", "Trigger Source Mask 0x%X unknown. Cannot set Tref Source properly\n", TrgMask);
+		return -1;
+	}
+}
+
+
 // ---------------------------------------------------------------------------------
 // Description: Read a config file, parse the parameters and set the relevant fields in the J_cfg structure
 // Inputs:		f_ini: config file pinter
@@ -622,6 +644,7 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 	if (J_cfg->EHistoNbin > (1 << ENERGY_NBIT))	J_cfg->EHistoNbin = (1 << ENERGY_NBIT);
 	if (J_cfg->ToAHistoNbin > (1 << TOA_NBIT))	J_cfg->ToAHistoNbin = (1 << TOA_NBIT);	// DNIN: misleading. This is just for plot visualization
 	if (J_cfg->ToTHistoNbin > (1 << TOT_NBIT))	J_cfg->ToTHistoNbin = (1 << TOT_NBIT);
+
 	
 	J_cfg->AcquisitionMode = FERS_GetParam_int(handle[0], "AcquisitionMode");
 	J_cfg->StartRunMode = FERS_GetParam_int(handle[0], "StartRunMode");
@@ -631,9 +654,22 @@ int ParseConfigFile(FILE* f_ini, Janus_Config_t* J_cfg, int ParseMode)
 	for (int b = 0; b < J_cfg->NumBrd; ++b) {
 		J_cfg->HV_Vbias[b] = FERS_GetParam_float(handle[b], "HV_Vbias");
 	}
-	J_cfg->TriggerMask = FERS_GetParam_hex(handle[0], "TriggerMask");
+	J_cfg->TriggerMask = FERS_GetParam_uint32(handle[0], "TriggerMask");
 	J_cfg->EnableServiceEvent = FERS_GetParam_int(handle[0], "EnableServiceEvents");
 
+	// If Spect_Timing force Tref = Ptrg
+	if (J_cfg->AcquisitionMode == ACQMODE_TSPECT) {
+		char mypar[20];
+		uint32_t maskVal = TriggerTrefMap(FERS_GetParam_uint32(handle[0], "BunchTrgSource"));
+		uint32_t TrefMask = FERS_GetParam_uint32(handle[0], "TrefSource");
+		if (maskVal != TrefMask) {
+			Con_printf("LCSw", "WARNING: In SpectTiming mode Tref source must match Trigger source. Overwriting TrefSource\n");
+			sprintf(mypar, "MASK 0x%x", maskVal);
+			for (int j = 0; j < J_cfg->NumBrd; ++j)
+				FERS_SetParam(handle[j], "TrefSource", mypar);
+			Con_printf("SM", "TrefSource:0x%X", maskVal);
+		}
+	}
 
 
 #ifdef linux

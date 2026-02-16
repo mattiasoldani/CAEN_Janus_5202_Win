@@ -76,6 +76,7 @@ int ServerDead = 0;
 uint8_t sEvt_missing[FERSLIB_MAX_NBRD] = { 0 };
 uint8_t wMsg_sent = 0, eMsg_sent = 0, is_running = 0;
 int brdInFail[MAX_NBRD] = { 0 };
+uint8_t tdlStartWarning = 0;
 
 float TrefWindow = 0;
 
@@ -310,16 +311,20 @@ int Update_Service_Info(int handle) {
 		//BrdTemp[brd][TEMP_FPGA] = sEvt[brd].tempFPGA;
 		
 	} else {
-		ret |= FERS_HV_Get_Vmon(handle, &HVMon[brd][HV_VMON]);
-		ret |= FERS_HV_Get_Imon(handle, &HVMon[brd][HV_IMON]);
-		ret |= FERS_HV_Get_DetectorTemp(handle, &BrdTemp[brd][TEMP_DETECTOR]);
-		ret |= FERS_HV_Get_IntTemp(handle, &BrdTemp[brd][TEMP_HV]);
-		ret |= FERS_HV_Get_Status(handle, &b_on, &ramp, &ovc, &ovv);
-		ret |= FERS_Get_FPGA_Temp(handle, &BrdTemp[brd][TEMP_FPGA]);
-		ret |= FERS_Get_Board_Temp(handle, &BrdTemp[brd][TEMP_BOARD]);
-		//ret |= FERS_Get_FPGA_Temp(handle, &BrdTemp[brd][TEMP_FPGA]);
-		//ret |= FERS_Get_Board_Temp(handle, &BrdTemp[brd][TEMP_BOARD]);
-		ret |= FERS_ReadRegister(handle, a_acq_status, &StatusReg[brd]);
+		if ((AcqStatus != ACQSTATUS_RUNNING) || (FERS_CONNECTIONTYPE(handle) != FERS_CONNECTIONTYPE_USB)) {
+			// Register read/write is disabled during a run when connected via USB
+			ret |= FERS_HV_Get_Vmon(handle, &HVMon[brd][HV_VMON]);
+			ret |= FERS_HV_Get_Imon(handle, &HVMon[brd][HV_IMON]);
+			ret |= FERS_HV_Get_DetectorTemp(handle, &BrdTemp[brd][TEMP_DETECTOR]);
+			ret |= FERS_HV_Get_IntTemp(handle, &BrdTemp[brd][TEMP_HV]);
+			ret |= FERS_HV_Get_Status(handle, &b_on, &ramp, &ovc, &ovv);
+			ret |= FERS_Get_FPGA_Temp(handle, &BrdTemp[brd][TEMP_FPGA]);
+			ret |= FERS_Get_Board_Temp(handle, &BrdTemp[brd][TEMP_BOARD]);
+			//ret |= FERS_Get_FPGA_Temp(handle, &BrdTemp[brd][TEMP_FPGA]);
+			//ret |= FERS_Get_Board_Temp(handle, &BrdTemp[brd][TEMP_BOARD]);
+			ret |= FERS_ReadRegister(handle, a_acq_status, &StatusReg[brd]);
+		}
+
 		// Skip service event warning if it is the first sEvt or it has already been notify
 		if (AcqStatus == ACQSTATUS_RUNNING && J_cfg.EnableServiceEvent && !sEvt_missing[brd] && !first_sEvt[brd]) {
 			Con_printf("LCSp", "Brd %d Service Event Missing. AcqStatus = 0x%08X (ret = %d)\n", FERS_INDEX(handle), StatusReg[brd], ret);	// WARNING
@@ -597,14 +602,33 @@ int StartRun() {
 		brdInFail[b] = 0;
 	}
 
-	if (!tdl && (J_cfg.StartRunMode == STARTRUN_TDL)) {
-		J_cfg.StartRunMode = STARTRUN_ASYNC;
-		Con_printf("LCSw", "WARNING: StartRunMode: can't start run in TDL mode; switching to Async mode\n");
-		if (SockConsole) Con_printf("SM", "StartRunMode:%d", J_cfg.StartRunMode);
-		for (b = 0; b < J_cfg.NumBrd; ++b) {
-			FERS_SetParam(handle[b], "StartRunMode", "ASYNC");
-			FERS_configure(handle[b], CFG_SOFT);
-			Con_printf("LCSm", "Brd%d Start mode: Async\n", b);
+	if (!offline_conn) {
+		if (!tdl && (J_cfg.StartRunMode == STARTRUN_TDL)) {
+			J_cfg.StartRunMode = STARTRUN_ASYNC;
+			Con_printf("LCSw", "WARNING: StartRunMode: can't start run in TDL mode; switching to Async mode\n");
+			if (SockConsole) Con_printf("SM", "StartRunMode:%d", J_cfg.StartRunMode);
+			for (b = 0; b < J_cfg.NumBrd; ++b) {
+				FERS_SetParam(handle[b], "StartRunMode", "ASYNC");
+				FERS_configure(handle[b], CFG_SOFT);
+				Con_printf("LCSm", "Brd%d Start mode: Async\n", b);
+			}
+		}
+
+		// If TDL connection if established, set StartRunMode: TDL - ToBeTested
+		tdlStartWarning = 0;
+		for (int bb = 0; bb < J_cfg.NumBrd; ++bb) {
+			if (FERS_CONNECTIONTYPE(handle[bb]) == FERS_CONNECTIONTYPE_TDL && (J_cfg.StartRunMode != STARTRUN_TDL) && (J_cfg.NumBrd > 1)) {
+				Con_printf("LCSw", "WARNING: You are using an asynchronous StartRunMode. In this mode, the boards connected to "
+					"the concentrator will not start the run synchronously. Please, use TDL for a synchronous start\n");
+
+				//int rtr = FERS_SetParam(handle[bb], "StartRunMode", (char*)"TDL");
+				//if (rtr < 0) {
+				//	FERS_GetLastError(description);
+				//	Con_printf("LCSe", "Failed to set StartRun TDL for board %d: %s\n", bb, description);
+				//}Pre
+				tdlStartWarning = 1;
+				break;
+			}
 		}
 	}
 
@@ -689,7 +713,7 @@ int CheckFileUpdate() {
 	GetFileUpdateTime(CONFIG_FILENAME, &CurrentTime);
 	if ((CurrentTime > CfgUpdateTime) && !first) {
 		const Janus_Config_t J_cfg_1 = J_cfg;
-		uint32_t DebugLogMask1 = FERS_GetParam_hex(handle[0], "DebugLogMask");
+		uint32_t DebugLogMask1 = FERS_GetParam_uint32(handle[0], "DebugLogMask");
 		//memcpy(&J_cfg_1, &J_cfg, sizeof(Config_t));
 
 		cfg = fopen(CONFIG_FILENAME, "r");
@@ -713,9 +737,8 @@ int CheckFileUpdate() {
 			(J_cfg_1.EHistoNbin != J_cfg.EHistoNbin) ||
 			(J_cfg_1.PtrgPeriod != J_cfg.PtrgPeriod))		ret = 2;
 		else												ret = 1;
-		if (DebugLogMask1 != FERS_GetParam_hex(handle[0], "DebugLogMask")) {
-			//FERS_SetDebugLogs(DebugLogMask1);
-			Con_printf("LCSw", "DebugLogMask cannot be changed while Janus is running. Please, set the mask up before launching Janus\n");
+		if (DebugLogMask1 != FERS_GetParam_uint32(handle[0], "DebugLogMask")) {
+			Con_printf("LCSw", "Changing DebugLogMask while Janus is running may corrupt the debug files. Please set the mask before launching Janus\n");
 		}
 		TrefWindow = FERS_GetParam_float(handle[0], "TrefWindow");
 
@@ -764,6 +787,7 @@ int RunTimeCmd(int c)
 			break;
 		}
 	}
+
 	//sscanf(RunVars.PlotTraces[0], "%d %d", &bb, &cc);
 	if (c == 'q') {
 		// Check if HV is ON
@@ -778,11 +802,6 @@ int RunTimeCmd(int c)
 	if ((c == 's') && (AcqStatus == ACQSTATUS_READY)) {
 		ResetStatistics();
 		StartRun();
-
-
-
-
-
 	}
 	if ((c == 'S') && (AcqStatus == ACQSTATUS_RUNNING)) {
 		StopRun();
@@ -790,21 +809,24 @@ int RunTimeCmd(int c)
 			increase_job_run_number();
 			job_read_parse();
 		}
-
 	}
 	if (c == 'b') {
-		int new_brd;
+		int new_brd = 0;
+		int mRet = 0;
 		if (!SockConsole) {
 			printf("Current Active Board = %d\n", RunVars.ActiveBrd);
 			printf("New Active Board = ");
-			scanf("%d", &new_brd);
+			mRet = Con_GetInt(&new_brd);
 		} else {
 			Con_GetInt(&new_brd);
 		}
-		if ((new_brd >= 0) && (new_brd < J_cfg.NumBrd)) {
+		if ((new_brd >= 0) && (new_brd < J_cfg.NumBrd) && (mRet == 0)) {
 			RunVars.ActiveBrd = new_brd;
 			if (!SockConsole) sprintf(RunVars.PlotTraces[0], "%d %d B", RunVars.ActiveBrd, cc);
 			else Con_printf("Sm", "Active Board = %d\n", RunVars.ActiveBrd);
+		} else {
+			if (!SockConsole) printf("Invalid new active board!\n");
+			else Con_printf("Se", "Invalid new active board!\n");
 		}
 		SaveRunVariables(RunVars);
 	}
@@ -832,6 +854,23 @@ int RunTimeCmd(int c)
 			SaveRunVariables(RunVars);
 		}
 	}
+	if (c == 'n') {
+		int new_rn;
+		if (!SockConsole) {
+			printf("Current Run Number = %d\n", RunVars.RunNumber);
+			printf("New Run Number = ");
+			scanf("%d", &new_rn);
+			if (new_rn >= 0) {
+				printf("New run number %d set\n", new_rn);
+				RunVars.RunNumber = new_rn;
+				SaveRunVariables(RunVars);
+			} else {
+				printf("Invalid new run number!\n");
+				while (((new_rn = getchar()) != '\n') && (new_rn != EOF));
+				//new_rn = -1;
+			}
+		}
+	}
 	if ((c == 'm') && !SockConsole && !offline_conn)
 		ManualController(handle[RunVars.ActiveBrd]);
 	if (c == 'h' && !offline_conn) {
@@ -850,15 +889,47 @@ int RunTimeCmd(int c)
 	}
 	if (c == 'T') {
 		if (!SockConsole) {
+			printf("Setting discriminator threshold\n");
+			int brd = 0;
+			if (J_cfg.NumBrd > 1) {
+				printf("Select Board (0 - %d): ", J_cfg.NumBrd - 1);
+				int ret = 1, trial = 0;
+				while (ret != 0 || trial < 5) {
+					int ret = Con_GetInt(&brd);
+					if (ret != 0 || ((brd < 0) || (brd >= J_cfg.NumBrd))) {
+						printf("Invalid board number\n");
+						ret = -1;
+						++trial;
+					}
+				}
+				if (ret != 0) return ret;
+			}
+
 			int thr;
-			printf("Enter threshold ");
-			scanf("%d", &thr);
+			printf("Enter threshold for board %d: ", brd);
+			int tret = 1, trial = 0; 
+			while (tret != 0 || trial < 5) {
+				Con_GetInt(&thr);
+				if (tret != 0) {
+					printf("Invalid threshold value\n");
+					while (((thr = getchar()) != '\n') && (thr != EOF));
+					++trial;
+				}
+			}
+			if (tret != 0) return tret;
 			thr = min(thr, 4095);
-			FERS_WriteRegister(handle[0], a_td_coarse_thr, thr);	// Discr Threshold 
-			FERS_WriteRegister(handle[0], a_scbs_ctrl, 0x000);  // set citiroc index = 0
-			FERS_SendCommand(handle[0], CMD_CFG_ASIC);
-			FERS_WriteRegister(handle[0], a_scbs_ctrl, 0x200);  // set citiroc index = 1
-			FERS_SendCommand(handle[0], CMD_CFG_ASIC);
+
+			ClearScreen();
+			printf("Board = %d\nNew Td_Threshold = %d\n", brd, thr);
+			printf("[0] Apply threshold\n");
+			printf("[any other key] return\n");
+			if (Con_getch() != '0') return 0;
+
+			FERS_WriteRegister(handle[brd], a_td_coarse_thr, thr);	// Discr Threshold 
+			FERS_WriteRegister(handle[brd], a_scbs_ctrl, 0x000);  // set citiroc index = 0
+			FERS_SendCommand(handle[brd], CMD_CFG_ASIC);
+			FERS_WriteRegister(handle[brd], a_scbs_ctrl, 0x200);  // set citiroc index = 1
+			FERS_SendCommand(handle[brd], CMD_CFG_ASIC);
 		}
 	}
 	if (c == 'V') {
@@ -937,6 +1008,7 @@ int RunTimeCmd(int c)
 	if (c == 'C') {
 		if (!SockConsole) {
 			printf("\n\n");
+			printf("Enter Statistics Monitor Type:\n");
 			printf("0 = ChTrg Rate\n");
 			printf("1 = ChTrg Cnt\n");
 			printf("2 = Tstamp Hit Rate\n");
@@ -951,6 +1023,7 @@ int RunTimeCmd(int c)
 	if (c == 'P') {
 		if (!SockConsole) {
 			printf("\n\n");
+			printf("Enter Plot Type:\n");
 			printf("0 = Spect Low Gain\n");
 			printf("1 = Spect High Gain\n");
 			printf("2 = Spect ToA\n");
@@ -975,6 +1048,7 @@ int RunTimeCmd(int c)
 		if (!SockConsole) {
 			while (1) {
 				ClearScreen();
+				printf("Staircase Threshold Scan Configuration:\n");
 				printf("[1] Min Threshold = %d\n", RunVars.StaircaseCfg[SCPARAM_MIN]);
 				printf("[2] Max Threshold = %d\n", RunVars.StaircaseCfg[SCPARAM_MAX]);
 				printf("[3] Step = %d\n", RunVars.StaircaseCfg[SCPARAM_STEP]);
@@ -985,17 +1059,23 @@ int RunTimeCmd(int c)
 				c = getch();
 				if (c == '0' || c == 'r') break;
 				printf("Enter new value: ");
-				if (c == '1') scanf("%d", &RunVars.StaircaseCfg[SCPARAM_MIN]);
-				if (c == '2') scanf("%d", &RunVars.StaircaseCfg[SCPARAM_MAX]);
-				if (c == '3') scanf("%d", &RunVars.StaircaseCfg[SCPARAM_STEP]);
-				if (c == '4') scanf("%d", &RunVars.StaircaseCfg[SCPARAM_DWELL]);
+				int nval;
+				int sret = Con_GetInt(&nval);
+				if (sret != 0 || nval < 0) continue;
+				//	scanf("%d", &nval);
+				//if (sret != 1 || nval < 0) {
+				//	while (((nval = getchar()) != '\n') && (nval != EOF));
+				//	continue;
+				//}
+				if (c == '1') RunVars.StaircaseCfg[SCPARAM_MIN] = nval; // scanf("%d", &RunVars.StaircaseCfg[SCPARAM_MIN]);
+				if (c == '2') RunVars.StaircaseCfg[SCPARAM_MAX] = nval;
+				if (c == '3') RunVars.StaircaseCfg[SCPARAM_STEP] = nval;
+				if (c == '4') RunVars.StaircaseCfg[SCPARAM_DWELL] = nval;
 				if (c == '5') {
-					int tmpBrd = 0;
-					scanf("%d", &tmpBrd);
-					if (tmpBrd > J_cfg.NumBrd || tmpBrd < 0)
+					if (nval > J_cfg.NumBrd)
 						Con_printf("CSm", "Board index out of range\n");
 					else
-						RunVars.StaircaseCfg[SCPARAM_BRD] = tmpBrd;
+						RunVars.StaircaseCfg[SCPARAM_BRD] = nval;
 				}
 			}
 			SaveRunVariables(RunVars);
@@ -1038,6 +1118,7 @@ int RunTimeCmd(int c)
 		if (!SockConsole) {
 			while (1) {
 				ClearScreen();
+				printf("HoldDelay Scan Configuration:\n");
 				printf("[1] Min Delay (ns) = %d\n", RunVars.HoldDelayScanCfg[HDSPARAM_MIN]);
 				printf("[2] Max Delay (ns) = %d\n", RunVars.HoldDelayScanCfg[HDSPARAM_MAX]);
 				printf("[3] Step (ns, multiple of 8) = %d\n", RunVars.HoldDelayScanCfg[HDSPARAM_STEP]);
@@ -1048,17 +1129,23 @@ int RunTimeCmd(int c)
 				c = getch();
 				if (c == '0' || c == 'r') break;
 				printf("Enter new value: ");
-				if (c == '1') scanf("%d", &RunVars.HoldDelayScanCfg[HDSPARAM_MIN]);
-				if (c == '2') scanf("%d", &RunVars.HoldDelayScanCfg[HDSPARAM_MAX]);
-				if (c == '3') scanf("%d", &RunVars.HoldDelayScanCfg[HDSPARAM_STEP]);
-				if (c == '4') scanf("%d", &RunVars.HoldDelayScanCfg[HDSPARAM_NMEAN]);
+				int nval;
+				int sret = Con_GetInt(&nval);
+				if (sret != 0 || nval < 0) continue;
+				//	scanf("%d", &nval);
+				//if (sret != 1 || nval < 0) {
+				//	while (((nval = getchar()) != '\n') && (nval != EOF));
+				//	continue;
+				//}
+				if (c == '1') RunVars.HoldDelayScanCfg[HDSPARAM_MIN] = nval;
+				if (c == '2') RunVars.HoldDelayScanCfg[HDSPARAM_MAX] = nval;
+				if (c == '3') RunVars.HoldDelayScanCfg[HDSPARAM_STEP] = nval;
+				if (c == '4') RunVars.HoldDelayScanCfg[HDSPARAM_NMEAN] = nval;
 				if (c == '5') {
-					int tmpBrd = 0;
-					scanf("%d", &tmpBrd);
-					if (tmpBrd > J_cfg.NumBrd || tmpBrd < 0)
+					if (nval > J_cfg.NumBrd)
 						Con_printf("CSm", "Board index out of range\n");
 					else
-						RunVars.StaircaseCfg[HDSPARAM_BRD] = tmpBrd;
+						RunVars.StaircaseCfg[HDSPARAM_BRD] = nval;
 				}
 				RunVars.HoldDelayScanCfg[HDSPARAM_STEP] &= 0xFFF8;
 			}
@@ -1237,7 +1324,10 @@ int RunTimeCmd(int c)
 	if (c == '!' && !offline_conn) {
 		int brd = 0, ret;
 		if (J_cfg.NumBrd > 1) {
-			if (!SockConsole) printf("Enter board index: ");
+			if (!SockConsole) {
+				printf("Restoring default IP address\n");
+				printf("Enter board index: ");
+			}
 			Con_GetInt(&brd);
 		}
 		if ((brd >= 0) && (brd < J_cfg.NumBrd) && (FERS_CONNECTIONTYPE(handle[brd]) == FERS_CONNECTIONTYPE_USB)) {
@@ -1277,6 +1367,7 @@ int RunTimeCmd(int c)
 			Con_printf("Cm", "[t] SW trigger\n");
 			Con_printf("Cm", "[C] Set Stats Monitor Type\n");
 			Con_printf("Cm", "[P] Set Plot Mode\n");
+			Con_printf("Cm", "[n] Change run number\n");
 			Con_printf("Cm", "[x] Enable/Disable X calibration\n");
 			Con_printf("Cm", "[c] Change channel\n");
 			Con_printf("Cm", "[b] Change board\n");
@@ -1305,6 +1396,7 @@ int RunTimeCmd(int c)
 			Con_printf("Cm", "[S] Stop\n");
 			Con_printf("Cm", "[C] Set Stats Monitor Type\n");
 			Con_printf("Cm", "[P] Set Plot Mode\n");
+			Con_printf("Cm", "[n] Change run number\n");
 			Con_printf("Cm", "[x] Enable/Disable X calibration\n");
 			Con_printf("Cm", "[c] Change channel\n");
 			Con_printf("Cm", "[b] Change board\n");
@@ -1582,10 +1674,6 @@ ReadCfg:
 						Con_printf("LCSm", "FPGA FW revision = %s\n", CncInfo.FPGA_FWrev);
 						Con_printf("LCSm", "SW revision = %s\n", CncInfo.SW_rev);
 						Con_printf("LCSm", "PID = %d\n", CncInfo.pid);
-					
-
-
-
 						if (CncInfo.ChainInfo[0].BoardCount == 0) { 	// Rising error if no board is connected to link 0
 							sprintf(ErrorMsg, "No board connected to link 0\n");
 							goto ManageError;
@@ -1688,22 +1776,11 @@ ReadCfg:
 	HVLimitCheck(handle);
 	fclose(cfg);
 	
-	// If TDL connection if established, set StartRunMode: TDL - ToBeTested
-	for (int bb = 0; bb < J_cfg.NumBrd; ++bb) {
-		if (FERS_CONNECTIONTYPE(handle[bb]) == FERS_CONNECTIONTYPE_TDL && (J_cfg.StartRunMode != STARTRUN_TDL)) {
-			int rtr = FERS_SetParam(handle[bb], "StartRunMode", (char*)"TDL");
-			if (rtr < 0) {
-				FERS_GetLastError(description);
-				Con_printf("LCSe", "Failed to set StartRun TDL for board %d: %s\n", bb, description);
-			}
-			tdlset = 1;
-		}
-	}
 
-	if (tdlset == 1) {
-		Con_printf("LCSM", "StartRunMode: %d\n", STARTRUN_TDL);
-		J_cfg.StartRunMode = STARTRUN_TDL;
-	}
+	//if (tdlset == 1) {
+	//	Con_printf("LCSM", "StartRunMode: %d\n", STARTRUN_TDL);
+	//	J_cfg.StartRunMode = STARTRUN_TDL;
+	//}
 
 	// Dump configuration if selected (known by Lib)
 	for (int bb = 0; bb < J_cfg.NumBrd; ++bb) {
@@ -1726,9 +1803,7 @@ ReadCfg:
 		}
 	}
 
-	//FERS_SetDebugLogs(J_cfg.DebugLogMask);  CTIN1 perch\E9 la setto dal main? deve saperlo la lib
 	//FERS_SetEnergyBitsRange(J_cfg.Range_14bit);
-
 	
 	// -----------------------------------------------------
 	// Allocate memory buffers and histograms, open files
@@ -1850,9 +1925,12 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 						for (b = 0; b < J_cfg.NumBrd; b++) {
 							ret = FERS_configure(handle[b], CFG_SOFT);
 							if (ret < 0) {
-								Con_printf("LCSe", "Failed!!!\n");
+								Con_printf("LCSe", "Failed configuring Board %02d!!!\n", b);
 								Con_printf("LCSe", "%s", ErrorMsg);
 								goto ManageError;
+							} else {
+								Con_printf("LCSm", "Board %d configured.\n", b);
+								FERS_FlushData(handle[b]);
 							}
 						}
 						Con_printf("LCSm", "Done.\n");
@@ -1931,7 +2009,8 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 		if ((nb > 0) && !PresetReached) {
 			Stats.current_tstamp_us[b] = curr_tstamp_us;
 			Stats.ByteCnt[b].cnt += (uint32_t)nb;
-			Stats.GlobalTrgCnt[b].cnt++;
+			if (dtq != DTQ_SERVICE)	
+				Stats.GlobalTrgCnt[b].cnt++;
 			if ((curr_tstamp_us > (build_time_us + 0.001 * J_cfg.TstampCoincWindow)) && (J_cfg.EventBuildingMode != EVBLD_DISABLED)) {
 				if (build_time_us > 0) Stats.BuiltEventCnt.cnt++;
 				build_time_us = curr_tstamp_us;
@@ -2284,6 +2363,10 @@ Restart:  // when config file changes or a new run of the job is scheduled, the 
 						else
 							Con_printf("C", "Temp (degC):     FPGA=%4.1f PCB=N.A.               \n", BrdTemp[ab][TEMP_FPGA]);
 						Con_printf("C", "\n");
+						// Add warning if start tdl is not selected, so it is visible during run in console mode
+						if (tdlStartWarning)
+							Con_printf("Cw", "Async StartRun mode detected. Use TDL to start all boards synchronously\n");
+
 						if (StatIntegral) Con_printf("C", "Statistics averaging: Integral (press [I] for Updating mode)\n");
 						else Con_printf("C", "Statistics averaging: Updating (press [I] for Integral mode)\n");
 						Con_printf("C", "Press [tab] to view statistics of all boards\n\n");
@@ -2348,6 +2431,7 @@ ExitPoint:
 			FERS_CloseReadout(handle[b]);
 			FERS_CloseDevice(handle[b]);
 		}
+
 		for (b = 0; b < MAX_NCNC; b++) {
 			if (cnc_handle[b] < 0) break;
 			FERS_CloseDevice(cnc_handle[b]);

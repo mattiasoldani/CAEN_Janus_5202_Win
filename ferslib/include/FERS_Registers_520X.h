@@ -181,6 +181,11 @@
 // *****************************************************************
 // FPGA Commands
 // *****************************************************************
+/*!
+* @ingroup FERS_Commands
+* @brief FERS board commands
+* @{
+*/
 #define CMD_TIME_RESET     0x11  //!< Absolute Time reset
 #define CMD_ACQ_START      0x12  //!< Start acquisition
 #define CMD_ACQ_STOP       0x13  //!< Stop acquisition
@@ -195,8 +200,8 @@
 #define CMD_TDL_SYNC	   0x1C  //!< Sync signal from TDL
 #define CMD_USE_ICLK	   0x1E  //!< Use internal CLK for FPGA
 #define CMD_USE_ECLK	   0x1F  //!< Use external CLK for FPGA
-#define CMD_CFG_ASIC	   0x20  //!< Configure ASIC (load shift register)
-
+#define CMD_CFG_ASIC	   0x20  //!< Configure ASIC (load shift register). If used, refer to FERS_configure_5202.c, at @snippet FERS_configure_5202.c SetCitiroc
+/*! @} */
 
 // ############################################################################################
 // CITIROC REGISTERS
@@ -232,14 +237,14 @@
 #define TEST_PULSE_SOURCE_PTRG			3
 #define TEST_PULSE_SOURCE_SW_CMD		4
 
-#define TEST_PULSE_PREAMP_HG 			1
-#define TEST_PULSE_PREAMP_LG 			2
+#define TEST_PULSE_PREAMP_LG 			1
+#define TEST_PULSE_PREAMP_HG 			2
 #define TEST_PULSE_PREAMP_BOTH			3
 
-#define TEST_PULSE_DEST_ALL 			-1
-#define TEST_PULSE_DEST_EVEN			-2
-#define TEST_PULSE_DEST_ODD				-3
-#define TEST_PULSE_DEST_NONE			-4
+#define TEST_PULSE_DEST_ALL 			1
+#define TEST_PULSE_DEST_EVEN			2
+#define TEST_PULSE_DEST_ODD				3
+#define TEST_PULSE_DEST_NONE			4
 
 #define DPROBE_OFF						0
 #define DPROBE_PEAK_LG					1

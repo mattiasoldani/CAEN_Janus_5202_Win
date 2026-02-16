@@ -18,26 +18,6 @@ StartRunMode                       ASYNC                # Start of Run mode. Opt
 StopRunMode                        MANUAL               # Run Stop Mode. Options: MANUAL, PRESET_TIME, PRESET_COUNTS
 EventBuildingMode                  DISABLED             # DISABLED: no event building, TRGTIME_SORTING: event sorting by Trigger Time stamp, TRGID_SORTING: event sorting by Trigger ID. Options: DISABLED, TRGTIME_SORTING, TRGID_SORTING
 TrgTimeWindow                      100 ns               # Coincidence Window for Event Building based on time stamp
-PresetTime                         1 m                  # Preset Time
-PresetCounts                       1000                 # Preset Counts (number of acquired events)
-JobFirstRun                        2                    # First Run of the Job
-JobLastRun                         5                    # Last Run of the Job
-RunSleep                           0 s                  # Wait Time between runs of a job
-EnableJobs                         0                    # Enable Jobs
-RunNumber_AutoIncr                 0                    # Run Number auto increment
-DataFilePath                       DataFiles            # Destination folder to save the output files
-OF_OutFileUnit                     ns                   # ToA and ToT unit. Options: LSB, ns
-OF_EnMaxSize                       0                    # Enable List file maximum size (Raw, binary, ASCII)
-OF_MaxSize                         1 GB                 # Max size of List files (in Bytes), minimum size allowed 1 MB
-OF_RawData                         0                    # Enable Event List Raw data file
-OF_ListBin                         0                    # Enable Event List binary file
-OF_ListAscii                       0                    # Enable Event List ASCII file
-OF_ListCSV                         0                    # Enable Event List CSV file
-OF_Sync                            0                    # Enable List with BrdID-Tstamp-TrgID file saving (for sync check)
-OF_ServiceInfo                     0                    # Service event info (temperatures)
-OF_RunInfo                         0                    # Enable Run Info file saving
-OF_LeadHisto                       0                    # Enabling Leading edge timing spectrum file saving
-OF_ToTHisto                        0                    # Enable ToT spectrum file saving
 
 # ------------------------------------------------------------------------------------------
 # AcqMode

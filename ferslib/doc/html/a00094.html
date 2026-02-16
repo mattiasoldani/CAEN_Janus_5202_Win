@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CAEN FERS Library: SpectEvent_t Struct Reference</title>
+<title>CAEN FERS Library: TDC constants</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -29,7 +29,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="caen_logo.svg"/></td>
   <td id="projectalign">
-   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;v1.2.3</span>
+   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;v1.3.0</span>
    </div>
    <div id="projectbrief">SDK for FERS systems</div>
   </td>
@@ -100,270 +100,106 @@ $(function(){initNavTree('a00094.html',''); initResizable(true); });
 
 <div class="header">
   <div class="summary">
-<a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">SpectEvent_t Struct Reference<div class="ingroups"><a class="el" href="a00038.html">FERS Library Structures</a> &raquo; <a class="el" href="a00039.html">Data</a></div></div></div>
+<a href="#define-members">Macros</a>  </div>
+  <div class="headertitle"><div class="title">TDC constants<div class="ingroups"><a class="el" href="a00086.html">Macros</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Spectroscopy Event data structure (with or without timing)  
- <a href="#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="a00020_source.html">FERSlib.h</a>&gt;</code></p>
+<p>Configuration contants for TDC operations (5203 only)  
+<a href="#details">More...</a></p>
 <div class="dynheader">
-Collaboration diagram for SpectEvent_t:</div>
+Collaboration diagram for TDC constants:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="a00092.svg" width="122" height="307"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="a00094.svg" width="232" height="39"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:a3910478268d5c9fa19ab68084cbe8195" id="r_a3910478268d5c9fa19ab68084cbe8195"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3910478268d5c9fa19ab68084cbe8195">tstamp_us</a></td></tr>
-<tr class="memdesc:a3910478268d5c9fa19ab68084cbe8195"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timestamp in us.  <br /></td></tr>
-<tr class="separator:a3910478268d5c9fa19ab68084cbe8195"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b3208fa9688764fcab912d52f700b7f" id="r_a2b3208fa9688764fcab912d52f700b7f"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b3208fa9688764fcab912d52f700b7f">rel_tstamp_us</a></td></tr>
-<tr class="memdesc:a2b3208fa9688764fcab912d52f700b7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative timestamp in us, reset by Tref.  <br /></td></tr>
-<tr class="separator:a2b3208fa9688764fcab912d52f700b7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0fcb8217ed82b6bd7f7d5d23d7912a3" id="r_af0fcb8217ed82b6bd7f7d5d23d7912a3"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af0fcb8217ed82b6bd7f7d5d23d7912a3">tstamp_clk</a></td></tr>
-<tr class="memdesc:af0fcb8217ed82b6bd7f7d5d23d7912a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timestamp in LSB.  <br /></td></tr>
-<tr class="separator:af0fcb8217ed82b6bd7f7d5d23d7912a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a384da401a0e80ab9d1fc8674dac42675" id="r_a384da401a0e80ab9d1fc8674dac42675"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a384da401a0e80ab9d1fc8674dac42675">Tref_tstamp</a></td></tr>
-<tr class="memdesc:a384da401a0e80ab9d1fc8674dac42675"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timestamp of reference time signal (5202 only)  <br /></td></tr>
-<tr class="separator:a384da401a0e80ab9d1fc8674dac42675"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad55fb5f524440d8935780ee42b9ab099" id="r_ad55fb5f524440d8935780ee42b9ab099"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad55fb5f524440d8935780ee42b9ab099">trigger_id</a></td></tr>
-<tr class="memdesc:ad55fb5f524440d8935780ee42b9ab099"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trigger ID.  <br /></td></tr>
-<tr class="separator:ad55fb5f524440d8935780ee42b9ab099"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac68b66c6b15066ab7f3e4a26db7de8e1" id="r_ac68b66c6b15066ab7f3e4a26db7de8e1"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac68b66c6b15066ab7f3e4a26db7de8e1">chmask</a></td></tr>
-<tr class="memdesc:ac68b66c6b15066ab7f3e4a26db7de8e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Channel Mask.  <br /></td></tr>
-<tr class="separator:ac68b66c6b15066ab7f3e4a26db7de8e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a82fb92352a02a70f14efa099c9427d90" id="r_a82fb92352a02a70f14efa099c9427d90"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a82fb92352a02a70f14efa099c9427d90">qdmask</a></td></tr>
-<tr class="memdesc:a82fb92352a02a70f14efa099c9427d90"><td class="mdescLeft">&#160;</td><td class="mdescRight">QD Mask.  <br /></td></tr>
-<tr class="separator:a82fb92352a02a70f14efa099c9427d90"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92a18f85977e6f62bb7342282a557abf" id="r_a92a18f85977e6f62bb7342282a557abf"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a92a18f85977e6f62bb7342282a557abf">energyHG</a> [64]</td></tr>
-<tr class="memdesc:a92a18f85977e6f62bb7342282a557abf"><td class="mdescLeft">&#160;</td><td class="mdescRight">High-gain energy values per channel.  <br /></td></tr>
-<tr class="separator:a92a18f85977e6f62bb7342282a557abf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40699a4c602273a034fe61130599046a" id="r_a40699a4c602273a034fe61130599046a"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a40699a4c602273a034fe61130599046a">energyLG</a> [64]</td></tr>
-<tr class="memdesc:a40699a4c602273a034fe61130599046a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Low-gain energy values per channel.  <br /></td></tr>
-<tr class="separator:a40699a4c602273a034fe61130599046a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae32044fc39e9e22c6cebc861b5b8b50a" id="r_ae32044fc39e9e22c6cebc861b5b8b50a"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae32044fc39e9e22c6cebc861b5b8b50a">tstamp</a> [64]</td></tr>
-<tr class="memdesc:ae32044fc39e9e22c6cebc861b5b8b50a"><td class="mdescLeft">&#160;</td><td class="mdescRight">ToAs (used in TSPEC mode only) per channel.  <br /></td></tr>
-<tr class="separator:ae32044fc39e9e22c6cebc861b5b8b50a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa3c3cb15c1d76366bf8f1d6660f9253a" id="r_aa3c3cb15c1d76366bf8f1d6660f9253a"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa3c3cb15c1d76366bf8f1d6660f9253a">ToT</a> [64]</td></tr>
-<tr class="memdesc:aa3c3cb15c1d76366bf8f1d6660f9253a"><td class="mdescLeft">&#160;</td><td class="mdescRight">ToT values (used in TSPEC mode only) per channel.  <br /></td></tr>
-<tr class="separator:aa3c3cb15c1d76366bf8f1d6660f9253a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:gad335bc8ab8d832529430b6b8ae75003a" id="r_gad335bc8ab8d832529430b6b8ae75003a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gad335bc8ab8d832529430b6b8ae75003a">TDC_CLK_PERIOD</a>&#160;&#160;&#160;(<a class="el" href="a00093.html#gad7b02316f57e5c0b7eb222f2ac377c9b">CLK_PERIOD_5203</a>*2)</td></tr>
+<tr class="separator:gad335bc8ab8d832529430b6b8ae75003a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa9c6cee146e15ba387863c70ea6ca560" id="r_gaa9c6cee146e15ba387863c70ea6ca560"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa9c6cee146e15ba387863c70ea6ca560">TDC_PULSER_CLK_PERIOD</a>&#160;&#160;&#160;(<a class="el" href="#gad335bc8ab8d832529430b6b8ae75003a">TDC_CLK_PERIOD</a> / 32)</td></tr>
+<tr class="separator:gaa9c6cee146e15ba387863c70ea6ca560"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga88564b93ed371fb58e6130361a4c0588" id="r_ga88564b93ed371fb58e6130361a4c0588"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga88564b93ed371fb58e6130361a4c0588">TDC_LSB_ps</a>&#160;&#160;&#160;(<a class="el" href="#gad335bc8ab8d832529430b6b8ae75003a">TDC_CLK_PERIOD</a> / 8 / 1.024)</td></tr>
+<tr class="separator:ga88564b93ed371fb58e6130361a4c0588"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga59c65c28b7c6e8e618ebf24270281067" id="r_ga59c65c28b7c6e8e618ebf24270281067"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga59c65c28b7c6e8e618ebf24270281067">CLK2LSB</a>&#160;&#160;&#160;4096</td></tr>
+<tr class="separator:ga59c65c28b7c6e8e618ebf24270281067"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Spectroscopy Event data structure (with or without timing) </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00571">571</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-</div><h2 class="groupheader">Field Documentation</h2>
-<a id="a3910478268d5c9fa19ab68084cbe8195" name="a3910478268d5c9fa19ab68084cbe8195"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3910478268d5c9fa19ab68084cbe8195">&#9670;&#160;</a></span>tstamp_us</h2>
+<p>Configuration contants for TDC operations (5203 only) </p>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="gad335bc8ab8d832529430b6b8ae75003a" name="gad335bc8ab8d832529430b6b8ae75003a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad335bc8ab8d832529430b6b8ae75003a">&#9670;&#160;</a></span>TDC_CLK_PERIOD</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">double tstamp_us</td>
+          <td class="memname">#define TDC_CLK_PERIOD&#160;&#160;&#160;(<a class="el" href="a00093.html#gad7b02316f57e5c0b7eb222f2ac377c9b">CLK_PERIOD_5203</a>*2)</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>TDC clock period in ns </p>
 
-<p>Timestamp in us. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00572">572</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00307">307</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="a2b3208fa9688764fcab912d52f700b7f" name="a2b3208fa9688764fcab912d52f700b7f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2b3208fa9688764fcab912d52f700b7f">&#9670;&#160;</a></span>rel_tstamp_us</h2>
+<a id="gaa9c6cee146e15ba387863c70ea6ca560" name="gaa9c6cee146e15ba387863c70ea6ca560"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa9c6cee146e15ba387863c70ea6ca560">&#9670;&#160;</a></span>TDC_PULSER_CLK_PERIOD</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">double rel_tstamp_us</td>
+          <td class="memname">#define TDC_PULSER_CLK_PERIOD&#160;&#160;&#160;(<a class="el" href="#gad335bc8ab8d832529430b6b8ae75003a">TDC_CLK_PERIOD</a> / 32)</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>TDC Pulser clock </p>
 
-<p>Relative timestamp in us, reset by Tref. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00573">573</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00308">308</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="af0fcb8217ed82b6bd7f7d5d23d7912a3" name="af0fcb8217ed82b6bd7f7d5d23d7912a3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af0fcb8217ed82b6bd7f7d5d23d7912a3">&#9670;&#160;</a></span>tstamp_clk</h2>
+<a id="ga88564b93ed371fb58e6130361a4c0588" name="ga88564b93ed371fb58e6130361a4c0588"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga88564b93ed371fb58e6130361a4c0588">&#9670;&#160;</a></span>TDC_LSB_ps</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint64_t tstamp_clk</td>
+          <td class="memname">#define TDC_LSB_ps&#160;&#160;&#160;(<a class="el" href="#gad335bc8ab8d832529430b6b8ae75003a">TDC_CLK_PERIOD</a> / 8 / 1.024)</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>TDC LSB in ps (clock * 8 + 1024 taps) </p>
 
-<p>Timestamp in LSB. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00574">574</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00309">309</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="a384da401a0e80ab9d1fc8674dac42675" name="a384da401a0e80ab9d1fc8674dac42675"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a384da401a0e80ab9d1fc8674dac42675">&#9670;&#160;</a></span>Tref_tstamp</h2>
+<a id="ga59c65c28b7c6e8e618ebf24270281067" name="ga59c65c28b7c6e8e618ebf24270281067"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga59c65c28b7c6e8e618ebf24270281067">&#9670;&#160;</a></span>CLK2LSB</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint64_t Tref_tstamp</td>
+          <td class="memname">#define CLK2LSB&#160;&#160;&#160;4096</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Timestamp of reference time signal (5202 only) </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00575">575</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00310">310</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="ad55fb5f524440d8935780ee42b9ab099" name="ad55fb5f524440d8935780ee42b9ab099"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad55fb5f524440d8935780ee42b9ab099">&#9670;&#160;</a></span>trigger_id</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint64_t trigger_id</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Trigger ID. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00576">576</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-
-</div>
-</div>
-<a id="ac68b66c6b15066ab7f3e4a26db7de8e1" name="ac68b66c6b15066ab7f3e4a26db7de8e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac68b66c6b15066ab7f3e4a26db7de8e1">&#9670;&#160;</a></span>chmask</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint64_t chmask</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Channel Mask. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00577">577</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-
-</div>
-</div>
-<a id="a82fb92352a02a70f14efa099c9427d90" name="a82fb92352a02a70f14efa099c9427d90"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a82fb92352a02a70f14efa099c9427d90">&#9670;&#160;</a></span>qdmask</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint64_t qdmask</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>QD Mask. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00578">578</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-
-</div>
-</div>
-<a id="a92a18f85977e6f62bb7342282a557abf" name="a92a18f85977e6f62bb7342282a557abf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a92a18f85977e6f62bb7342282a557abf">&#9670;&#160;</a></span>energyHG</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint16_t energyHG[64]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>High-gain energy values per channel. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00579">579</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-
-</div>
-</div>
-<a id="a40699a4c602273a034fe61130599046a" name="a40699a4c602273a034fe61130599046a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a40699a4c602273a034fe61130599046a">&#9670;&#160;</a></span>energyLG</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint16_t energyLG[64]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Low-gain energy values per channel. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00580">580</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-
-</div>
-</div>
-<a id="ae32044fc39e9e22c6cebc861b5b8b50a" name="ae32044fc39e9e22c6cebc861b5b8b50a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae32044fc39e9e22c6cebc861b5b8b50a">&#9670;&#160;</a></span>tstamp</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t tstamp[64]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>ToAs (used in TSPEC mode only) per channel. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00581">581</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-
-</div>
-</div>
-<a id="aa3c3cb15c1d76366bf8f1d6660f9253a" name="aa3c3cb15c1d76366bf8f1d6660f9253a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3c3cb15c1d76366bf8f1d6660f9253a">&#9670;&#160;</a></span>ToT</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint16_t ToT[64]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>ToT values (used in TSPEC mode only) per channel. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00582">582</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-
-</div>
-</div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00020_source.html">FERSlib.h</a></li>
-</ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="a00094.html">SpectEvent_t</a></li>
-    <li class="footer">Generated on Tue Oct 7 2025 14:46:12 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.13.2 </li>
+    <li class="footer">Generated on Wed Jan 14 2026 14:03:03 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.13.2 </li>
   </ul>
 </div>
 </body>

@@ -1,12 +1,23 @@
 var a00086 =
 [
-    [ "pid", "a00086.html#aec32162d9dc3fde2c76d766af522dae5", null ],
-    [ "FERSCode", "a00086.html#a6d528bef06a294ee34245c31c4618f4b", null ],
-    [ "PCBrevision", "a00086.html#a714db71aa694dfcf75211f064f6631e3", null ],
-    [ "ModelCode", "a00086.html#a7bab95d610c3514c388bfd04aba1996a", null ],
-    [ "ModelName", "a00086.html#a3796db4df8c5770a59ce01e03761b145", null ],
-    [ "FormFactor", "a00086.html#aee59e8b2de127a276a1172cacc945d1c", null ],
-    [ "NumCh", "a00086.html#a2c9f27aff8149916cc0bcf507b917fbe", null ],
-    [ "FPGA_FWrev", "a00086.html#a6e6c97b627892ed943dda9b0b9de5936", null ],
-    [ "uC_FWrev", "a00086.html#acfc7961ccdf8f981c84876ae9b39744b", null ]
+    [ "Library version", "a00088.html", "a00088" ],
+    [ "Board constants", "a00089.html", "a00089" ],
+    [ "Debug Log bitmask", "a00090.html", "a00090" ],
+    [ "Acquisition modes", "a00091.html", "a00091" ],
+    [ "Data qualifier", "a00092.html", "a00092" ],
+    [ "Clock definition", "a00093.html", "a00093" ],
+    [ "TDC constants", "a00094.html", "a00094" ],
+    [ "Measurement modes", "a00095.html", "a00095" ],
+    [ "EEPROM A5256 constants", "a00096.html", "a00096" ],
+    [ "FERS Flash constants", "a00097.html", "a00097" ],
+    [ "Handles and indexing", "a00098.html", "a00098" ],
+    [ "Configuration Modes", "a00099.html", "a00099" ],
+    [ "Min/Max", "a00100.html", "a00100" ],
+    [ "A5256 macros", "a00101.html", "a00101" ],
+    [ "NODATA_TIMEOUT", "a00086.html#gaaf44a6c1853b33c395282fdf090891b2", null ],
+    [ "MAX_WAVEFORM_LENGTH", "a00086.html#ga49cb699fdf2f67e80044c6fc00c197f5", null ],
+    [ "ENERGY_NBIT", "a00086.html#ga1cd0564ce29997434102557d0c99d2e7", null ],
+    [ "A5203_FLASH", "a00086.html#ga8206de6aa568ae504e7450d129e75b70", null ],
+    [ "FUP_BA", "a00086.html#ga4f2fe0b4a83ea2896af20ece45e1f414", null ],
+    [ "A5256_EEPROM", "a00086.html#gac7e21cf1a56bf869928eae6641b14fd1", null ]
 ];

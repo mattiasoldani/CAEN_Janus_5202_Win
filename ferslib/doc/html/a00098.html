@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CAEN FERS Library: CountingEvent_t Struct Reference</title>
+<title>CAEN FERS Library: Handles and indexing</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -29,7 +29,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="caen_logo.svg"/></td>
   <td id="projectalign">
-   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;v1.2.3</span>
+   <div id="projectname">CAEN FERS Library<span id="projectnumber">&#160;v1.3.0</span>
    </div>
    <div id="projectbrief">SDK for FERS systems</div>
   </td>
@@ -100,186 +100,245 @@ $(function(){initNavTree('a00098.html',''); initResizable(true); });
 
 <div class="header">
   <div class="summary">
-<a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">CountingEvent_t Struct Reference<div class="ingroups"><a class="el" href="a00038.html">FERS Library Structures</a> &raquo; <a class="el" href="a00039.html">Data</a></div></div></div>
+<a href="#define-members">Macros</a>  </div>
+  <div class="headertitle"><div class="title">Handles and indexing<div class="ingroups"><a class="el" href="a00086.html">Macros</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Counting Event data structure.  
- <a href="#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="a00020_source.html">FERSlib.h</a>&gt;</code></p>
+<p>Handles and indexing.  
+<a href="#details">More...</a></p>
 <div class="dynheader">
-Collaboration diagram for CountingEvent_t:</div>
+Collaboration diagram for Handles and indexing:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="a00096.svg" width="124" height="218"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="a00098.svg" width="275" height="39"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:a3910478268d5c9fa19ab68084cbe8195" id="r_a3910478268d5c9fa19ab68084cbe8195"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3910478268d5c9fa19ab68084cbe8195">tstamp_us</a></td></tr>
-<tr class="memdesc:a3910478268d5c9fa19ab68084cbe8195"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timestamp in us.  <br /></td></tr>
-<tr class="separator:a3910478268d5c9fa19ab68084cbe8195"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b3208fa9688764fcab912d52f700b7f" id="r_a2b3208fa9688764fcab912d52f700b7f"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b3208fa9688764fcab912d52f700b7f">rel_tstamp_us</a></td></tr>
-<tr class="memdesc:a2b3208fa9688764fcab912d52f700b7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative timestamp in us, reset by Tref.  <br /></td></tr>
-<tr class="separator:a2b3208fa9688764fcab912d52f700b7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad55fb5f524440d8935780ee42b9ab099" id="r_ad55fb5f524440d8935780ee42b9ab099"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad55fb5f524440d8935780ee42b9ab099">trigger_id</a></td></tr>
-<tr class="memdesc:ad55fb5f524440d8935780ee42b9ab099"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trigger ID.  <br /></td></tr>
-<tr class="separator:ad55fb5f524440d8935780ee42b9ab099"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac68b66c6b15066ab7f3e4a26db7de8e1" id="r_ac68b66c6b15066ab7f3e4a26db7de8e1"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac68b66c6b15066ab7f3e4a26db7de8e1">chmask</a></td></tr>
-<tr class="memdesc:ac68b66c6b15066ab7f3e4a26db7de8e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Channel Mask from zero suppression.  <br /></td></tr>
-<tr class="separator:ac68b66c6b15066ab7f3e4a26db7de8e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa6fee4c52670e03d2b50840e2389b30" id="r_afa6fee4c52670e03d2b50840e2389b30"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa6fee4c52670e03d2b50840e2389b30">counts</a> [64]</td></tr>
-<tr class="memdesc:afa6fee4c52670e03d2b50840e2389b30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Counts per channel.  <br /></td></tr>
-<tr class="separator:afa6fee4c52670e03d2b50840e2389b30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7da8ea4c5c949691927ef06c2f92dfc" id="r_ae7da8ea4c5c949691927ef06c2f92dfc"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7da8ea4c5c949691927ef06c2f92dfc">t_or_counts</a></td></tr>
-<tr class="memdesc:ae7da8ea4c5c949691927ef06c2f92dfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">T-OR counts.  <br /></td></tr>
-<tr class="separator:ae7da8ea4c5c949691927ef06c2f92dfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b9d1220a4230cdc313cf38ae1a3c060" id="r_a2b9d1220a4230cdc313cf38ae1a3c060"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b9d1220a4230cdc313cf38ae1a3c060">q_or_counts</a></td></tr>
-<tr class="memdesc:a2b9d1220a4230cdc313cf38ae1a3c060"><td class="mdescLeft">&#160;</td><td class="mdescRight">Q-OR counts.  <br /></td></tr>
-<tr class="separator:a2b9d1220a4230cdc313cf38ae1a3c060"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:gada24a03855f045f1b01277d85fc1c2c9" id="r_gada24a03855f045f1b01277d85fc1c2c9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gada24a03855f045f1b01277d85fc1c2c9">FERS_INDEX</a>(handle)</td></tr>
+<tr class="separator:gada24a03855f045f1b01277d85fc1c2c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad154e7a7b1b1835eccf7c01be2e3f22c" id="r_gad154e7a7b1b1835eccf7c01be2e3f22c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gad154e7a7b1b1835eccf7c01be2e3f22c">FERS_CONNECTIONTYPE</a>(handle)</td></tr>
+<tr class="separator:gad154e7a7b1b1835eccf7c01be2e3f22c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafe839bf7b22bc6ebf551a85d6fd5a6c4" id="r_gafe839bf7b22bc6ebf551a85d6fd5a6c4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafe839bf7b22bc6ebf551a85d6fd5a6c4">FERS_CONNECTIONTYPE_ETH</a>&#160;&#160;&#160;0x00000</td></tr>
+<tr class="separator:gafe839bf7b22bc6ebf551a85d6fd5a6c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga170c56ab0985e6d314e178b5838b3324" id="r_ga170c56ab0985e6d314e178b5838b3324"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga170c56ab0985e6d314e178b5838b3324">FERS_CONNECTIONTYPE_USB</a>&#160;&#160;&#160;0x10000</td></tr>
+<tr class="separator:ga170c56ab0985e6d314e178b5838b3324"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa6286033eebcd70a907212bf0500a973" id="r_gaa6286033eebcd70a907212bf0500a973"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa6286033eebcd70a907212bf0500a973">FERS_CONNECTIONTYPE_TDL</a>&#160;&#160;&#160;0x20000</td></tr>
+<tr class="separator:gaa6286033eebcd70a907212bf0500a973"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3bccd24a3657fca3680ccc865fbc8188" id="r_ga3bccd24a3657fca3680ccc865fbc8188"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3bccd24a3657fca3680ccc865fbc8188">FERS_CONNECTIONTYPE_CNC</a>&#160;&#160;&#160;0x80000</td></tr>
+<tr class="separator:ga3bccd24a3657fca3680ccc865fbc8188"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8d8172791483ea582016390407ea0bfd" id="r_ga8d8172791483ea582016390407ea0bfd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga8d8172791483ea582016390407ea0bfd">FERS_NODE</a>(handle)</td></tr>
+<tr class="separator:ga8d8172791483ea582016390407ea0bfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2f231dd77081b11594fb9565dad3347c" id="r_ga2f231dd77081b11594fb9565dad3347c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga2f231dd77081b11594fb9565dad3347c">FERS_CHAIN</a>(handle)</td></tr>
+<tr class="separator:ga2f231dd77081b11594fb9565dad3347c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga42746935cf618a8db41bce7343371bb0" id="r_ga42746935cf618a8db41bce7343371bb0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga42746935cf618a8db41bce7343371bb0">FERS_CNCINDEX</a>(handle)</td></tr>
+<tr class="separator:ga42746935cf618a8db41bce7343371bb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2d72378af61f40dae35ae9745738bf34" id="r_ga2d72378af61f40dae35ae9745738bf34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga2d72378af61f40dae35ae9745738bf34">FERS_CNC_HANDLE</a>(handle)</td></tr>
+<tr class="separator:ga2d72378af61f40dae35ae9745738bf34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Counting Event data structure. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00590">590</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
-</div><h2 class="groupheader">Field Documentation</h2>
-<a id="a3910478268d5c9fa19ab68084cbe8195" name="a3910478268d5c9fa19ab68084cbe8195"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3910478268d5c9fa19ab68084cbe8195">&#9670;&#160;</a></span>tstamp_us</h2>
+<p>Handles and indexing. </p>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="gada24a03855f045f1b01277d85fc1c2c9" name="gada24a03855f045f1b01277d85fc1c2c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gada24a03855f045f1b01277d85fc1c2c9">&#9670;&#160;</a></span>FERS_INDEX</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">double tstamp_us</td>
+          <td class="memname">#define FERS_INDEX</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>handle</em></span></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">((handle) &amp; 0xFF)</div>
+</div><!-- fragment --><p>Board Index </p>
 
-<p>Timestamp in us. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00591">591</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00443">443</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="a2b3208fa9688764fcab912d52f700b7f" name="a2b3208fa9688764fcab912d52f700b7f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2b3208fa9688764fcab912d52f700b7f">&#9670;&#160;</a></span>rel_tstamp_us</h2>
+<a id="gad154e7a7b1b1835eccf7c01be2e3f22c" name="gad154e7a7b1b1835eccf7c01be2e3f22c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad154e7a7b1b1835eccf7c01be2e3f22c">&#9670;&#160;</a></span>FERS_CONNECTIONTYPE</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">double rel_tstamp_us</td>
+          <td class="memname">#define FERS_CONNECTIONTYPE</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>handle</em></span></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">((handle) &amp; 0xF0000)</div>
+</div><!-- fragment --><p>Connection Type </p>
 
-<p>Relative timestamp in us, reset by Tref. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00592">592</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00444">444</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="ad55fb5f524440d8935780ee42b9ab099" name="ad55fb5f524440d8935780ee42b9ab099"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad55fb5f524440d8935780ee42b9ab099">&#9670;&#160;</a></span>trigger_id</h2>
+<a id="gafe839bf7b22bc6ebf551a85d6fd5a6c4" name="gafe839bf7b22bc6ebf551a85d6fd5a6c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafe839bf7b22bc6ebf551a85d6fd5a6c4">&#9670;&#160;</a></span>FERS_CONNECTIONTYPE_ETH</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint64_t trigger_id</td>
+          <td class="memname">#define FERS_CONNECTIONTYPE_ETH&#160;&#160;&#160;0x00000</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Handle bit for eth connection </p>
 
-<p>Trigger ID. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00593">593</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00445">445</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="ac68b66c6b15066ab7f3e4a26db7de8e1" name="ac68b66c6b15066ab7f3e4a26db7de8e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac68b66c6b15066ab7f3e4a26db7de8e1">&#9670;&#160;</a></span>chmask</h2>
+<a id="ga170c56ab0985e6d314e178b5838b3324" name="ga170c56ab0985e6d314e178b5838b3324"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga170c56ab0985e6d314e178b5838b3324">&#9670;&#160;</a></span>FERS_CONNECTIONTYPE_USB</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint64_t chmask</td>
+          <td class="memname">#define FERS_CONNECTIONTYPE_USB&#160;&#160;&#160;0x10000</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Handle bit for usb connection </p>
 
-<p>Channel Mask from zero suppression. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00594">594</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00446">446</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="afa6fee4c52670e03d2b50840e2389b30" name="afa6fee4c52670e03d2b50840e2389b30"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa6fee4c52670e03d2b50840e2389b30">&#9670;&#160;</a></span>counts</h2>
+<a id="gaa6286033eebcd70a907212bf0500a973" name="gaa6286033eebcd70a907212bf0500a973"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa6286033eebcd70a907212bf0500a973">&#9670;&#160;</a></span>FERS_CONNECTIONTYPE_TDL</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t counts[64]</td>
+          <td class="memname">#define FERS_CONNECTIONTYPE_TDL&#160;&#160;&#160;0x20000</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Handle bit for tdl connection </p>
 
-<p>Counts per channel. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00595">595</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00447">447</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="ae7da8ea4c5c949691927ef06c2f92dfc" name="ae7da8ea4c5c949691927ef06c2f92dfc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae7da8ea4c5c949691927ef06c2f92dfc">&#9670;&#160;</a></span>t_or_counts</h2>
+<a id="ga3bccd24a3657fca3680ccc865fbc8188" name="ga3bccd24a3657fca3680ccc865fbc8188"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3bccd24a3657fca3680ccc865fbc8188">&#9670;&#160;</a></span>FERS_CONNECTIONTYPE_CNC</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t t_or_counts</td>
+          <td class="memname">#define FERS_CONNECTIONTYPE_CNC&#160;&#160;&#160;0x80000</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Handle bit for connection to concentrator only </p>
 
-<p>T-OR counts. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00596">596</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00448">448</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<a id="a2b9d1220a4230cdc313cf38ae1a3c060" name="a2b9d1220a4230cdc313cf38ae1a3c060"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2b9d1220a4230cdc313cf38ae1a3c060">&#9670;&#160;</a></span>q_or_counts</h2>
+<a id="ga8d8172791483ea582016390407ea0bfd" name="ga8d8172791483ea582016390407ea0bfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8d8172791483ea582016390407ea0bfd">&#9670;&#160;</a></span>FERS_NODE</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t q_or_counts</td>
+          <td class="memname">#define FERS_NODE</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>handle</em></span></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">((handle &gt;&gt; 20) &amp; 0xF)</div>
+</div><!-- fragment --><p>Tdl node index </p>
 
-<p>Q-OR counts. </p>
-
-<p class="definition">Definition at line <a class="el" href="a00020_source.html#l00597">597</a> of file <a class="el" href="a00020_source.html">FERSlib.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00449">449</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00020_source.html">FERSlib.h</a></li>
-</ul>
+<a id="ga2f231dd77081b11594fb9565dad3347c" name="ga2f231dd77081b11594fb9565dad3347c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2f231dd77081b11594fb9565dad3347c">&#9670;&#160;</a></span>FERS_CHAIN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FERS_CHAIN</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>handle</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">((handle &gt;&gt; 24) &amp; 0xF)</div>
+</div><!-- fragment --><p>Tdl chain index </p>
+
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00450">450</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
+
+</div>
+</div>
+<a id="ga42746935cf618a8db41bce7343371bb0" name="ga42746935cf618a8db41bce7343371bb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga42746935cf618a8db41bce7343371bb0">&#9670;&#160;</a></span>FERS_CNCINDEX</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FERS_CNCINDEX</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>handle</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">((handle &gt;&gt; 30) &amp; 0xF)</div>
+</div><!-- fragment --><p>Concentrator index </p>
+
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00451">451</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
+
+</div>
+</div>
+<a id="ga2d72378af61f40dae35ae9745738bf34" name="ga2d72378af61f40dae35ae9745738bf34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2d72378af61f40dae35ae9745738bf34">&#9670;&#160;</a></span>FERS_CNC_HANDLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FERS_CNC_HANDLE</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>handle</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">(0x80000 | ((handle &gt;&gt; 30) &amp; 0xF))</div>
+</div><!-- fragment --><p>returns the CNC handle to which a FERS unit is connected </p>
+
+<p class="definition">Definition at line <a class="el" href="a00062_source.html#l00452">452</a> of file <a class="el" href="a00062_source.html">FERSlib.h</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="a00098.html">CountingEvent_t</a></li>
-    <li class="footer">Generated on Tue Oct 7 2025 14:46:12 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.13.2 </li>
+    <li class="footer">Generated on Wed Jan 14 2026 14:03:03 for CAEN FERS Library by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.13.2 </li>
   </ul>
 </div>
 </body>

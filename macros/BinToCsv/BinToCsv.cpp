@@ -150,7 +150,9 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    //filenames.push_back("Run11_list.dat");
+    //// For debug purpose only
+    //filenames.push_back("C:\\Users\\dninci\\Downloads\\dat.dat"); //\\Run4_list.dat");
+    //force_ns = 1;
 
     // Define the binfile to convert and the csvfile
     std::ifstream to_convert;
@@ -205,7 +207,7 @@ int main(int argc, char* argv[])
         //////////////////////////////////////////////////////////
     }
 
-    // cicle over the vector of filenames vector
+    // Cycle over the vector of filenames vector
     for (int i = 0; i < filenames.size(); ++i) {
         // The initialization of mdata must be done here
         // Class initialization. Should be destroyed? It is not a pointer, so no ... correct?  
@@ -222,7 +224,7 @@ int main(int argc, char* argv[])
             } else
                 std::cout << "Opening file " << subrun_filenames.at(i).at(j) << std::endl; // "\n" << std::flush;;
 
-            csv_file_name = subrun_filenames.at(i).at(j).substr(0, subrun_filenames.at(i).at(j).find_last_of('.')) + ".csv";   // The converted file will be saved in the same folder of the binfile
+            csv_file_name = subrun_filenames.at(i).at(j).substr(0, subrun_filenames.at(i).at(j).find_last_of('.')) + "_bintocsv.csv";   // The converted file will be saved in the same folder of the binfile
             f_converted.open(csv_file_name);
             if (!f_converted.is_open()) {
                 std::cout << "File " << csv_file_name << " cannot be created!\nMove to the next one ...\n";
@@ -242,7 +244,7 @@ int main(int argc, char* argv[])
             uint64_t onepercent = (uint64_t)(totsize / 100.);
             std::cout << "File Size: " << totsize << " Bytes\n";
 
-            while (!to_convert.eof() && read_size < totsize) { // DNIN: is it possible to save each event in a queue or a vector
+            while (!to_convert.eof() && read_size < totsize) { // It is possible to save each event in a queue or a vector
                 mdata.ReadTmpEvtFERS(to_convert);
                 mdata.WriteTmpEvtFERS(f_converted);
 

@@ -1,17 +1,14 @@
 var a00106 =
 [
-    [ "tstamp_us", "a00106.html#a3910478268d5c9fa19ab68084cbe8195", null ],
-    [ "Tref_tstamp", "a00106.html#a384da401a0e80ab9d1fc8674dac42675", null ],
-    [ "tstamp_clk", "a00106.html#af0fcb8217ed82b6bd7f7d5d23d7912a3", null ],
-    [ "trigger_id", "a00106.html#ad55fb5f524440d8935780ee42b9ab099", null ],
-    [ "nhits", "a00106.html#a33d602c2d56bd128ee277e1d8a950028", null ],
-    [ "header1", "a00106.html#a08b0b848573b5a84d1dbf497d80e4bc7", null ],
-    [ "header2", "a00106.html#a80a34df41151a9744a043bcc478a1d75", null ],
-    [ "ow_trailer", "a00106.html#aaad59b141738e883b58b85f06d51e640", null ],
-    [ "trailer", "a00106.html#a83cf4301d95e7c900f00da716e5a218a", null ],
-    [ "channel", "a00106.html#ab28f16da18db32effb88e9ac933002c7", null ],
-    [ "edge", "a00106.html#ac1df53d16c4f89c3b667f41e3126c2a6", null ],
-    [ "tstamp", "a00106.html#afa88140239d79f6e59ee5b4f441663f8", null ],
-    [ "ToA", "a00106.html#a9872d4fcb4dc00f7eb8296a31a19ce0b", null ],
-    [ "ToT", "a00106.html#ab0762e8aff528eecbaabce8dcb0978e6", null ]
+    [ "FERS_GetClockPeriod", "a00106.html#ga1a8627fefaedfb08b7f4f80b273bb20b", null ],
+    [ "FERS_OpenDevice", "a00106.html#ga28b7f86dba68d26eeba142961bff0f65", null ],
+    [ "FERS_IsOpen", "a00106.html#gaf2a5d8afe36893d5d178f587c507e9fb", null ],
+    [ "FERS_IsOpenByHandle", "a00106.html#gaeb9dfdf778b7e2686389a410d6cb531d", null ],
+    [ "FERS_CloseDevice", "a00106.html#gad53c9094103b8fab17f84a6c0af65255", null ],
+    [ "FERS_TotalAllocatedMemory", "a00106.html#ga9749ebf586fa595653d103aeb6903cb5", null ],
+    [ "FERS_Reset_IPaddress", "a00106.html#gafb763506e1a8e2460d646bce54a8ca01", null ],
+    [ "FERS_Get_CncPath", "a00106.html#gae824bb108b06fcf2e5fc1d079cba0dc2", null ],
+    [ "FERS_InitTDLchains", "a00106.html#ga476849396d434ea008e18ef7da10a611", null ],
+    [ "FERS_TDLchainsInitialized", "a00106.html#ga97152f530be2f1c84655e933e1cfb1b9", null ],
+    [ "FERS_GetNumBrdConnected", "a00106.html#gade9f61610164a55a6717a976cfc63612", null ]
 ];

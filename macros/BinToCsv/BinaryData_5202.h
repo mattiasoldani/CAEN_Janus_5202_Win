@@ -83,6 +83,7 @@ private:
     uint8_t                             t_brd;
     double                              t_tstamp;
     double                              t_rel_tstamp;   // Relative Timestamp of an external trigger
+	double                              t_tref_tstamp;  // Tref Timestamp with 0.5 ns resolution for SpectTiming mode  
     uint64_t                            t_trigger_ID;
     uint64_t                            t_ch_mask;
     uint16_t                            t_num_of_hit;
@@ -95,7 +96,7 @@ private:
     std::vector<uint16_t>               t_ToT_i;
     std::vector<float>                  t_ToA_f;
     std::vector<float>                  t_ToT_f;
-    std::vector<uint32_t>               t_counts;
+    std::vector<uint64_t>               t_counts;
 
     void Init(uint8_t force_ns, uint8_t mode);
 public:
@@ -111,7 +112,7 @@ public:
     std::streamoff GetEventsBegin() { return std::streamoff(t_BinaryData::t_begin); };  // Return the file position where the Events start
     void WriteCsvHeader(std::ofstream& csvfile);
 
-    void ReadEvtHeader(std::ifstream& binfile);
+    uint16_t ReadEvtHeader(std::ifstream& binfile);
     void ReadTmpEvt(std::ifstream& binfile);
     uint16_t ReadSpectTime(std::ifstream& binfile);
     //uint16_t ReadTime(std::ifstream& binfile);

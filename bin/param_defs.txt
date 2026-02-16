@@ -22,7 +22,7 @@ HV_Adjust_Range					"4.5"				g		c		# DAC range for the individual HV adjust.
 	- "DISABLED"
 HV_IndivAdj						128					c		d		# DAC setting for the Individual HV Adjust. Range from 0 to 255
 Vnom							128					c		m		# Estimated Vbias = ~(HV_Vbias - HV_IndivAdj)
-TempSensType					"TMP37"				g		c		# Temperature Sensor Type (or generic coefficients in the form "c0 c1 c2")
+TempSensType					"TMP37"				g		c		# Temperature Sensor Type (or generic coefficients in the form "c0 c1 c2", T = V*V*c2 + V*c1 + c0)
 	- "TMP37"
 	- "LM94021_G11"
 	- "LM94021_G00"
@@ -348,7 +348,7 @@ DigitalProbe1					OFF					g		c		# Select the signal connected to the digital pro
 	- T_OR
 	- Q_OR
 
-ProbeChannel1					0					g		d		# Select the channel connected to the analog and digital probes1. Channels 32-63
+ProbeChannel1					32					g		d		# Select the channel connected to the analog and digital probes1. Channels 32-63
 
 _BLANK 							-					-		-
 
@@ -360,7 +360,7 @@ TestPulseSource					EXT					g		c		# Select the source for the test pulse signal
 	- PTRG
 	- SW-CMD
 	
-TestPulseAmplitude				3000				g		d		# DAC setting for the internal test pulser (12 bit)
+TestPulseAmplitude				300				g		d		# DAC setting for the internal test pulser (12 bit)
 TestPulseDestination			ALL					g		c 		# Select which channels are connected to the test pulse input
 	- NONE
 	- ALL

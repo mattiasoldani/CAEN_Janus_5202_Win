@@ -408,7 +408,7 @@ static uint32_t GetInt(char* val)
 }
 
 
-int ParseCfgFile(FILE* f_ini,  Demo_t* cfg) {
+int ParseCfgFile(FILE* f_ini,  Demo_t* cfg, int mode) {
     int ret = -1;
     int cnc = -1, node = -1, brd = -1;  // target board defined as ParamName[b][ch]
     int num_brd = 0;
@@ -448,35 +448,61 @@ int ParseCfgFile(FILE* f_ini,  Demo_t* cfg) {
             brd_l = 0;
             brd_h = (cfg->num_brd > 0) ? cfg->num_brd : 16;
         }
-        
-		if (streq(parname, "Open")) {
-			if (brd < 0 || brd >= FERSLIB_MAX_NBRD) {
-				printf("ERROR: Board index %d out of range\n", brd);
-				return -1;
-			}
-			strcpy(cfg->brd_path[brd], parval);
-			++cfg->num_brd;
-			ret = 0;
-		}
 
-		if (streq(parname, "ToTRebin"))          cfg->ToTRebin          = GetInt(parval);
-		if (streq(parname, "LeadTrailRebin"))    cfg->LeadTrailRebin    = GetInt(parval);
-		if (streq(parname, "ToTHistoMin"))       cfg->ToTHistoMin       = GetInt(parval);
-		if (streq(parname, "LeadHistoMin"))      cfg->LeadHistoMin      = GetInt(parval);
-		if (streq(parname, "ToTHistoMax"))       cfg->ToTHistoMax       = GetInt(parval);
-		if (streq(parname, "LeadHistoMax"))      cfg->LeadHistoMax      = GetInt(parval);
-		if (streq(parname, "ToT_LSB"))           cfg->ToT_LSB           = GetInt(parval);
-		if (streq(parname, "LeadTrail_LSB"))     cfg->LeadTrail_LSB     = GetInt(parval);
-		if (streq(parname, "ToT_Rescale"))       cfg->ToT_Rescale       = GetInt(parval);
-		if (streq(parname, "LeadTrail_Rescale")) cfg->LeadTrail_Rescale = GetInt(parval);
-        if (streq(parname, "MeasMode")) {
-            if (streq(parval, "LEAD_ONLY"))			cfg->MeasMode = MEASMODE_LEAD_ONLY;
-            else if (streq(parval, "LEAD_TRAIL"))	cfg->MeasMode = MEASMODE_LEAD_TRAIL;
-            else if (streq(parval, "LEAD_TOT8"))	cfg->MeasMode = MEASMODE_LEAD_TOT8;
-            else if (streq(parval, "LEAD_TOT11"))	cfg->MeasMode = MEASMODE_LEAD_TOT11;
-            else ValidParameterValue = 0;
+        if (mode == PARSE_CONN) {
+            if (streq(parname, "Open")) {
+                if (brd < 0 || brd >= FERSLIB_MAX_NBRD) {
+                    printf("ERROR: Board index %d out of range\n", brd);
+                    return -1;
+                }
+                strcpy(cfg->brd_path[brd], parval);
+                ++cfg->num_brd;
+                ret = 0;
+            }
+            if (streq(parname, "FiberDelayAdjust")) {
+                int np, cnc, chain, node;
+                float length; // length expressed in m
+                np = sscanf(parval, "%d %d %d %f", &cnc, &chain, &node, &length);
+                if ((np == 4) && (cnc >= 0) && (cnc < FERSLIB_MAX_NCNC) && (chain >= 0) && (chain < 8) && (node >= 0) && (node < 16))
+                    cfg->FiberDelayAdjust[cnc][chain][node] = length;
+            }
+        } else if (mode == PARSE_CFG) {
+            // Example showing how to parse and set parameters for the main program and the library
+            if (streq(parname, "ToTRebin"))          cfg->ToTRebin = GetInt(parval);
+            else if (streq(parname, "LeadTrailRebin"))    cfg->LeadTrailRebin = GetInt(parval);
+            else if (streq(parname, "ToTHistoMin"))       cfg->ToTHistoMin = GetInt(parval);
+            else if (streq(parname, "LeadHistoMin"))      cfg->LeadHistoMin = GetInt(parval);
+            else if (streq(parname, "ToTHistoMax"))       cfg->ToTHistoMax = GetInt(parval);
+            else if (streq(parname, "LeadHistoMax"))      cfg->LeadHistoMax = GetInt(parval);
+            else if (streq(parname, "ToT_LSB"))           cfg->ToT_LSB = GetInt(parval);
+            else if (streq(parname, "LeadTrail_LSB"))     cfg->LeadTrail_LSB = GetInt(parval);
+            else if (streq(parname, "ToT_Rescale"))       cfg->ToT_Rescale = GetInt(parval);
+            else if (streq(parname, "LeadTrail_Rescale")) cfg->LeadTrail_Rescale = GetInt(parval);
+            //if (streq(parname, "MeasMode")) { // This should be passed before to lib and then retrieved with GetParam
+            //    if (streq(parval, "LEAD_ONLY"))			cfg->MeasMode = MEASMODE_LEAD_ONLY;
+            //    else if (streq(parval, "LEAD_TRAIL"))	cfg->MeasMode = MEASMODE_LEAD_TRAIL;
+            //    else if (streq(parval, "LEAD_TOT8"))	cfg->MeasMode = MEASMODE_LEAD_TOT8;
+            //    else if (streq(parval, "LEAD_TOT11"))	cfg->MeasMode = MEASMODE_LEAD_TOT11;
+            //    else ValidParameterValue = 0;
+            else {
+                char tmp_name[100] = "";
+                if (ch >= 0) {
+                    sprintf(tmp_name, "%.98s[%d]", parname, ch);
+                    sprintf(parname, "%s", tmp_name);
+                }
+                //! [ParseFile]
+                for (int b = brd_l; b < brd_h; b++) {
+                    //printf("%s %s\n", parname, parval);
+                    ret = FERS_SetParam(handle[b], parname, parval);
+                }
+                //! [ParseFile]
+            }
         }
-    }
+	}
+    
+    char tmpVal[16];
+    FERS_GetParam(handle[0], "MeasMode", tmpVal);
+    int ret2 = sscanf(tmpVal, "%d", &cfg->MeasMode);
 
 	// Post processing of the parameters
     if (MEASMODE_OWLT(cfg->MeasMode)) {
@@ -1017,8 +1043,9 @@ int main(int argc, char* argv[])
 
     // OPEN CFG FILE
     // Parser for this_cfg, there are more prameters than in 5202 Demo
-    this_cfg.num_brd = get_brd_path_from_file(fcfg, &this_cfg);
-    fseek(fcfg, 0, SEEK_SET);
+	ret = ParseCfgFile(fcfg, &this_cfg, PARSE_CONN);
+    //this_cfg.num_brd = get_brd_path_from_file(fcfg, &this_cfg);
+    //fseek(fcfg, 0, SEEK_SET);
     get_delayfiber_from_file(fcfg, &this_cfg);
     fclose(fcfg);
     // OPEN BOARDS
@@ -1109,9 +1136,10 @@ int main(int argc, char* argv[])
 
 
 LoadConfigFERS:
-    //! [ParseFile]
-    ret = FERS_LoadConfigFile(cfg_file);
-    //! [ParseFile]
+	fcfg = fopen(cfg_file, "r");
+    
+	ret = ParseCfgFile(fcfg, &this_cfg, PARSE_CFG);
+    //ret = FERS_LoadConfigFile(cfg_file);
     if (ret != 0)
         printf("Cannot load FERS configuration from file %s\n", cfg_file);
 

@@ -24,6 +24,9 @@
   <ItemGroup>
     <ClCompile Include="..\src\Demo5202.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\bin\Demo5202_Config.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

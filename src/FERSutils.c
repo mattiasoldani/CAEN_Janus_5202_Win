@@ -33,7 +33,7 @@
 // *********************************************************
 // simplified version of the GetParam
 // *********************************************************
-int FERS_GetParam_int(int handle, char* param_name) {
+int FERS_GetParam_int(int handle, const char* param_name) {
 	int ret = 0;
 	int cValue = 0;
 	char value[100];
@@ -41,27 +41,27 @@ int FERS_GetParam_int(int handle, char* param_name) {
 	ret = FERS_GetParam(handle, param_name, value);
 	if (ret != 0) {
 		FERS_GetLastError(desc_err);
-		Con_printf("LCSe", "%s\n");
+		Con_printf("LCSe", "%s\n", desc_err);
 	} else if (sscanf(value, "%d", &cValue) != 1)
 		Con_printf("LCSe", "ERROR: failed to get parameter %s\n", param_name);
 	return cValue;
 }
 
-uint32_t FERS_GetParam_uint32(int handle, char* param_name) {
+uint32_t FERS_GetParam_uint32(int handle, const char* param_name) {
 	uint32_t ret = 0;
-	uint32_t cValue = 0;;
+	uint32_t cValue = 0;
 	char value[100];
 	char desc_err[1024];
 	ret = FERS_GetParam(handle, param_name, value);
 	if (ret != 0) {
 		FERS_GetLastError(desc_err);
-		Con_printf("LCSe", "%s\n");
-	} else if (sscanf(value, "%" SCNd32, &cValue) != 1)
+		Con_printf("LCSe", "%s\n", desc_err);
+	} else if (sscanf(value, "%" SCNu32, &cValue) != 1)
 		Con_printf("LCSe", "ERROR: failed to get parameter %s\n", param_name);
 	return cValue;
 }
 
-uint32_t FERS_GetParam_hex(int handle, char* param_name) {
+uint32_t FERS_GetParam_hex(int handle, const char* param_name) {
 	uint32_t ret = 0;
 	uint32_t cValue = 0;;
 	char value[100];
@@ -69,27 +69,27 @@ uint32_t FERS_GetParam_hex(int handle, char* param_name) {
 	ret = FERS_GetParam(handle, param_name, value);
 	if (ret != 0) {
 		FERS_GetLastError(desc_err);
-		Con_printf("LCSe", "%s\n");
+		Con_printf("LCSe", "%s\n", desc_err);
 	} else if (sscanf(value, "%" SCNx32, &cValue) != 1)
 		Con_printf("LCSe", "ERROR: failed to get parameter %s\n", param_name);
 	return cValue;
 }
 
-uint64_t FERS_GetParam_uint64(int handle, char* param_name) {
+uint64_t FERS_GetParam_uint64(int handle, const char* param_name) {
 	uint32_t ret = 0;
 	uint64_t cValue = 0;;
-	char value[100];
+	char value[256];
 	char desc_err[1024];
 	ret = FERS_GetParam(handle, param_name, value);
 	if (ret != 0) {
 		FERS_GetLastError(desc_err);
-		Con_printf("LCSe", "%s\n");
-	} else if (sscanf(value, "%" SCNd64, &cValue) != 1)
+		Con_printf("LCSe", "%s\n", desc_err);
+	} else if (sscanf(value, "%" SCNu64, &cValue) != 1)
 		Con_printf("LCSe", "ERROR: failed to get parameter %s\n", param_name);
 	return cValue;
 }
 
-uint64_t FERS_GetParam_hex64(int handle, char* param_name) {
+uint64_t FERS_GetParam_hex64(int handle, const char* param_name) {
 	uint64_t ret = 0;
 	uint64_t cValue = 0;
 	char value[100];
@@ -97,13 +97,13 @@ uint64_t FERS_GetParam_hex64(int handle, char* param_name) {
 	ret = FERS_GetParam(handle, param_name, value);
 	if (ret != 0) {
 		FERS_GetLastError(desc_err);
-		Con_printf("LCSe", "%s\n");
+		Con_printf("LCSe", "%s\n", desc_err);
 	} else if (sscanf(value, "%" SCNx64, &cValue) != 1)
 		Con_printf("LCSe", "ERROR: failed to get parameter %s\n", param_name);
 	return cValue;
 }
 
-float FERS_GetParam_float(int handle, char* param_name) {
+float FERS_GetParam_float(int handle, const char* param_name) {
 	float ret = 0;
 	float cValue = 0;
 	char value[100];
@@ -111,7 +111,7 @@ float FERS_GetParam_float(int handle, char* param_name) {
 	ret = FERS_GetParam(handle, param_name, value);
 	if (ret != 0) {
 		FERS_GetLastError(desc_err);
-		Con_printf("LCSe", "%s\n");
+		Con_printf("LCSe", "%s\n", desc_err);
 	} else if (sscanf(value, "%f", &cValue) != 1)
 		Con_printf("LCSe", "ERROR: failed to get parameter %s\n", param_name);
 	return cValue;
@@ -250,12 +250,15 @@ void HVControlPanel(int b_handle)
 				scanf("%d", &brd);
 				if ((brd >= 0) && (brd < FERS_GetNumBrdConnected())) {
 					h_handle = handle[brd];
+				} else {
+					while (((brd = getchar()) != '\n') && (brd != EOF));
 				}
 			}
 			if (c == 'v') {
 				float newvset;
 				printf("Set HV (V) = ");
 				scanf("%f", &newvset);
+				if (newvset < 0) while (((newvset = getchar()) != '\n') && (newvset != EOF));
 				ret |= FERS_HV_Set_Vbias(h_handle, newvset);
 				ret |= FERS_HV_Get_Vbias(h_handle, &vbias);
 			}
@@ -263,16 +266,19 @@ void HVControlPanel(int b_handle)
 				float newimax;
 				printf("Set Imax (mA) = ");
 				scanf("%f", &newimax);
+				if (newimax < 0) while (((newimax = getchar()) != '\n') && (newimax != EOF));
 				ret |= FERS_HV_Set_Imax(h_handle, newimax);
 				ret |= FERS_HV_Get_Imax(h_handle, &imax);
 			}
 			if (c == 'a') {
 				printf("Reg Addr = ");
-				scanf("%d", (int*)&RegAddr);
+				int sret = scanf("%d", (int*)&RegAddr);
+				if (sret != 1 || RegAddr < 0) while (((RegAddr = getchar()) != '\n') && (RegAddr != EOF));
 			}
 			if (c == 't') {
 				printf("Data Type = ");
-				scanf("%d", (int*)&DataType);
+				int sret = scanf("%d", (int*)&DataType);
+				if (sret != 1 || (DataType < 0)) while (((DataType = getchar()) != '\n') && (DataType != EOF));
 			}
 			if (c == 'r') {
 				ret |= FERS_HV_ReadReg(h_handle, RegAddr, DataType, &Rdata);
@@ -769,7 +775,7 @@ int ScanThreshold(int handle)
 	int i, s, brd;
 	uint32_t thr;
 	uint32_t hitcnt[FERSLIB_MAX_NCH_5202], Tor_cnt, Qor_cnt;
-	uint64_t Tlogic_mask = FERS_GetParam_hex64(handle, "Tlogic_Mask");
+	uint64_t Tlogic_mask = FERS_GetParam_uint64(handle, "Tlogic_Mask");
 	FILE *st;
 
 	brd = FERS_INDEX(handle);
@@ -877,9 +883,9 @@ int ScanHoldDelay(int handle)
 	FERS_StopAcquisition(&hh, 1, STARTRUN_ASYNC, -100);
 	FERS_WriteRegisterSlice(handle, a_acq_ctrl, 0, 3, ACQMODE_SPECT);
 	FERS_WriteRegisterSlice(handle, a_acq_ctrl, 12, 13, 3); // 0=auto, 1=high gain, 2=low gain, 3=both
-	FERS_WriteRegister(handle, a_trg_mask, FERS_GetParam_hex(handle, "TriggerMask"));
+	FERS_WriteRegister(handle, a_trg_mask, FERS_GetParam_uint32(handle, "TriggerMask"));
 	FERS_WriteRegister(handle, a_run_mask, 0x01); 
-	FERS_SetCommonPedestal(handle, FERS_GetParam_hex(handle, "Pedestal"));
+	FERS_SetCommonPedestal(handle, FERS_GetParam_uint32(handle, "Pedestal"));
 
 	for(si = 0; si < nstep; si++) {
 		delay = start + step * si;

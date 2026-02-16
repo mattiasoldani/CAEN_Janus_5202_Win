@@ -84,7 +84,9 @@ class TabsPanel():
 				line = line.split('=')
 				if len(line) == 2:
 					self.param_rename[line[0].strip()] = line[1].strip()
-			cf.close		
+			cf.close
+		else:
+			messagebox.showwarning("WARNING", "Parameter rename file '" + sh.ParRename + "' not found")		
 
 		self.status_now = sh.ACQSTATUS_DISCONNECTED
 		self.CfgChanged = IntVar()
@@ -1127,13 +1129,13 @@ class TabsPanel():
 			if cmsg[2:] == str(self.ActiveBrd.get()): self.update_stats = True
 			else: self.update_stats = False
 		if cmsg[1] == 'c':  # Channel value
-			if (list(self.Mtabs_shown)[self.Mtabs_nb.index('current')] == 'Statistics'):
-				for ch in range(64):
-					ss = cmsg[8*ch+2:8*ch+10]
-					if not self.update_stats: ss = '0.000'
-					if ss.strip() == '0' or ss.strip() == '0.000': col = 'white'
-					else: col = 'light yellow'
-					self.ChCounts[ch].configure(text=ss, bg=col)
+			#if (list(self.Mtabs_shown)[self.Mtabs_nb.index('current')] == 'Statistics'):
+			for ch in range(64):
+				ss = cmsg[8*ch+2:8*ch+10]
+				if not self.update_stats: ss = '0.000'
+				if ss.strip() == '0' or ss.strip() == '0.000': col = 'white'
+				else: col = 'light yellow'
+				self.ChCounts[ch].configure(text=ss, bg=col)
 		# elif cmsg[1] == 'g': # globa value
 		# 	if (list(self.Mtabs)[self.Mtabs_nb.index('current')] == 'Statistics'):
 		# 		i = int(cmsg[2])
@@ -1151,29 +1153,29 @@ class TabsPanel():
 				if not self.change_statistics.get(): self.GStatsLabel[i].place(relx=5./sh.Win_Tabs_W, rely=y0/sh.Win_Tabs_H)  #  x = 5, y = y0)
 				if not self.change_statistics.get(): self.GStats[i].place(relx=110./sh.Win_Tabs_W, rely=y0/sh.Win_Tabs_H)  #  x = 110, y = y0)
 		elif cmsg[1] == 'g':
-			if (list(self.Mtabs_shown)[self.Mtabs_nb.index('current')] == 'Statistics'):
-				msg_spl = cmsg[2:].split("\t")
-				self.StatsTypeLabel.configure(text = msg_spl[0], bg = "white")
-				if not self.update_stats:
-					for i in range(len(msg_spl)-1):
-						self.GStats[i].configure(text = "")
-				else:
-					for i in range(len(msg_spl)-1):
-						self.GStats[i].configure(text = msg_spl[i+1])
+			#if (list(self.Mtabs_shown)[self.Mtabs_nb.index('current')] == 'Statistics'):
+			msg_spl = cmsg[2:].split("\t")
+			self.StatsTypeLabel.configure(text = msg_spl[0], bg = "white")
+			if not self.update_stats:
+				for i in range(len(msg_spl)-1):
+					self.GStats[i].configure(text = "")
+			else:
+				for i in range(len(msg_spl)-1):
+					self.GStats[i].configure(text = msg_spl[i+1])
 		elif cmsg[1] == 't': # channel Statistics title
 			self.StatsTypeLabel.configure(text = cmsg[2:], bg = "light yellow")
 		elif cmsg[1] == 'B':
-			if (list(self.Mtabs_shown)[self.Mtabs_nb.index('current')] == 'Statistics'):
-				msg_spl = cmsg[2:].split()
-				msglen = len(self.AllBrdLabel)	# to shorten the variable name
-				if len(msg_spl)%6 == 0: mlen = 6
-				else: mlen = 7
-				col = 'light yellow'
-				if float(msg_spl[3]) < 1: col = 'white' 
-				for b in range(int(len(msg_spl)/mlen)):
-					if mlen == 6: msg_spl.insert(5+msglen*b, "-")
-					for l in range(msglen): # Adding the "-". In case of no tdl the actual msg length read is = len(AllBrdLabel)
-						self.AllBrdCounts[msg_spl[msglen*b]][l].config(text = msg_spl[msglen*b+l], bg = col)
+			#if (list(self.Mtabs_shown)[self.Mtabs_nb.index('current')] == 'Statistics'):
+			msg_spl = cmsg[2:].split()
+			msglen = len(self.AllBrdLabel)	# to shorten the variable name
+			if len(msg_spl)%6 == 0: mlen = 6
+			else: mlen = 7
+			col = 'light yellow'
+			if float(msg_spl[3]) < 1: col = 'white' 
+			for b in range(int(len(msg_spl)/mlen)):
+				if mlen == 6: msg_spl.insert(5+msglen*b, "-")
+				for l in range(msglen): # Adding the "-". In case of no tdl the actual msg length read is = len(AllBrdLabel)
+					self.AllBrdCounts[msg_spl[msglen*b]][l].config(text = msg_spl[msglen*b+l], bg = col)
 
 
 	def ChgStatIntegr(self):

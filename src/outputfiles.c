@@ -254,7 +254,7 @@ int WriteListfileHeader() {
 		//fprintf(of_list_a, "// Janus _%" PRIu16 " Release % s\n", brdVer, SW_RELEASE_NUM);   // For next File Format
 		fprintf(of_list_a, "// Janus Release %s\n", SW_RELEASE_NUM);
 		fprintf(of_list_a, "// Acquisition Mode: %s\n", dtq_mode_ch[t_file]);
-		if (type_file & DTQ_SPECT) fprintf(of_list_a, "// Energy Histogram Channels: %d\n", J_cfg.EHistoNbin);
+		if (type_file & DTQ_SPECT) fprintf(of_list_a, "// Energy Histogram NBins: %d\n", J_cfg.EHistoNbin);
 		if (type_file & DTQ_TIMING) fprintf(of_list_a, "// ToA/ToT LSB: %.1f ns\n", TOA_LSB_ns);
 		char mytime[100];
 		//strcpy(mytime, ctime(&Stats.time_of_start));
@@ -267,20 +267,20 @@ int WriteListfileHeader() {
 		int dtqh = J_cfg.AcquisitionMode & 0x0F;
 		int en2ts = (Enable_2nd_tstamp & 1);
 		if (dtqh == DTQ_SPECT) {
-			if (en2ts) fprintf(of_list_a, "Brd  Ch       LG       HG        Tstamp_us       Tstamp2_us        TrgID		NHits\n");
-			else fprintf(of_list_a, "Brd  Ch       LG       HG        Tstamp_us        TrgID	NHits\n");
+			if (en2ts) fprintf(of_list_a, "Brd  Ch       LG       HG        TStamp_us       TStamp2_us        TrgID    NChs\n");
+			else fprintf(of_list_a, "Brd  Ch       LG       HG        TStamp_us        TrgID    NChs\n");
 		} else if (dtqh == DTQ_TSPECT) {
 			if (EnableToT) fprintf(of_list_a, "Brd  Ch       LG       HG  ToA_%-3s  ToT_%-3s", unit, unit);
 			else fprintf(of_list_a, "Brd  Ch       LG       HG  ToA_%-3s", unit);
-			if (en2ts) fprintf(of_list_a, "        Tstamp_us       Tstamp2_us        TrgID		NHits\n");
-			else fprintf(of_list_a, "        Tstamp_us        TrgID		NHits\n");
+			if (en2ts) fprintf(of_list_a, "        TStamp_us       TStamp2_us    Tref_TStamp_us         TrgID    NChs\n");
+			else fprintf(of_list_a, "        TStamp_us    Tref_TStamp_us         TrgID    NChs\n");
 		} else if (dtqh == DTQ_TIMING) {
 			if (EnableToT) fprintf(of_list_a, "Brd  Ch  ToA_%-3s  ToT_%-3s", unit, unit);
 			else fprintf(of_list_a, "Brd  Ch  ToA_%-3s", unit);
-			fprintf(of_list_a, "        Tstamp_us		NHits\n");
+			fprintf(of_list_a, "        TStamp_us		NHits\n");
 		} else if (dtqh == DTQ_COUNT) {
-			if (en2ts) fprintf(of_list_a, "Brd  Ch          Cnt       Tstamp_us       Tstamp2_us        TrgID		NHits\n");
-			else fprintf(of_list_a, "Brd  Ch          Cnt       Tstamp_us        TrgID		NChs\n");
+			if (en2ts) fprintf(of_list_a, "Brd  Ch          Cnt       TStamp_us       TStamp2_us        TrgID    NChs\n");
+			else fprintf(of_list_a, "Brd  Ch          Cnt       TStamp_us        TrgID		NChs\n");
 		}
 
 		ascii_size = ftell(of_list_a);
@@ -304,8 +304,11 @@ int WriteListfileHeader() {
 		// Write parname header
 		fprintf(of_list_c, "TStamp_us,");
 		if ((type_file & 0x80) && ((type_file & 0xF) != ACQMODE_TIMING_CSTART)) fprintf(of_list_c, "Rel_TStamp_us,");
-		if ((type_file&0xF) != ACQMODE_TIMING_CSTART) fprintf(of_list_c, "Trg_Id,");
-		fprintf(of_list_c, "Board_Id,Num_Hits,");
+		if (type_file == ACQMODE_TSPECT) fprintf(of_list_c, "Tref_TStamp_us,");
+		if ((type_file & 0xF) != ACQMODE_TIMING_CSTART) fprintf(of_list_c, "Trg_Id,");
+		if ((type_file & 0xF) == ACQMODE_TIMING_CSTART) fprintf(of_list_c, "Board_Id,Num_Hits,");
+		else fprintf(of_list_c, "Board_Id,Num_Chs,");
+
 		if ((type_file & ACQMODE_SPECT)) {
 			fprintf(of_list_c, "ChannelMask,CH_Id,DataType,PHA_LG,PHA_HG");
 			if (type_file & ACQMODE_TIMING_CSTART) {
@@ -346,7 +349,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 	int EnableToT = FERS_GetParam_int(handle[brd], "EnableToT");
 	//int SupprZeroCntListFile = FERS_GetParam_int(handle[brd], "EnableCntZeroSuppr");
 	float TrefWindow = FERS_GetParam_float(handle[brd], "TrefWindow");
-	uint64_t ChEnableMask = FERS_GetParam_hex64(handle[brd], "ChEnableMask");
+	uint64_t ChEnableMask = FERS_GetParam_uint64(handle[brd], "ChEnableMask");
 
 	if (bin_size > J_cfg.MaxOutFileSize && J_cfg.EnableMaxFileSize)
 		IncreaseListSubRun(0);
@@ -360,7 +363,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 	// ----------------------------------------------------------------------------------
 	if (dtq & DTQ_SPECT) {
 		SpectEvent_t *ev = (SpectEvent_t *)generic_ev;
-		int num_of_hits=0, masked[FERSLIB_MAX_NCH_5202] = { 0 };
+		uint16_t num_of_hits=0, masked[FERSLIB_MAX_NCH_5202] = { 0 };
 		int isTSpect = (dtq & 0x2) >> 1;
 
 		// Re-Binning
@@ -373,7 +376,13 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 		//char z[2], x[2], q[2];
 		uint8_t b8 = brd;
 
-		for (int i = 0; i < MAX_NCH; ++i) {
+		double DeltaTref_f = 0;
+		if (ev->Tref_tstamp > 0 && isTSpect) {
+			int64_t DeltaTref = ((ev->tstamp_clk << 4) & 0xFFFFFFFF80000000) | ev->Tref_tstamp;
+			DeltaTref_f = (double)DeltaTref * TOA_LSB_ns / 1000;
+		}
+
+		for (uint8_t i = 0; i < MAX_NCH; ++i) {
 			masked[i] = 0;
 			tmp_enL[i] = rebin_energy(ev->energyLG[i]);
 			tmp_enH[i] = rebin_energy(ev->energyHG[i]);
@@ -384,8 +393,9 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 		}
 
 		if (of_list_b != NULL && (J_cfg.OutFileEnableMask && OUTFILE_LIST_BIN)) {
-			uint16_t size = sizeof(size) + sizeof(b8) + sizeof(ts) + sizeof(trgid) + sizeof(ev->chmask);
+			uint16_t size = sizeof(size) + sizeof(b8) + sizeof(ts) + sizeof(trgid) + sizeof(ev->chmask) + sizeof(num_of_hits);
 			if (dtq & 0x80) size += sizeof(ev->rel_tstamp_us);
+			if (isTSpect) size += sizeof(DeltaTref_f);
 			for (uint8_t i = 0; i < MAX_NCH; i++) {	// DNIN: Is it somehow usefull keeping the condition temp_enL/H >= 0??
 				datatype = 0;
 				if ((ev->chmask >> i) & 1) size += (sizeof(i) + sizeof(datatype));
@@ -417,8 +427,10 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 			fwrite(&b8, sizeof(b8), 1, of_list_b);
 			fwrite(&ts, sizeof(ts), 1, of_list_b);
 			if (dtq & 0x80)	fwrite(&ev->rel_tstamp_us, sizeof(ev->rel_tstamp_us), 1, of_list_b);
+			if (isTSpect) fwrite(&DeltaTref_f, sizeof(DeltaTref_f), 1, of_list_b);
 			fwrite(&trgid, sizeof(trgid), 1, of_list_b);
 			fwrite(&ev->chmask, sizeof(ev->chmask), 1, of_list_b);
+			fwrite(&num_of_hits, sizeof(num_of_hits), 1, of_list_b);
 			for(uint8_t i=0; i<MAX_NCH; i++) {
 				if ((ev->chmask >> i) & 1) {
 					uint8_t tmp_type = data_t[i];
@@ -474,8 +486,13 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 						}
 					}
 					if (evg) {
-						if (dtq & 0x80) sprintf(cat_line, "%16.3lf %16.3f %12" PRIu64 "\t\t % d", ts, ev->rel_tstamp_us, trgid, num_of_hits); //fprintf(of_list_a, " % 16.3lf % 16.3f % 12" PRIu64 "\t\t % d", ts, ev->rel_tstamp_us, trgid, num_of_hits);
-						else sprintf(cat_line, "%16.3lf %12" PRIu64 "\t\t%d", ts, trgid, num_of_hits); //fprintf(of_list_a, "%16.3lf %12" PRIu64 "\t\t%d", ts, trgid, num_of_hits);
+						if (isTSpect) {
+							if (dtq & 0x80) sprintf(cat_line, "%16.3lf %16.3f  %16.4f %12" PRIu64 "       %d", ts, ev->rel_tstamp_us, DeltaTref_f, trgid, num_of_hits); //fprintf(of_list_a, "%16.3lf %16.3f %12" PRIu64 "\t\t%d", ts, ev->rel_tstamp_us, trgid, num_of_hits);
+							else sprintf(cat_line, "%16.3lf  %16.4f  %12" PRIu64 "       %d", ts, DeltaTref_f, trgid, num_of_hits); //fprintf(of_list_a, " % 16.3lf % 12" PRIu64 "\t\t % d", ts, trgid, num_of_hits);						strcat(line, cat_line);
+						} else {
+							if (dtq & 0x80) sprintf(cat_line, "%16.3lf %16.3f %12" PRIu64 "       %d", ts, ev->rel_tstamp_us, trgid, num_of_hits); //fprintf(of_list_a, "%16.3lf %16.3f %12" PRIu64 "\t\t%d", ts, ev->rel_tstamp_us, trgid, num_of_hits);
+							else sprintf(cat_line, "%16.3lf %12" PRIu64 "       %d", ts, trgid, num_of_hits); //fprintf(of_list_a, " % 16.3lf % 12" PRIu64 "\t\t % d", ts, trgid, num_of_hits);						strcat(line, cat_line)
+						}
 						strcat(line, cat_line);
 					}
 
@@ -508,14 +525,19 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 					if (ev->tstamp[i] > 0) datatype = datatype | 0x10;
 					if (EnableToT && (ev->ToT[i] > 0)) datatype = datatype | 0x20;
 				}
-				sprintf(cat_line, "%lf,", ts);
+				sprintf(cat_line, "%.3f,", ts);
 				strcat(line, cat_line);
 				//fprintf(of_list_c, "%lf,", ts);
 				if (dtq & 0x80) {
-					sprintf(cat_line, "%lf,", ev->rel_tstamp_us); //fprintf(of_list_c, "%lf,", ev->rel_tstamp_us);
+					sprintf(cat_line, "%.3f,", ev->rel_tstamp_us); //fprintf(of_list_c, "%lf,", ev->rel_tstamp_us);
 					strcat(line, cat_line);
 				}
-				sprintf(cat_line, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8, trgid, brd, num_of_hits, ev->chmask, i, datatype);
+				if (isTSpect) {
+					if (DeltaTref_f > 0) sprintf(cat_line, "%.4f,", DeltaTref_f);
+					else sprintf(cat_line, "-1,");
+					strcat(line, cat_line);
+				}
+				sprintf(cat_line, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8, trgid, brd, num_of_hits, ev->chmask, i, datatype);				
 				strcat(line, cat_line);
 				//fprintf(of_list_c, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,0x%" PRIx8 ",", trgid, brd, num_of_hits, ev->chmask, j, datatype);
 				if (datatype & 0x1) sprintf(cat_line, ",%" PRIu16 "", tmp_enL[i]); //fprintf(of_list_c, "%" PRIu16, tmp_enL[j]);
@@ -526,14 +548,14 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				strcat(line, cat_line);
 				if (isTSpect) {
 					if (datatype & 0x10) {
-						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->tstamp[i]);   //fprintf(of_list_c, ",%f", 0.5*ev->tstamp[j]);
+						if (J_cfg.OutFileUnit) sprintf(cat_line, ",%.1f", 0.5 * ev->tstamp[i]);   //fprintf(of_list_c, ",%f", 0.5*ev->tstamp[j]);
 						else sprintf(cat_line, ",%" PRIu32, ev->tstamp[i]);   //fprintf(of_list_c, ",%" PRIu32, ev->tstamp[j]);
 					} else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
 					strcat(line, cat_line);
 
 					if (EnableToT) {
 						if (datatype & 0x20) {
-							if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->ToT[i]);   //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[j]);
+							if (J_cfg.OutFileUnit) sprintf(cat_line, ",%.1f", 0.5 * ev->ToT[i]);   //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[j]);
 							else sprintf(cat_line, ",%" PRIu16, ev->ToT[i]);   //fprintf(of_list_c, ",%" PRIu16, ev->ToT[j]);
 						} else sprintf(cat_line, ",-1");   //fprintf(of_list_c, ",-1");
 						strcat(line, cat_line);
@@ -564,7 +586,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 		uint64_t cntW[FERSLIB_MAX_NCH] = { 0 };
 		
 		datatype = 0x0;
-		int num_of_hits = 0;
+		uint16_t num_of_hits = 0;
 		//int masked[MAX_NCH] = { 0 };
 
 		// When Zero suppression is enabled, the mask is build only with the chs firing
@@ -580,7 +602,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 		}
 
 		if ((of_list_b != NULL) && (num_of_hits > 0)) {
-			uint16_t size = sizeof(size) + sizeof(b8) + sizeof(ts) + sizeof(trgid) + sizeof(ev->chmask);
+			uint16_t size = sizeof(size) + sizeof(b8) + sizeof(ts) + sizeof(trgid) + sizeof(ev->chmask) + sizeof(num_of_hits);
 			if (dtq & 0x80) size += sizeof(ev->rel_tstamp_us);
 			size += num_of_hits * (sizeof(uint8_t) + sizeof(uint64_t));
 			bin_size += size;
@@ -591,6 +613,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 			fwrite(&trgid, sizeof(trgid), 1, of_list_b);
 			//fwrite(&ChEnableMask, sizeof(ev->chmask), 1, of_list_b);
 			fwrite(&ev_chmask, sizeof(ev_chmask), 1, of_list_b);
+			fwrite(&num_of_hits, sizeof(num_of_hits), 1, of_list_b);
 			for (i = 0; i < num_of_hits; ++i) {
 				fwrite(&chId[i], sizeof(uint8_t), 1, of_list_b);
 				fwrite(&cntW[i], sizeof(uint64_t), 1, of_list_b);
@@ -636,14 +659,14 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 			for (i = 0; i < num_of_hits; ++i) {
 				char line[512] = "";
 				char cat_line[256] = "";
-				sprintf(line, "%lf,", ts);
+				sprintf(line, "%.3f,", ts);
 //				fprintf(of_list_c, "%lf,", ts);
 				if (dtq & 0x80) {
-					sprintf(cat_line, "%lf,", ev->rel_tstamp_us); //fprintf(of_list_c, "%lf,", ev->rel_tstamp_us);
+					sprintf(cat_line, "%.3f,", ev->rel_tstamp_us); //fprintf(of_list_c, "%lf,", ev->rel_tstamp_us);
 					strcat(line, cat_line);
 				}
 				//fprintf(of_list_c, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%d,%" PRIu32"\n", trgid, brd, num_of_hits, ChEnableMask, i, ev->counts[i]);
-				sprintf(cat_line, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%" PRIu8 ", %" PRIu64"\n", trgid, brd, num_of_hits, ev_chmask, chId[i], cntW[i]);
+				sprintf(cat_line, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%" PRIu8 ",%" PRIu64"\n", trgid, brd, num_of_hits, ev_chmask, chId[i], cntW[i]);
 				strcat(line, cat_line);
 				//fprintf(of_list_c, "%" PRIu64 ",%d,%d,0x%" PRIx64 ",%" PRIu8 ", % " PRIu64"\n", trgid, brd, num_of_hits, ev_chmask, chId[i], cntW[i]);
 				strcat(allChVal, line);
@@ -732,7 +755,7 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 						else sprintf(cat_line, "%8d ", ev->tstamp[i]);  //fprintf(of_list_a, "%8d ", ev->tstamp[i]);
 					} else if (J_cfg.AcquisitionMode == ACQMODE_TIMING_CSTOP) {
 						if (J_cfg.OutFileUnit) sprintf(cat_line, "%8.1f ", (TrefWindow - 0.5 * ev->tstamp[i]));  //fprintf(of_list_a, "%8.1f ", (TrefWindow - 0.5 * ev->tstamp[i]));
-						else sprintf(cat_line, "%8d ", (uint32_t)(TrefWindow / (float)CLK_PERIOD_5202) - ev->tstamp[i]);   //fprintf(of_list_a, "%8d ", (uint32_t)(TrefWindow / (float)CLK_PERIOD_5202) - ev->tstamp[i]);
+						else sprintf(cat_line, "%8d ", (uint32_t)(TrefWindow / 0.5) - ev->tstamp[i]);   //fprintf(of_list_a, "%8d ", (uint32_t)(TrefWindow / (float)CLK_PERIOD_5202) - ev->tstamp[i]);
 					}
 				} else sprintf(cat_line, "       - ");  //fprintf(of_list_a, "       - ");
 				strcat(line, cat_line);
@@ -772,17 +795,17 @@ int SaveList(int brd, double ts, uint64_t trgid, void *generic_ev, int dtq)
 				//fprintf(of_list_c, "%.4lf,%d,%" PRIu16 ",%" PRIu32 ",0x%" PRIx8 ",", fine_tstamp, brd, ev->nhits, ev->channel[chit], datatype);
 				if (datatype & 0x10) {
 					if (J_cfg.AcquisitionMode == ACQMODE_TIMING_CSTART) {
-						if (J_cfg.OutFileUnit) sprintf(cat_line, "%f", 0.5 * ev->tstamp[chit]);  //fprintf(of_list_c, "%f", 0.5 * ev->tstamp[chit]);
+						if (J_cfg.OutFileUnit) sprintf(cat_line, "%.1f", 0.5 * ev->tstamp[chit]);  //fprintf(of_list_c, "%f", 0.5 * ev->tstamp[chit]);
 						else sprintf(cat_line, "%" PRIu32, ev->tstamp[chit]);  //fprintf(of_list_c, "%" PRIu32, ev->tstamp[chit]);
 					} else if (J_cfg.AcquisitionMode == ACQMODE_TIMING_CSTOP) {
-						if (J_cfg.OutFileUnit) sprintf(cat_line, "%f", (TrefWindow - 0.5 * ev->tstamp[chit]));  //fprintf(of_list_c, "%f", (TrefWindow - 0.5 * ev->tstamp[chit]));
+						if (J_cfg.OutFileUnit) sprintf(cat_line, "%.1f", (TrefWindow - 0.5 * ev->tstamp[chit]));  //fprintf(of_list_c, "%f", (TrefWindow - 0.5 * ev->tstamp[chit]));
 						else sprintf(cat_line, "%" PRIu32, (uint32_t)(TrefWindow / (float)CLK_PERIOD_5202) - ev->tstamp[chit]);  //fprintf(of_list_c, "%" PRIu32, (uint32_t)(TrefWindow / (float)CLK_PERIOD_5202) - ev->tstamp[chit]);
 					}
 				} else sprintf(cat_line, ",-1");  //fprintf(of_list_c, "-1");
 				strcat(line, cat_line);
 
 				if (datatype & 0x20) {
-					if (J_cfg.OutFileUnit) sprintf(cat_line, ",%f", 0.5 * ev->ToT[chit]);  //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[chit]);
+					if (J_cfg.OutFileUnit) sprintf(cat_line, ",%.1f", 0.5 * ev->ToT[chit]);  //fprintf(of_list_c, ",%f", 0.5 * ev->ToT[chit]);
 					else sprintf(cat_line, ",%" PRIu16, ev->ToT[chit]);  //fprintf(of_list_c, ",%" PRIu16, ev->ToT[chit]);
 				} else sprintf(cat_line, ",-1");  //fprintf(of_list_c, ",-1");
 				strcat(line, cat_line);

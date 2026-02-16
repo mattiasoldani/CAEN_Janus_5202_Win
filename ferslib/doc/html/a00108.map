@@ -1,3 +1,4 @@
-<map id="ServEvent_t" name="ServEvent_t">
-<area shape="rect" id="Node000001" title="Service Event data structure, common to all FERS module." alt="" coords="5,5,113,301"/>
+<map id="Pedestal" name="Pedestal">
+<area shape="rect" id="Node000002" href="$a00102.html" title="FERSlib Application programmin interface." alt="" coords="5,5,47,33"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="95,5,168,33"/>
 </map>

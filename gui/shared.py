@@ -42,7 +42,7 @@ OkCol = 'green'   # Defualt 'is fine' color
 
 # Versions
 Version = "5202"
-Release = "4.2.4 - 07/10/2025"
+Release = "4.3.0 - 14/01/2026"
 
 # Ranges
 MaxCh = 64
@@ -69,12 +69,23 @@ sections = []  # list of section
 # Macros
 LLDumpMsg = os.path.join("..", "macros", "LL_dump_msg.txt")
 
-STARTRUN_MODE = {
-    0: "ASYNC",
-    1: "CHAIN_T0",
-    2: "CHAIN_T1",
-    3: "TDL"
+InverValues = {
+	"StartRunMode": {
+		0: "ASYNC",
+		1: "CHAIN_T0",
+		2: "CHAIN_T1",
+		3: "TDL"
+	},
+	"TrefSource": {
+	    int(0x1): "T0-IN",
+	    int(0x2): "T1-IN",
+	    int(0x4): "Q-OR",
+	    int(0x8): "T-OR",
+	    int(0x10): "PTRG",
+	    int(0x40): "TLOGIC"
+	}
 }
+
 
 ACQSTATUS_DISCONNECTED = 0	    # offline
 ACQSTATUS_SOCK_CONNECTED = 1	# GUI connected through socket

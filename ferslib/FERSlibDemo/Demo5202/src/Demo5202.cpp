@@ -97,6 +97,7 @@ typedef struct Demo_t {
     int acq_status;
     int Quit;
     int EHistoNbin;
+    int ToAHistoNbin;
     float FiberDelayAdjust[FERSLIB_MAX_NCNC][FERSLIB_MAX_NTDL][FERSLIB_MAX_NNODES];
 } Demo_t;
 
@@ -226,86 +227,158 @@ long demo_get_time()
     return time_ms;
 }
 
-int get_brd_path_from_file(FILE* f_ini, Demo_t* cfg) {
-    char tstr[1000], parval[1000], str1[1000];
-    int brd;  // target board defined as ParamName[b][ch]
-    int num_brd = 0;
-    //int brd2 = -1, ch2 = -1;  // target board/ch defined as Section ([BOARD b] [CHANNEL ch])
-
-    //read config file and assign parameters 
-    while (fgets(tstr, sizeof(tstr), f_ini)) {
-        if (strstr(tstr, "Open")!=NULL) {
-            sscanf(tstr, "%s %s", str1, parval);
-            char* str = strtok(str1, "[]"); // Param name with [brd][ch]
-            char* token = strtok(NULL, "[]");
-            if (token != NULL) {
-                sscanf(token, "%d", &brd);
-            }
-            sprintf(cfg->brd_path[brd], "%s", parval);
-            ++num_brd;
-        }
-    }
-    return num_brd;
+// MDOE: PARSE_CONN = 0, PARSE_CFG = 1
+// ---------------------------------------------------------------------------------
+// Description: Trim a string left and right
+// Inputs:		string to be trimmed
+// Outputs:		string trimmed
+// Return:		string trimmed
+// ---------------------------------------------------------------------------------
+char* ltrim(char* s) {
+    while (isspace(*s)) s++;
+    return s;
 }
 
-int get_delayfiber_from_file(FILE* f_ini, Demo_t* cfg) {
-    int ret = -1;
-    char tstr[1000], parval[1000], str1[1000];
-    int cnc=-1, node=-1, brd=-1;  // target board defined as ParamName[b][ch]
+char* rtrim(char* s) {
+    char* back = s + strlen(s) - 1;
+    while (isspace(*back)) --back;
+    *(back + 1) = '\0';
+    return s;
+}
+
+char* trim(char* s) {
+    return rtrim(ltrim(s));
+}
+
+
+int ParseCfgFile(FILE* f_ini, Demo_t* cfg, int mode) {
+    int brd = -1, ch = -1;  // target board defined as ParamName[b][ch]
+    int cnc = -1, node = -1;  // target board defined as ParamName[b][ch]
     int num_brd = 0;
+    int ret = 0;
+    int brd_l = 0;
+    int brd_h = 0;
+    char tstr[1000], str1[1000], *tparval, *parname, *token;
+    char* parval;
+
     //int brd2 = -1, ch2 = -1;  // target board/ch defined as Section ([BOARD b] [CHANNEL ch])
 
     //read config file and assign parameters 
     while (fgets(tstr, sizeof(tstr), f_ini)) {
-        if (strstr(tstr, "FiberDelayAdjust") != NULL) {
-            sscanf(tstr, "%s %s", str1, parval);
-            char* str = strtok(str1, "[]"); // Param name with [brd][ch]
-            char* token = strtok(NULL, "[]");
-            if (token != NULL) {
-                sscanf(token, "%d", &cnc);
-                if ((token = strtok(NULL, "[]")) != NULL) {
-                    sscanf(token, "%d", &node);
-                    if ((token = strtok(NULL, "[]")) != NULL) {
-                        sscanf(token, "%d", &brd);
-                    }
-                }
-            }
-            ret = 0;
-            int cm, cM, nm, nM, bm, bM;
-            if (brd == -1) {
-                bm = 0;
-                bM = FERSLIB_MAX_NBRD;
-            } else {
-                bm = brd;
-                bM = brd + 1;
-            }
-            if (node == -1) {
-                nm = 0;
-                nM = FERSLIB_MAX_NTDL;
-            } else {
-                nm = node;
-                nM = node + 1;
-            }
-            if (cnc == -1) {
-                cm = 0;
-                cM = FERSLIB_MAX_NNODES;
-            } else {
-                cm = cnc;
-                cM = cnc + 1;
-            }
-            for (int b = bm; b < bM; ++b) {
-                for (int n = nm; n < nM; ++n) {
-                    for (int c = cm; c < cM; ++c) {
-                        float val;
-                        sscanf(parval, "%f", &val);
-                        cfg->FiberDelayAdjust[c][n][b] = val;
-                    }
-                }
-            }
+
+        if (tstr[0] == '#' || strlen(tstr) <= 2) continue;
+        if (strstr(tstr, "#") != NULL) tparval = strtok(tstr, "#");
+        else tparval = tstr;
+
+        // Get param name (str) and values (parval)
+        sscanf(tparval, "%s", str1);
+        tparval += strlen(str1);
+        parval = trim(tparval);
+
+        // Search for boards and channels
+        parname = strtok(trim(str1), "[]"); // Param name with [brd][ch]
+        token = strtok(NULL, "[]");
+        if (token != NULL) {
+            sscanf(token, "%d", &brd);
+            if ((token = strtok(NULL, "[]")) != NULL)
+                sscanf(token, "%d", &ch);
         }
+        if (brd != -1) {
+            brd_l = brd;
+            brd_h = brd + 1;
+        } else {
+            brd_l = 0;
+            brd_h = (cfg->num_brd > 0) ? cfg->num_brd : 16;
+        }
+
+         if (mode == PARSE_CONN) {
+            if (strstr(tstr, "Open") != NULL) {
+                if (brd < 0 || brd >= FERSLIB_MAX_NBRD) {
+                    printf("ERROR: Board index %d out of range\n", brd);
+                    return -1;
+                }
+                sprintf(cfg->brd_path[brd], "%s", parval);
+                ++cfg->num_brd;
+            }
+            if (strstr(tstr, "FiberDelayAdjust") != NULL) {
+                sscanf(tstr, "%s %s", str1, parval);
+                char* str = strtok(str1, "[]"); // Param name with [brd][ch]
+                char* token = strtok(NULL, "[]");
+                if (token != NULL) {
+                    sscanf(token, "%d", &cnc);
+                    if ((token = strtok(NULL, "[]")) != NULL) {
+                        sscanf(token, "%d", &node);
+                        if ((token = strtok(NULL, "[]")) != NULL) {
+                            sscanf(token, "%d", &brd);
+                        }
+                    }
+                }
+                ret = 0;
+                int cm, cM, nm, nM, bm, bM;
+                if (brd == -1) {
+                    bm = 0;
+                    bM = FERSLIB_MAX_NBRD;
+                } else {
+                    bm = brd;
+                    bM = brd + 1;
+                }
+                if (node == -1) {
+                    nm = 0;
+                    nM = FERSLIB_MAX_NTDL;
+                } else {
+                    nm = node;
+                    nM = node + 1;
+                }
+                if (cnc == -1) {
+                    cm = 0;
+                    cM = FERSLIB_MAX_NNODES;
+                } else {
+                    cm = cnc;
+                    cM = cnc + 1;
+                }
+                for (int b = bm; b < bM; ++b) {
+                    for (int n = nm; n < nM; ++n) {
+                        for (int c = cm; c < cM; ++c) {
+                            float val;
+                            sscanf(parval, "%f", &val);
+                            cfg->FiberDelayAdjust[c][n][b] = val;
+                        }
+                    }
+                }
+            }
+            continue;
+        } else if (mode == PARSE_CFG) {
+            if (strstr(tstr, "Open") != NULL) continue;
+			if (strstr(tstr, "EHistoNbin") != NULL) {
+				sscanf(parval, "%d", &cfg->EHistoNbin);
+                if (cfg->EHistoNbin == 1) cfg->EHistoNbin = 1024;
+                if (cfg->EHistoNbin == 2) cfg->EHistoNbin = 2048;
+                if (cfg->EHistoNbin == 4) cfg->EHistoNbin = 4096;
+                if (cfg->EHistoNbin == 8) cfg->EHistoNbin = 8192;
+			}
+            if (strstr(tstr, "ToAHistoNbin") != NULL) {
+				sscanf(parval, "%d", &cfg->ToAHistoNbin);
+                if (cfg->ToAHistoNbin == 1) cfg->ToAHistoNbin = 1024;
+                if (cfg->ToAHistoNbin == 2) cfg->ToAHistoNbin = 2048;
+                if (cfg->ToAHistoNbin == 4) cfg->ToAHistoNbin = 4096;
+                if (cfg->ToAHistoNbin == 8) cfg->ToAHistoNbin = 8192;
+
+            } else {
+                char tmp_name[100] = "";
+                if (ch >= 0) {
+                    sprintf(tmp_name, "%.98s[%d]", parname, ch);
+                    sprintf(parname, "%s", tmp_name);
+                }
+                for (int b = brd_l; b < brd_h; b++) {
+                    //printf("%s %s\n", parname, parval);
+                    ret = FERS_SetParam(handle[b], parname, parval);
+                }
+            }
+		}
     }
     return ret;
 }
+
 
 int CreateStatistics(int nb, int nch, int Nbin) {
     for (int brd = 0; brd < nb; brd++) {
@@ -764,9 +837,7 @@ int main(int argc, char* argv[])
         return FERSLIB_ERR_GENERIC;
 
     // OPEN CFG FILE
-    this_cfg.num_brd = get_brd_path_from_file(fcfg, &this_cfg);
-    fseek(fcfg, 0, SEEK_SET);
-    get_delayfiber_from_file(fcfg, &this_cfg);
+	ret = ParseCfgFile(fcfg, &this_cfg, PARSE_CONN);
     fclose(fcfg);
     // OPEN BOARDS
     memset(handle, -1, sizeof(*handle) * FERSLIB_MAX_NBRD);
@@ -774,7 +845,7 @@ int main(int argc, char* argv[])
 
     for (int b = 0; b < this_cfg.num_brd; b++) {
         char* cc, cpath[100];
-        if (((cc = strstr(this_cfg.brd_path[b], "tdl")) != NULL)) {  // TDlink used => Open connection to concentrator (this is not mandatory, it is done for reading information about the concentrator)
+        if (((cc = strstr(this_cfg.brd_path[b], "tdl")) != NULL)) {  
             UsingCnc = 1;
             FERS_Get_CncPath(this_cfg.brd_path[b], cpath);
             if (!FERS_IsOpen(cpath)) {
@@ -838,7 +909,7 @@ int main(int argc, char* argv[])
         ret = FERS_GetBoardInfo(handle[b], &BoardInfo[b]);
         if (ret == 0) {
             if (BoardInfo[b].FERSCode != 5202) {
-                printf("ERROR: This demo supports only FERS_5202 module, cannot support board FERS_%" PRIu16 " at BrdIdx %d\nExit...\n", BoardInfo[b].FERSCode);
+                printf("ERROR: This demo supports only FERS_5202 module, cannot support board FERS_%" PRIu16 " at BrdIdx %d\nExit...\n", BoardInfo[b].FERSCode, b);
                 return FERSLIB_ERR_GENERIC;
             }
             char fver[100];
@@ -858,9 +929,13 @@ int main(int argc, char* argv[])
 
 LoadConfigFERS:
     printf("Reading configuration from file %s\n", cfg_file);
+    fcfg = fopen(cfg_file, "r");
 	//! [ParseFile]
-    ret = FERS_LoadConfigFile(cfg_file);
+    ret = ParseCfgFile(fcfg, &this_cfg, PARSE_CFG);
+    //ret = FERS_LoadConfigFile(cfg_file);
 	//! [ParseFile]
+    fclose(fcfg);
+
     if (ret != 0)
         printf("Cannot load FERS configuration from file %s\n", cfg_file);
 

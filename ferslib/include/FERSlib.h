@@ -18,9 +18,8 @@
 *	\brief		CAEN FERS Library
 *	\author		Daniele Ninci, Carlo Tintori
 * 
-*	@version 1.2.3
-*	@date 07/10/2025
-********************************************************************************/
+*	@version 1.3.0
+*	@date 14/01/2026********************************************************************************/
 
 /*!
  * @file FERSlib.h
@@ -94,6 +93,11 @@
  */
 
 /*! 
+  * @defgroup FERS_Commands FERS 520X Board commands
+  * @brief FERS board commands
+  */
+
+/*! 
  * @defgroup Macros Macros
  * @brief Common macros
  */
@@ -110,11 +114,11 @@
  * @{
  */
 #define FERSLIB_VERSION_MAJOR			1
-#define FERSLIB_VERSION_MINOR			2
-#define FERSLIB_VERSION_PATCH			3
+#define FERSLIB_VERSION_MINOR			3
+#define FERSLIB_VERSION_PATCH			0
 #define FERSLIB_RELEASE_NUM				(FERSLIB_VERSION_MAJOR * 10000) + (FERSLIB_VERSION_MINOR * 100) + (FERSLIB_VERSION_PATCH)	/*!< Library release version (int) */
 #define FERSLIB_RELEASE_STRING			FERSLIB_STR(FERSLIB_VERSION_MAJOR) "." FERSLIB_STR(FERSLIB_VERSION_MINOR) "." FERSLIB_STR(FERSLIB_VERSION_PATCH) /*!<Library release version (string) */
-#define FERSLIB_RELEASE_DATE			"07/10/2025"
+#define FERSLIB_RELEASE_DATE			"14/01/2026"
  /*! @} */
 
 #define THROUGHPUT_METER			0		///< Must be 0 in normal operation (can be used to test the data throughput in different points of the readout process)
@@ -365,7 +369,7 @@ typedef enum {
 #define ENERGY_NBIT					14	/*!< Max nbits for PHA (5202) */
 #define TOA_NBIT					16	/*!< Max nbits for ToA (5202) */
 #define TOA_LSB_ns					0.5 /*!< LSB value of ToA in ns (5202) */
-#define TOT_NBIT					9   /*!< Max #bits for ToT (5202) */
+#define TOT_NBIT					9   /*!< Max num of bits for ToT (5202) */
 
 
 // Parameter Options
@@ -469,16 +473,20 @@ typedef enum {
 
 /*!
 * @ingroup Macros
+* @defgroup CFGMODE Configuration Modes
 * @brief Configuration Mode
+* @{
 */
 #define CFG_HARD	0	/*!< reset + configure (acq must be restarted) */
 #define CFG_SOFT	1	/*!< runtime reconfigure params (no restart required) */
+/*! @} */
+
 
 // Other macros
 /*!
 * @ingroup Macros
 * @defgroup mM Min/Max
-* @brief Re-define of Max and min
+* @brief Re-define of Max and min11
 * @{
 */
 #ifndef max
@@ -731,7 +739,7 @@ extern "C" {
 	extern int FERS_RunningCnt;									//!< Number of boards currently running
 	extern int FERS_ReadoutStatus;								//!< Status of the readout processes (idle, running, flushing, etc...)
 	extern int FERS_TotalAllocatedMem;							//!< Total allocated memory for library in byte 
-	extern int DebugLogs;										//!< Level of debug logs to be generated
+	extern uint32_t DebugLogs;										//!< Level of debug logs to be generated
 
 	//extern mutex_t FERS_mutex;									//!< Mutex for access to shared resources (FERScfg, InitBuffers ...)
 	/*! 
@@ -803,30 +811,17 @@ extern "C" {
 	// -----------------------------------------------------------------
 	// DNIN: Is it better to have an API to enable both RawData and LimitFileSize
 	//		 and then do the open directly inside the StartAcquisition?
-	///*!
-	//* @ingroup Functions
-	//* @defgroup RawData RawData Saving/Loading
-	//*/
-	///*!
-	// * @brief   Enable the rawdata file saving and set default file name
-	// * @param[in] RawDataEnable		bool to activate rawdata file saving
-	// * @param[in] DataOutputPath	path where rawdata will be saved
-	// * @param[in] RunNumber			number of the current run
-	// * @return						0
-	// * @ingroup RawData
-	//*/
+
 	//CAEN_FERS_DLLAPI int FERS_EnableRawdataWriteFile(uint8_t RawDataEnable, char* DataOutputPath, int RunNumber);
 
-	///*!
-	// * @brief   Enable and set the size limit for rawdata file
-	// * @param[in] LimitSizeEnable		Flag to enable the size limit
-	// * @param[in] MaxSizeRawOutputFile	Maximum size of output file
-	// * @return	 0
-	// * @ingroup RawData
-	//*/
 	//CAEN_FERS_DLLAPI int FERS_EnableLimitRawdataFileSize(uint8_t LimitSizeEnable, float MaxSizeRawOutputFile);
 
 	//CAEN_FERS_DLLAPI int FERS_SetRawdataReadFile(char DataRawFilePath[500], int brd);
+
+	/*!
+	 * @ingroup Functions
+	 * @defgroup RawData RawData Saving/Loading
+	*/
 
 	/*!
 	 * @brief   Open raw data file, to be done before starting the run
@@ -849,7 +844,7 @@ extern "C" {
 	
 	/*!
 	* @brief	Get the clock of the FERS board
-	* @parma[in] handle		board handle
+	* @param[in] handle		board handle
 	* return				Clock period in ns
 	* @ingroup	OC
 	*/
@@ -876,10 +871,19 @@ extern "C" {
 	/*!
      * @brief   Check if a device is already opened
      * @param[in] *path				path to be checked
-     * @return						0 in case of success, or a negative error code specified in #FERSLIB_ErrorCodes
+     * @return						1 if connected, 0 if not connected
      * @ingroup OC
     */
 	CAEN_FERS_DLLAPI int FERS_IsOpen(char* path);
+
+	/*!
+	 * @brief		Check if a device is already opened, with handle
+	 * @param[in] handle			device handle
+	 * @param[in] *path				path to be checked
+	 * @return						1 if connected, 0 if not connected
+	 * @ingroup OC
+	*/
+	CAEN_FERS_DLLAPI int FERS_IsOpenByHandle(int handle, char* path);
 
 	/*!
      * @brief   Cloase a device (either FERS board or concentrator)
@@ -916,6 +920,7 @@ extern "C" {
 	/*!
      * @brief   Send a sync broadcast command via TDL 
      * @param[in] handle			concentrator handel
+	 * @param[in] DelayAdjust		array with delay adjustments for each TDL chain and node
      * @return						0 in case of success, or a negative error code specified in #FERSLIB_ErrorCodes
      * @ingroup OC
     */
@@ -1319,7 +1324,7 @@ extern "C" {
 	*/
 	CAEN_FERS_DLLAPI bool FERS_IsXROC(int handle);
 
-	// DNIN: This 2 should be intern function. The user should only set the DebugLogMask
+	// DNIN: Ideally, these 2 should be intern function. The user should only set the DebugLogMask
 	/*!
 	* @ingroup Functions
 	* @brief					Dump the board register information to a file
@@ -1457,8 +1462,8 @@ extern "C" {
 	 * @ingroup HV
 	 * @brief				Get the Firmware Version of the high voltage module
 	 *
-	 * @param[out] sernum	Pointer to the get Fimware version
-	 * @param[in] handle	Handle to the FERS device
+	 * @param[out] FWver	Pointer to  Fimware version
+	 * @param[in] handle	Handle to the get FERS device
 	 * @return				0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
 	CAEN_FERS_DLLAPI int FERS_HV_Get_FWVer(int handle, uint32_t* FWver);
@@ -1467,7 +1472,7 @@ extern "C" {
 	 * @ingroup HV
 	 * @brief				Get the serial number of the high voltage module
 	 * 
-	 * @param[out] sernum	Pointer to the Getd serial number
+	 * @param[out] sernum	Pointer to the get serial number
 	 * @param[in] handle	Handle to the FERS device
 	 * @return				0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
@@ -1598,7 +1603,7 @@ extern "C" {
 	 * @brief				Configures a FERS board
 	 *
 	 * @param[in] handle	Board handle
-	 * @param[in] mode		Configuration mode
+	 * @param[in] mode		Configuration mode, as in @ref #CFGMODE
 	 * @return				0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
 	CAEN_FERS_DLLAPI int FERS_configure(int handle, int mode);
@@ -1619,7 +1624,7 @@ extern "C" {
 	 * 
 	 * @param[in] handle		Board handle
 	 * @param[in] param_name	Name of the parameter to set
-	 * @param[in] value			Value to set for the parameter
+	 * @param[in] value_original	Value to set for the parameter
 	 * @return					0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
 	CAEN_FERS_DLLAPI int FERS_SetParam(int handle, const char* param_name, const char* value_original);
@@ -1634,7 +1639,7 @@ extern "C" {
 	 * @param[in]  param_name	Name of the parameter to get
 	 * @return					0 on success, or a negative error code as defined in #FERSLIB_ErrorCodes
 	 */
-	CAEN_FERS_DLLAPI int FERS_GetParam(int handle, char* param_name, char* value);
+	CAEN_FERS_DLLAPI int FERS_GetParam(int handle, const char* param_name, char* value);
 
 
 	// -----------------------------------------------------------------
@@ -1898,7 +1903,7 @@ extern "C" {
 	 * @ingroup calib
 	 * @brief						Find the source where calibration is stored (if present EEPROM is default)
 	 * 
-	 * @param[in]					Board handle
+	 * @param[in] handle			Board handle
 	 * @return						Source code (0 = flash,  1 = EEPROM)
 	 */
 	CAEN_FERS_DLLAPI int FERS_FindMemThrDest(int handle);
@@ -1978,7 +1983,7 @@ extern "C" {
 	 *
 	 * @param[in] handle		handle of the board to calibrate
 	 * @param[in] npts			number of values to write
-	 * @param[in] MemThrCalib	Flag indicating the source (0 = flash, 1 = EEPROM) (see @ref FERS_FindMemThrDest function)
+	 * @param[in] MemThrDest	Flag indicating the source (0 = flash, 1 = EEPROM) (see @ref FERS_FindMemThrDest function)
 	 * @param[in] ThrOffset		Threshold offsets (use NULL pointer to keep old values)
 	 * @return					0 in case of success, or a negative error code specified in #FERSLIB_ErrorCodes
 	 * @ingroup calib

@@ -51,7 +51,11 @@ class param:
 # Read param description
 # ------------------------------------------------------------------
 def ReadParamDescription(filename, sections, params):
-	pardef = open(filename, "r")
+	try:
+		pardef = open(filename, "r")
+	except:
+		return "ERROR: could not open parameter definition file " + filename + ". Quitting...\n"
+		
 	blankn = 1
 	lastp = ""
 	version = "5202"

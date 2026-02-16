@@ -44,8 +44,8 @@ FERS_BoardInfo_t* FERS_BoardInfo[FERSLIB_MAX_NBRD] = { NULL };	// pointers to th
 FERS_CncInfo_t* FERS_CncInfo[FERSLIB_MAX_NCNC] = { NULL };	// pointers to the cnc info structs
 uint16_t MaxEnergyRange = (1 << 13) - 1;
 int CncConnected[FERSLIB_MAX_NCNC] = { 0 };				// Concentrator connection status
-char BoardPath[FERSLIB_MAX_NBRD][20];					// Path of the FE boards
-char CncPath[FERSLIB_MAX_NCNC][20];						// Path of the concentrator
+char BoardPath[FERSLIB_MAX_NBRD][64];					// Path of the FE boards
+char CncPath[FERSLIB_MAX_NCNC][64];						// Path of the concentrator
 char PedestalsFilename[500];
 int CncOpenHandles[FERSLIB_MAX_NCNC] = { 0 };			// Number of handles currently open for the concentrator (slave boards or concentrator itself)
 int HVinit[FERSLIB_MAX_NBRD] = { 0 };					// HV init flags
@@ -63,7 +63,7 @@ mutex_t FERS_RoMutex = NULL;							// Mutex for the access to FERS_ReadoutStatus
 mutex_t FERS_RoMutex;									// Mutex for the access to FERS_ReadoutStatus
 #endif
 f_sem_t FERS_StartRunSemaphore[FERSLIB_MAX_NBRD];	// Semaphore for sync the start of the run with the data receiver thread
-int DebugLogs = 0;									// Debug Logs
+uint32_t DebugLogs = 0;									// Debug Logs
 //uint8_t EnableRawData = 0;							// Enable LowLevel data saving
 uint8_t ProcessRawData = 0;							// Enable ReadingOut the RawData file saved	- Is the same of FERS_Offline, redundant
 uint8_t EnableSubRun = 1;							// Enable sub run increasing while reading Raw Data file
@@ -472,7 +472,7 @@ int FERS_OpenDevice(char *path, int *handle)
 {
 	int BoardIndex, CncIndex, i, ret, ns;
 	int cnc_handle=-1;
-	char *s, * sep, ss[10][20], cpath[50];
+	char *s, * sep, ss[10][20], cpath[512];
 	uint32_t fwrev;
 
 	if (ENABLE_FERSLIB_LOGMSG) FERS_LibMsg("[INFO] Opening Device with path %s\n", path);
@@ -713,7 +713,7 @@ int FERS_OpenOffline(char* path, int *handle) {
 	FERS_Offline = 1;
 	ProcessRawData = (uint8_t)FERS_Offline;
 
-	char tmpPath[100];
+	char tmpPath[512];
 	sprintf(tmpPath, "%s", path);
 	char* filename = strtok(tmpPath, ":");
 	filename = strtok(NULL, "");
@@ -868,6 +868,25 @@ int FERS_IsOpen(char *path)
 		if (CncConnected[i] && (strcmp(CncPath[i], path) == 0)) return 1;
 	return 0;
 }
+
+
+// --------------------------------------------------------------------------------------------------------- 
+// Description: Check if a device is already open, passing the handle
+// Inputs:		path = device path
+// Inputs: 		handle = device handle
+// Return:		0=not open, 1=open
+// --------------------------------------------------------------------------------------------------------- 
+int FERS_IsOpenByHandle(int handle, char* path)
+{
+	int ib = FERS_INDEX(handle);
+	if (ib < 0 || ib >= FERSLIB_MAX_NBRD) return 0;
+	int ic = FERS_CNCINDEX(handle);
+	if (ic < 0 || ic >= FERSLIB_MAX_NCNC) return 0;
+	if (BoardConnected[ib] && (strcmp(BoardPath[ib], path) == 0)) return 1;
+	if (CncConnected[ic] && (strcmp(CncPath[ic], path) == 0)) return 1;
+	return 0;
+}
+
 
 // --------------------------------------------------------------------------------------------------------- 
 // Description: Close device (either FERS board or concentrator)
