@@ -5,6 +5,7 @@
 # Connect
 # ------------------------------------------------------------------------------------------
 Open[0] eth:192.168.50.125:tdl:0:0
+Open[1] eth:192.168.50.125:tdl:1:0
 
 
 # ******************************************************************************************
@@ -57,24 +58,24 @@ OF_Staircase                       0                    # Staircase
 # ------------------------------------------------------------------------------------------
 # AcqMode
 # ------------------------------------------------------------------------------------------
-AcquisitionMode                    SPECT_TIMING         # Acquisition mode. Options: SPECTROSCOPY, SPECT_TIMING, TIMING_CSTART, TIMING_CSTOP, COUNTING, WAVEFORM
+AcquisitionMode                    SPECTROSCOPY         # Acquisition mode. Options: SPECTROSCOPY, SPECT_TIMING, TIMING_CSTART, TIMING_CSTOP, COUNTING, WAVEFORM
 EnableToT                          1                    # Enable ToT in timing mode (Enabled: ToA = 16 bits, ToT = 9 bits; Disabled: ToA = 25 bits)
 EnableListZeroSuppr                0                    # Enable suppression of event with 0 hits in Timing mode for output list files
-BunchTrgSource                     T1-IN                # Bunch Trigger source (for spectroscopy and counting modes). Options: T0-IN, T1-IN, Q-OR, T-OR, TLOGIC, PTRG
+BunchTrgSource                     T0-IN                # Bunch Trigger source (for spectroscopy and counting modes). Options: T0-IN, T1-IN, Q-OR, T-OR, TLOGIC, PTRG
 VetoSource                         DISABLED             # The veto signal inhibits the bunch trigger (active high). Options: DISABLED, SW_CMD, T0-IN, T1-IN
 ValidationSource                   T1-IN                # Source of the trigger validation signal. It must arrive within the window is opened by the bunch trigger and closed after Tv ~= 120 ns + HoldDelay.. Options: SW_CMD, T0-IN, T1-IN
-ValidationMode                     DISABLED             # ACCEPT: Trigger validated by the signal in the val. window. REJECT: trigger rejected if a signal arrives in the val. window. Options: DISABLED, ACCEPT, REJECT. Options: DISABLED, ACCEPT, REJECT
+ValidationMode                     ACCEPT               # ACCEPT: Trigger validated by the signal in the val. window. REJECT: trigger rejected if a signal arrives in the val. window. Options: DISABLED, ACCEPT, REJECT. Options: DISABLED, ACCEPT, REJECT
 CountingMode                       SINGLES              # SINGLES: each channel counts its own self trigger. PAIRED_AND: couples of channels count in coincidence. Options: SINGLES, PAIRED_AND
 ChTrg_Width                        0 ns                 # Coincidence window for Paired_And counting mode. Min = 8 ns, Max = 2032 ns, Step = 8 ns
 EnableCntZeroSuppr                 1                    # Enable the suppression of the channels with 0 counts in COUNTING mode.
-TrgIdMode                          TRIGGER_CNT          # Trigger ID mode: TRIGGER_CNT counts all triggers arrived to the board (accepted or not); VALIDATION_CNT counts validation signals (with or without associated trigger). Options: TRIGGER_CNT, VALIDATION_CNT
+TrgIdMode                          VALIDATION_CNT       # Trigger ID mode: TRIGGER_CNT counts all triggers arrived to the board (accepted or not); VALIDATION_CNT counts validation signals (with or without associated trigger). Options: TRIGGER_CNT, VALIDATION_CNT
 TriggerLogic                       OR64                 # Trigger Logic (Combinatorial network with 64 self trigger inputs). Options: OR64, AND2_OR32, OR32_AND2, MAJ64, MAJ32_AND2, OR_QUAD
 Tlogic_Width                       0 ns                 # TriggerLogic output width (0=linear)
 MajorityLevel                      1                    # Majority Level (1 to 64)
 PtrgPeriod                         20 us                # Period of the internal periodic trigger
-TrefSource                         T1-IN                # Tref source for timing mode (common start/stop). Options: T0-IN, T1-IN, Q-OR, T-OR, PTRG, TLOGIC
+TrefSource                         T-OR                 # Tref source for timing mode (common start/stop). Options: T0-IN, T1-IN, Q-OR, T-OR, PTRG, TLOGIC
 TrefWindow                         1.0 us               # Tref window (gate) in timing mode (common start/stop)
-TrefDelay                          -500 ns              # Tref delay in timing mode (can be negative)
+TrefDelay                          0 ns                 # Tref delay in timing mode (can be negative)
 T0_Out                             T-OR                 # T0_Out assignment. Options: T0-IN, BUNCHTRG, T-OR, TLOGIC, RUN, PTRG, BUSY, DPROBE, SQ_WAVE, TDL_SYNC, RUN_SYNC, ZERO
 T1_Out                             BUNCHTRG             # T1_Out assignment. Options: T1-IN, BUNCHTRG, Q-OR, TLOGIC, RUN, PTRG, BUSY, DPROBE, SQ_WAVE, TDL_SYNC, RUN_SYNC, ZERO
 ChEnableMask0                      0xFFFFFFFF           # Channel enable mask (ch 0..31)
