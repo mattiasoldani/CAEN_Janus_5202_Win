@@ -1,11 +1,14 @@
 #!/bin/bash
 
+read -p "Enter Lxplus username: " ACCOUNT
+
 SRCPATH="/home/daq/CAEN_Janus_5202_Win"
-DSTPATH="msoldani@lxplus.cern.ch:/eos/experiment/newtile/beamtests/26_05_t10/fers_daq"
+DSTPATH="/eos/experiment/newtile/beamtests/26_05_t10/fers_daq"
 SFSPATH="/home/daq/eos_temp_fers"
 
 echo "Mounting $SFSPATH into $DSTPATH (may fail if already mounted)"
-sshfs $DSTPATH $SFSPATH
+mkdir -p $SFSPATH
+sshfs $ACCOUNT"@lxplus.cern.ch:"$DSTPATH $SFSPATH
 echo "---"
 
 echo "Starting live sync between local:"

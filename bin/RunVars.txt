@@ -1,9 +1,9 @@
 GuiMode		 a
 ActiveBrd      0
 ActiveCh       0
-PlotType       3
+PlotType       1
 SMonType       0
-RunNumber      312
+RunNumber      348
 Xcalib         0
 PlotTraces     0 0 0 B
 PlotTraces     1 0 1 B
