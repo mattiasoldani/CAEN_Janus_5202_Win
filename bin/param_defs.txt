@@ -263,6 +263,10 @@ LG_ShapingTime					"25 ns"				g		c		# Shaping Time of the slow shaper (Low Gain)
 
 _BLANK 							-					-		-
 
+PeakDetectorMode			"PEAK_STRETCH"		g	c
+	- "PEAK_STRETCH"
+	- "TRACK&HOLD"
+
 HoldDelay						"200 ns"			g		du		# Delay between bunch trigger (start of peak detection) and hold (stop of peak detection)
 MuxClkPeriod					"300 ns"			g		du		# Multiplexer readout speed. Best setting = 300 ns
 #MuxNSmean						4					g		c		# Number of ADC samples for the mean

@@ -1,13 +1,10 @@
 GuiMode		 a
 ActiveBrd      0
 ActiveCh       0
-PlotType       1
+PlotType       4
 SMonType       0
-RunNumber      348
+RunNumber      0
 Xcalib         0
 PlotTraces     0 0 0 B
-PlotTraces     1 0 1 B
-PlotTraces     2 1 0 B
-PlotTraces     3 1 63 B
-Staircase      0 200 300 1 300
-HoldDelayScan  0 0 256 8 500
+Staircase      0 180 300 5 500
+HoldDelayScan  1 0 100 8 2000
